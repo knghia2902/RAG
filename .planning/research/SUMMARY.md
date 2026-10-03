@@ -65,4 +65,4 @@ Giữ fixture DH001 làm luồng xuyên suốt; có ground truth logs/tickets/SO
 Primary sources được liên kết chi tiết trong [STACK.md](STACK.md), [FEATURES.md](FEATURES.md), [ARCHITECTURE.md](ARCHITECTURE.md) và [PITFALLS.md](PITFALLS.md). Bối cảnh sản phẩm lấy từ [PROJECT.md](../PROJECT.md) và yêu cầu người dùng; không dùng thông tin sản phẩm cạnh tranh chưa kiểm chứng.
 
 ---
-*Research completed: 2026-10-03. Ready for requirements scoping; initialization workflow remains in progress.*
+*Research completed and revised for user-selected stack: 2026-10-03. Requirements and roadmap now available in .planning/.*

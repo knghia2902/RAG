@@ -90,12 +90,48 @@ Mỗi yêu cầu v1 phải có evidence nghiệm thu phù hợp. Bộ eval phả
 
 ## Traceability
 
-Chưa map phase — sẽ cập nhật khi tạo roadmap sau xác nhận requirements.
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| AUTH-01 | Phase 1 | Pending |
+| AUTH-02 | Phase 1 | Pending |
+| AUTH-03 | Phase 1 | Pending |
+| AUTH-04 | Phase 1 | Pending |
+| AUTH-05 | Phase 1 | Pending |
+| DATA-01 | Phase 2 | Pending |
+| DATA-02 | Phase 2 | Pending |
+| DATA-03 | Phase 2 | Pending |
+| DATA-04 | Phase 2 | Pending |
+| DATA-05 | Phase 2 | Pending |
+| DATA-06 | Phase 2 | Pending |
+| RAG-01 | Phase 3 | Pending |
+| RAG-02 | Phase 3 | Pending |
+| RAG-03 | Phase 3 | Pending |
+| RAG-04 | Phase 3 | Pending |
+| RAG-05 | Phase 3 | Pending |
+| INC-01 | Phase 4 | Pending |
+| INC-02 | Phase 4 | Pending |
+| INC-03 | Phase 4 | Pending |
+| INC-04 | Phase 4 | Pending |
+| INC-05 | Phase 4 | Pending |
+| REP-01 | Phase 5 | Pending |
+| REP-02 | Phase 5 | Pending |
+| REP-03 | Phase 5 | Pending |
+| REP-04 | Phase 5 | Pending |
+| REP-05 | Phase 5 | Pending |
+| REP-06 | Phase 5 | Pending |
+| SYS-01 | Phase 1 | Pending |
+| SYS-02 | Phase 3 | Pending |
+| SYS-03 | Phase 3 | Pending |
+| SYS-04 | Phase 1 | Pending |
+| SYS-05 | Phase 3 | Pending |
+| EVAL-01 | Phase 4 | Pending |
+| EVAL-02 | Phase 6 | Pending |
+| EVAL-03 | Phase 6 | Pending |
 
 **Coverage:**
 - v1 requirements: 35
-- Mapped to phases: 0
-- Unmapped: 35 (pending roadmap)
+- Mapped to phases: 35
+- Unmapped: 0
 
 ---
 *Last updated: 2026-10-03 after user locked the Modular RAG stack; traceability maintained with roadmap.*

@@ -23,7 +23,7 @@
 ## Supporting Libraries and Tools
 
 - Pydantic 2.x: validation DTO và output LLM; exact patch khóa cùng FastAPI.
-- SQLAlchemy 2.0.54: baseline maintenance được đối chiếu; Alembic, psycopg và qdrant-client cần resolve/lock cùng nhau khi triển khai.
+- SQLAlchemy 2.0.54: baseline maintenance được đối chiếu; Alembic, psycopg3 và LangChain/pgvector integration cần resolve/lock cùng nhau khi triển khai.
 - CSV parser và openpyxl/pandas qua adapter riêng: giữ sheet/row, kiểu dữ liệu và kiểm tra schema, không dùng text conversion để tính KPI. Exact versions chưa xác minh, không dùng như pin triển khai.
 - Docker Compose đã chốt cho local services/volumes và Linux worker; worker dùng backend image với entrypoint riêng.
 - Lockfiles, image tags/digests và model revision; không dùng tag `latest` trong cấu hình tái lập.
