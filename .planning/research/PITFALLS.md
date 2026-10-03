@@ -25,11 +25,13 @@ Tên phase dưới đây là năng lực dự kiến, chưa phải phase roadmap
 
 Log/ticket/SOP là dữ liệu không đáng tin cậy: có thể chứa nội dung yêu cầu bỏ qua chỉ dẫn. Tách instruction và evidence, không cấp tools, validation output và kiểm tra bằng fixture prompt injection. Các biện pháp này giảm rủi ro, không bảo đảm loại bỏ mọi injection. Cơ sở: [OWASP prompt injection guidance](https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html).
 
-Chỉ truy xuất ít context chưa đủ bảo đảm không gửi secret: cần rules redaction cho token/password/key trước egress, không log full prompt mặc định, ghi metadata request và nguồn đã chọn. Chưa chọn provider nên retention policy, pricing và model cụ thể chưa được xác minh.
+Chỉ truy xuất ít context chưa đủ bảo đảm không gửi secret: cần rules redaction cho token/password/key trước egress ở cả OpenAI Embeddings (chunks/query) và LLM generation, không log full prompt mặc định, ghi metadata request và nguồn đã chọn. Provider đã chốt OpenAI; retention policy, pricing/account và generation model cụ thể chưa được xác minh.
 
 PDF dùng template do server quản lý, escape output; chặn arbitrary network/file fetch và giới hạn tài nguyên. WeasyPrint mô tả rủi ro với HTML/CSS không tin cậy: [tài liệu bảo mật](https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#security).
 
-Nếu scope chọn nhiều tài khoản/phòng ban, kiểm soát quyền phải có trên truy vấn DB, vector filters, source viewer và download; chỉ lọc trong UI là không đủ. Với local demo một workspace, không tự quảng bá là đã có bảo mật enterprise đầy đủ.
+MVP đã chốt Admin/Kỹ thuật viên: quyền phải có trên truy vấn PostgreSQL/pgvector, source viewer, history/report/PDF và API trực tiếp. Role không thay dataset scope. Đề xuất dataset ACL, recheck quyền trước trả kết quả, không bật cloud tracing mặc định. Không coi hai role là đầy đủ mọi kiểm soát enterprise.
+
+Với pgvector, kiểm tra dimension/index compatibility và recall sau filter: HNSW vector có giới hạn dimension, ANN có thể trả ít kết quả trong dataset nhỏ. Dùng cấu hình phù hợp hoặc exact fallback, không bỏ ACL. LangChain schema migration cần kế hoạch rebuild index từ nguồn chuẩn. [pgvector docs](https://github.com/pgvector/pgvector), [LangChain integration](https://docs.langchain.com/oss/python/integrations/vectorstores/pgvector).
 
 ## Technical Debt and Performance
 

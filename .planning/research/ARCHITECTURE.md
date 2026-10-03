@@ -7,15 +7,15 @@
 
 ```mermaid
 flowchart LR
-    Web --> API
+    Web[Next.js Web] --> API[FastAPI]
     API --> Data[Data Service]
     Data --> Files[Local File Store]
     Data --> Jobs[Job Queue]
     Jobs --> Worker[Ingestion / Report Worker]
     Worker --> SQL[(PostgreSQL)]
-    Worker --> Embed[Local Embedding Provider]
-    Embed --> Vectors[(Qdrant)]
-    API --> RAG[RAG Core]
+    Worker --> Embed[Embedding Provider: OpenAI API]
+    Embed --> Vectors[(pgvector in PostgreSQL)]
+    API --> RAG[LangChain RAG Core]
     RAG --> SQL
     RAG --> Vectors
     RAG --> Context[Context Builder]
@@ -30,12 +30,12 @@ flowchart LR
 
 | Module | Sở hữu |
 |---|---|
-| Web | Data manager, hỏi đáp, phân tích, báo cáo, evidence panel, tiến độ job |
+| Web | Next.js/TypeScript; data manager, hỏi đáp, phân tích, báo cáo, evidence panel, tiến độ job |
 | API | Validation, session nếu có, versioned contracts, pagination và error handling |
 | Data Service/Worker | File/version lifecycle, parse/normalize, idempotent indexing, recovery |
 | PostgreSQL | Canonical records, chunks/provenance, analyses, jobs, report snapshots |
-| Qdrant | Derived search index; có thể dựng lại từ dữ liệu chuẩn |
-| RAG Core | Entity extraction, exact/lexical/dense retrieval, fusion, evidence selection |
+| pgvector | Derived embedding index trong PostgreSQL; có thể dựng lại từ dữ liệu chuẩn |
+| RAG Core | LangChain pipeline; entity extraction, exact/lexical/dense retrieval, fusion, evidence selection |
 | Context Builder | Evidence IDs, token budget, redaction và data-only context |
 | LLM Provider | Generation interface, timeout/retry bounded, usage và structured result |
 | Report Service | Aggregation xác định, scope/time rules, evidence narrative, PDF snapshot |
@@ -55,9 +55,9 @@ Modular monolith với worker riêng là baseline đề xuất. Chưa cần micr
 
 ### Ingestion
 
-Upload → giới hạn/validation → local file + source version → job persisted → parse theo loại → canonical rows/events + chunks/locators → local embeddings → vector upsert → ready. Worker retry không sinh bản ghi trùng; chỉ ready khi bước bắt buộc thành công. Dữ liệu lỗi hiển thị failed và lý do.
+Upload → quyền Admin + validation → local file + source version → persisted job → parser → canonical records/chunks/locators → che secret → OpenAI Embeddings → pgvector upsert → ready. Worker retry không sinh bản ghi trùng; chỉ ready khi bước bắt buộc thành công. Query embedding cũng qua provider API.
 
-Không có transaction nguyên tử giữa PostgreSQL và Qdrant: dùng job state, version activation và reconciliation. Xóa source trước hết làm nó không còn truy xuất được, sau đó xóa derived vectors/files theo job; queries luôn đối chiếu active source state.
+Canonical records và vectors trong cùng PostgreSQL có thể transaction khi adapter dùng cùng connection/session; không giả định mặc định LangChain upsert chia sẻ transaction. File storage, remote embedding và jobs vẫn cần state/idempotency/recovery. Activate version sau hoàn tất; queries áp dụng dataset ACL và active-state filter. Nguồn đã xóa không còn truy xuất trước khi cleanup file/index.
 
 ### DH001 Analysis
 
@@ -73,9 +73,11 @@ Không cấp LLM quyền chạy SQL tùy ý. Nếu provider lỗi, báo cáo s�
 
 ## Suggested Structure
 
-`apps/web/`, `apps/api/`, `apps/worker/`, `packages/contracts/`, `backend/domain/`, `backend/services/rag/`, `backend/services/reports/`, `backend/adapters/{parsers,storage,vector,llm,embedding}/`, `fixtures/`, `evals/`, `infra/`.
+Theo cấu trúc người dùng: `backend/app/{api,rag,llm,database,auth}/`, `backend/app/modules/{log_analysis,tickets,reports}/`, `backend/tests/`, `backend/scripts/`, `frontend/`, `data/{sample,uploads}/`, `storage/`, `docs/`, `docker-compose.yml`. Worker dùng backend image/entrypoint; eval fixtures dưới data/sample và tests/scripts.
 
 API routes chỉ gọi application services. MCP/Agent về sau dùng cùng service/API contracts; không bỏ qua access controls khi thêm adapter.
+
+Embedding Provider trong rag/ độc lập LLM Provider trong llm/. Loader/parser adapters trả nội dung + provenance; các module nghiệp vụ dùng RAG service contract, không nhận raw provider SDK. Auth enforce dataset scope trước retrieval và recheck trước trả kết quả; lịch sử/PDF cũng kiểm tra quyền hiện tại. Khi quyền bị thu hồi giữa request, response không được trả dữ liệu đã mất quyền.
 
 ## Build Order Implications
 
@@ -90,6 +92,8 @@ API routes chỉ gọi application services. MCP/Agent về sau dùng cùng serv
 
 ## Sources
 
+- [LangChain pgvector](https://docs.langchain.com/oss/python/integrations/vectorstores/pgvector), [pgvector](https://github.com/pgvector/pgvector), [Next.js](https://nextjs.org/docs/app/getting-started/installation), [OpenAI embeddings](https://developers.openai.com/api/docs/guides/embeddings): stack hiện tại.
+- Qdrant là phương án nghiên cứu ban đầu, không áp dụng triển khai MVP.
 - [Qdrant hybrid queries](https://qdrant.tech/documentation/search/hybrid-queries/): hỗ trợ kết hợp retrieval; cách phối hợp PostgreSQL là thiết kế dự án.
 - [FastAPI background tasks](https://fastapi.tiangolo.com/tutorial/background-tasks/), [Celery](https://docs.celeryq.dev/en/stable/getting-started/introduction.html): cơ sở tách công việc xử lý nặng.
 - [PostgreSQL](https://www.postgresql.org/docs/current/functions-aggregate.html): aggregation.

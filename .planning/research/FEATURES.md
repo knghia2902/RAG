@@ -48,9 +48,9 @@ Source/version metadata cần có trước chunking. LLM provider abstraction c�
 
 **Đã được người dùng yêu cầu:** Web, upload/quản lý dữ liệu, log/incident analysis, nhập/upload ticket, hỏi đáp, citations, báo cáo PDF, local storage, API backend, provider độc lập.
 
-**Đề xuất bổ sung để scope:** job retry, xóa đồng bộ index, evidence thiếu/mâu thuẫn, time filters, source version, report counting rules, bộ eval cố định, mức xác thực local.
+**Baseline yêu cầu:** job retry, xóa index, evidence thiếu/mâu thuẫn, time filters, source version, report counting rules và eval cố định. Người dùng đã chốt hai role Admin/Kỹ thuật viên; dataset là đơn vị quyền baseline đề xuất.
 
-**Để sau:** Agent/tools, MCP adapter, connectors thật, Excel/Word export. OCR, SSO/RBAC chi tiết, scheduler báo cáo, feedback UI và reranking cần hỏi thêm, chưa tự đưa vào v1.
+**Để sau:** Agent/tools, MCP adapter, connectors thật, Excel/Word export, OCR và scheduler báo cáo. SSO/RBAC chi tiết, feedback UI và reranking chưa đưa vào v1. PDF text/DOCX/CSV/XLSX/TXT/JSON/JSONL/.log và báo cáo kỳ/custom theo yêu cầu đã chốt.
 
 ## Prioritization
 

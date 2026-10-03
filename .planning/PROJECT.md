@@ -1,10 +1,12 @@
-# Logistics IT RAG
+# Modular RAG cho IT & Logistics
 
 ## What This Is
 
 Ứng dụng Web RAG cho môi trường doanh nghiệp logistics, hỗ trợ kỹ thuật viên phân tích log/sự cố, xử lý ticket IT và tạo báo cáo sự cố IT kết hợp sự cố hệ thống logistics. MVP sử dụng dữ liệu mẫu, tổng hợp bằng chứng từ log, ticket, SOP và dữ liệu vận hành để đưa ra phân tích, đề xuất và nguồn trích dẫn có thể kiểm tra.
 
 Backend được thiết kế theo API, tách RAG Core và LLM Provider để sau này kết nối MCP hoặc phát triển AI Agent. Giai đoạn MVP chỉ phân tích và đề xuất, chưa thực hiện hành động trên hệ thống thật.
+
+Stack đã chốt: Python + FastAPI, LangChain, PostgreSQL + pgvector, OpenAI Embeddings, OpenAI API cho generation, Next.js + TypeScript và Docker Compose. Embedding Provider và LLM Provider tách riêng để thay model local hoặc Gemini sau này.
 
 ## Core Value
 
@@ -18,6 +20,10 @@ Chưa có — cần triển khai và kiểm chứng MVP.
 
 ### Active
 
+- [ ] Admin quản lý tài khoản, cấp phạm vi dữ liệu, quản lý tài liệu/dataset và cấu hình hệ thống; xem toàn bộ báo cáo.
+- [ ] Kỹ thuật viên đăng nhập, tra cứu/phân tích và tạo/xem báo cáo trong phạm vi được cấp quyền.
+- [ ] Role/permission được thiết kế mở để bổ sung vai trò sau này; kiểm tra quyền phía backend cho truy xuất, nguồn và báo cáo.
+- [ ] Parser hỗ trợ PDF có text, DOCX, CSV, XLSX, TXT, JSON/JSONL và .log; tách module để thêm OCR sau này.
 - [ ] Người dùng upload và quản lý dữ liệu/tài liệu trên Web.
 - [ ] Lập chỉ mục các nguồn dữ liệu phù hợp để truy xuất bằng RAG.
 - [ ] Phân tích log và sự cố, liên kết thông tin theo mã đơn hàng/API/hệ thống liên quan.
@@ -25,15 +31,19 @@ Chưa có — cần triển khai và kiểm chứng MVP.
 - [ ] Tổng hợp nguyên nhân có khả năng xảy ra và đề xuất các bước xử lý dựa trên bằng chứng.
 - [ ] Hỏi đáp dựa trên dữ liệu được lập chỉ mục.
 - [ ] Hiển thị tài liệu và đoạn dữ liệu được sử dụng trong câu trả lời/phân tích.
-- [ ] Tạo báo cáo sự cố IT kết hợp sự cố hệ thống logistics theo kỳ ngày/tuần/tháng và xuất PDF.
+- [ ] Tạo báo cáo sự cố IT kết hợp sự cố hệ thống logistics theo yêu cầu, chọn kỳ ngày/tuần/tháng hoặc khoảng thời gian tùy chọn và xuất PDF.
+- [ ] Report Service tách riêng để bổ sung scheduler và gửi báo cáo định kỳ sau này.
 - [ ] Báo cáo gồm tổng số ticket/sự cố, nhóm lỗi, ưu tiên, hệ thống liên quan, nguyên nhân nếu xác định được, trạng thái, thời gian phát sinh/xử lý, lỗi lặp lại, đề xuất và nguồn dữ liệu.
 - [ ] Database, vector database và dữ liệu RAG ưu tiên chạy local.
-- [ ] Tách LLM Provider, cho phép dùng API ngoài trong MVP và thay bằng model local sau này.
+- [ ] Tách LLM Provider và Embedding Provider; MVP dùng OpenAI API, hỗ trợ thay Gemini/local generation và local embedding sau này.
 - [ ] Chỉ gửi context liên quan được RAG truy xuất tới LLM, không gửi nguyên tài liệu không cần thiết.
 - [ ] Backend cung cấp API để phục vụ Web và tạo nền tảng cho MCP/AI Agent sau này.
 
 ### Out of Scope
 
+- OCR/PDF scan/hình ảnh — mở rộng qua parser adapter sau MVP.
+- Scheduler và tự động gửi báo cáo định kỳ — mở rộng Report Service sau MVP.
+- MCP server/adapter — chuẩn bị backend API, triển khai ở giai đoạn mở rộng.
 - Kết nối trực tiếp WMS, TMS, ticket và monitoring thật trong MVP — dữ liệu mẫu đủ để kiểm chứng luồng ban đầu.
 - AI Agent tự gọi tools hoặc thực hiện thao tác — phát triển sau khi RAG hoạt động ổn định.
 - Chạy lại đồng bộ, cập nhật/đóng ticket thật, kiểm tra API thật hoặc gửi thông báo tự động — thuộc giai đoạn Agent, cần phân quyền và phê duyệt hành động ảnh hưởng hệ thống.
@@ -65,19 +75,54 @@ Báo cáo đầu tiên kết hợp sự cố IT và sự cố hệ thống logis
 
 ### Hướng phát triển kiến trúc
 
-MVP: Web → API → RAG Core → LLM Provider → phân tích/đề xuất/nguồn trích dẫn.
+MVP: Next.js Web → FastAPI → LangChain RAG Core → LLM Provider → phân tích/đề xuất/nguồn trích dẫn.
+
+Ingestion/retrieval: Tài liệu/Log/Ticket → Loader → Chunking → Embedding Provider (OpenAI) → pgvector → Retriever → LLM → kết quả + nguồn. PostgreSQL lưu thêm bản ghi có cấu trúc để tính số liệu báo cáo.
 
 Giai đoạn sau: Web / MCP → RAG Core → LLM → AI Agent → Tools / WMS, TMS, Ticket, Monitoring. Agent có thể kiểm tra API, chạy lại đồng bộ, tạo/cập nhật ticket, gửi thông báo hoặc automation; hành động ảnh hưởng hệ thống cần phân quyền và người phụ trách phê duyệt.
 
+### Cấu trúc dự án đã chốt
+
+```text
+RAG/
+  backend/
+    app/
+      api/
+      rag/          # Loader, Chunker, Embedding Provider, Retriever, Vector Store
+      llm/          # LLM Provider
+      modules/
+        log_analysis/
+        tickets/
+        reports/
+      database/
+      auth/
+      main.py
+    tests/
+    scripts/
+  frontend/         # Next.js + TypeScript
+  data/
+    sample/
+    uploads/
+  storage/
+  docs/
+  docker-compose.yml
+```
+
+Worker/job runner có thể dùng cùng backend image, entrypoint tách khỏi API; không bắt buộc thêm top-level app. LangChain đóng vai trò pipeline/adapters trong rag/; auth, database và các module nghiệp vụ không phụ thuộc trực tiếp chi tiết chain.
+
 ## Constraints
 
-- **Deployment**: Database, vector database và dữ liệu RAG ưu tiên local; phương án đóng gói/chạy cụ thể chưa chốt.
-- **LLM**: Cho phép API ngoài trong MVP nhưng phải có abstraction provider để hỗ trợ model local hoặc server nội bộ sau này.
-- **Data exposure**: Chỉ gửi context liên quan được truy xuất, không gửi nguyên file/tài liệu không cần thiết.
+- **Deployment**: Docker Compose; PostgreSQL + pgvector, file nguồn và dữ liệu RAG chạy local.
+- **LLM**: OpenAI API trong MVP, LLM Provider độc lập để hỗ trợ Gemini/local sau này; generation model cụ thể chưa chốt.
+- **Embedding**: OpenAI Embeddings trong MVP qua Embedding Provider; model/dimension cấu hình và lưu theo index version. Local embedding dành cho mở rộng.
+- **Data exposure**: Generation chỉ gửi context liên quan được truy xuất. Ingestion gửi các chunk cần index và retrieval gửi query cho OpenAI Embeddings; áp dụng che secret/giới hạn input cho cả hai đường API. Không gửi file nguyên bản không cần thiết; lưu trữ local không có nghĩa mọi xử lý AI đều local.
 - **Authority**: MVP chỉ phân tích và đề xuất, không thực hiện thao tác trên hệ thống thật.
 - **Evidence**: Kết quả phân tích và báo cáo phải có nguồn dữ liệu để kiểm tra lại.
 - **Scope**: RAG trước, AI Agent sau; nguồn dữ liệu thật chưa bắt buộc trong MVP.
-- **Open decisions**: Chưa chốt tech stack, LLM/embedding provider, xác thực/phân quyền MVP, quy mô dữ liệu, chỉ tiêu đánh giá, thời gian và ngân sách.
+- **Access control**: Admin/Kỹ thuật viên; kỹ thuật viên chỉ truy xuất và tạo/xem báo cáo trong phạm vi được cấp quyền. Đề xuất dataset là đơn vị cấp quyền MVP; cần xác nhận cùng yêu cầu.
+- **Formats**: PDF có text, DOCX, CSV, XLSX, TXT, JSON/JSONL, .log; không OCR trong MVP.
+- **Reporting**: Theo yêu cầu với kỳ ngày/tuần/tháng hoặc khoảng thời gian tùy chọn; không scheduler trong MVP.
+- **Open decisions**: Generation/embedding model cụ thể, package pins, queue implementation, quy mô dữ liệu, chỉ tiêu đánh giá, thời gian và ngân sách. Đơn vị cấp quyền dataset là baseline thiết kế có thể điều chỉnh trước triển khai.
 
 ## Key Decisions
 
@@ -91,6 +136,13 @@ Giai đoạn sau: Web / MCP → RAG Core → LLM → AI Agent → Tools / WMS, T
 | Chỉ gửi context liên quan cho LLM | Giới hạn dữ liệu truyền ra ngoài | — Pending |
 | Nguồn trích dẫn trong phân tích và báo cáo | Kỹ thuật viên kiểm tra căn cứ của kết quả | — Pending |
 | PDF trước, Excel/Word sau | Tập trung định dạng báo cáo MVP đã ưu tiên | — Pending |
+| Hai role Admin/Kỹ thuật viên, mô hình quyền mở | Đáp ứng MVP và thêm vai trò khi triển khai thực tế | — Pending |
+| Parser module riêng, chưa OCR | Thêm format/OCR mà không thay RAG Core | — Pending |
+| Report Service riêng, chưa scheduler | Thêm chạy/gửi báo cáo định kỳ ở giai đoạn sau | — Pending |
+| FastAPI + LangChain + Next.js/TypeScript | Stack do người dùng chốt cho Modular RAG | — Pending |
+| PostgreSQL + pgvector | Gộp relational và vector storage local; thay đề xuất Qdrant ban đầu | — Pending |
+| OpenAI Embeddings + OpenAI LLM API | Đơn giản hóa MVP; tách hai provider để thay về sau | — Pending |
+| Docker Compose và cấu trúc backend/app/modules | Đóng gói local và giữ module nghiệp vụ rõ ràng | — Pending |
 
 ## Evolution
 
@@ -101,4 +153,4 @@ Sau mỗi phase: chuyển yêu cầu đã kiểm chứng sang Validated; chuyể
 Sau mỗi milestone: rà soát toàn bộ tài liệu, giá trị cốt lõi, phạm vi loại trừ và bối cảnh sử dụng thực tế.
 
 ---
-*Last updated: 2026-10-03 after project definition approved by user.*
+*Last updated: 2026-10-03 after user locked Modular RAG stack and project structure.*

@@ -1,13 +1,13 @@
 # Project Research Summary
 
-**Project:** Logistics IT RAG
+**Project:** Modular RAG cho IT & Logistics
 **Researched:** 2026-10-03
 **Overall confidence:** MEDIUM — tài liệu chính thức đã đối chiếu; chưa cài đặt, benchmark hoặc kiểm chứng trên hệ thống thật.
 **Execution:** Nghiên cứu thực hiện inline trong phiên chính; không chạy research subagents.
 
 ## Executive Summary
 
-Đề xuất Web SPA + API Python, PostgreSQL lưu dữ liệu chuẩn và Qdrant làm vector index local. RAG dùng exact/lexical/dense retrieval cho log/SOP/ticket; LLM Provider tách riêng và embedding ưu tiên local. Đây là đề xuất để lập kế hoạch, chưa phải stack chốt hay bằng chứng MVP hoạt động.
+Stack người dùng đã chốt: Next.js/TypeScript Web + Python/FastAPI + LangChain + PostgreSQL/pgvector local, OpenAI Embeddings và OpenAI generation API. RAG dùng exact/lexical/dense retrieval cho log/SOP/ticket. Embedding Provider và LLM Provider độc lập. Quyết định này thay đề xuất Qdrant/React-Vite/local embedding ban đầu; chưa có bằng chứng MVP hoạt động.
 
 Báo cáo cần phối hợp hai đường dữ liệu: truy vấn có cấu trúc tính metrics và RAG cung cấp bằng chứng giải thích. LLM viết nhận xét/đề xuất, không tự suy ra tổng số từ vài đoạn top-k. Nguồn trích dẫn cần định vị page/section/row/event và version, không chỉ tên file.
 
@@ -15,15 +15,15 @@ Báo cáo cần phối hợp hai đường dữ liệu: truy vấn có cấu tr�
 
 ### Stack
 
-Baseline đề xuất: Python 3.12.15, FastAPI 0.142.2, React 19.3, PostgreSQL 18, Qdrant 1.19.1, Docling 2.132.0, ứng viên BGE-M3 local, WeasyPrint 70 và worker riêng. Exact frontend/support-package pins và model revision phải khóa ở bước triển khai. Xem [STACK.md](STACK.md) để biết nguồn, lựa chọn thay thế và compatibility gate.
+Baseline nghiên cứu: Python 3.12, FastAPI, PostgreSQL 18 + pgvector 0.8.7, LangChain integrations, Next.js/TypeScript, Docling, WeasyPrint và worker từ backend image. Đề xuất embedding text-embedding-3-small/1536 chiều, model cụ thể vẫn là cấu hình cần chốt. Exact package pins phải khóa khi scaffold. Xem [STACK.md](STACK.md).
 
 ### Features
 
-Phạm vi đã chốt gồm quản lý dữ liệu, hỏi đáp, log/incident/ticket analysis và báo cáo PDF có nguồn. Đề xuất thêm job lifecycle, source versions, xử lý thiếu evidence, counting rules và eval fixtures. OCR, xác thực/phân quyền, scheduler, feedback và reranker cần scope rõ; chưa tự thêm vào v1. Xem [FEATURES.md](FEATURES.md).
+Phạm vi đã chốt: Admin/Kỹ thuật viên, quản lý dữ liệu các format PDF text/DOCX/TXT/LOG/JSON/JSONL/CSV/XLSX, hỏi đáp, log/incident/ticket analysis, báo cáo theo kỳ/custom theo yêu cầu và PDF có nguồn. Dataset ACL là baseline thiết kế đề xuất. OCR, scheduler, MCP và Agent để sau. Xem [FEATURES.md](FEATURES.md).
 
 ### Architecture
 
-Modular monolith + worker; PostgreSQL là canonical store, Qdrant là derived index. Reports lưu snapshot metrics và provenance. Domain services độc lập API routes/SDK để thêm MCP/Agent về sau. Xem [ARCHITECTURE.md](ARCHITECTURE.md).
+Modular monolith theo backend/app của người dùng + worker, PostgreSQL lưu canonical data và pgvector derived index. Report Service lưu snapshot metrics/provenance. Embedding gửi chunks/query tới API; generation chỉ gửi retrieved context. Các module và provider boundaries chuẩn bị cho MCP/Agent/local models. Xem [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ### Critical Pitfalls
 
@@ -33,12 +33,12 @@ Nhầm mã đơn hàng khi dùng semantic-only; bịa root cause từ precedent;
 
 Gợi ý 6 phase theo năng lực, chưa phải roadmap chính thức:
 
-1. Foundation + vertical slice upload → hỏi đáp có nguồn.
-2. Multi-format ingestion, canonical records và source lifecycle.
-3. Exact/hybrid retrieval, evidence viewer và baseline eval.
+1. Docker/local foundation + Admin/Kỹ thuật viên và quyền dataset.
+2. Multi-format ingestion, canonical records và source lifecycle trên Web.
+3. LangChain/pgvector RAG + OpenAI providers + citations end-to-end.
 4. Phân tích ticket/sự cố WMS–TMS end-to-end.
-5. Báo cáo số liệu kiểm chứng + PDF.
-6. Recovery, chất lượng, provider boundaries và đóng gói local.
+5. Báo cáo theo yêu cầu, số liệu kiểm chứng + PDF.
+6. Recovery, chất lượng, quyền/egress và nghiệm thu MVP.
 
 Giữ fixture DH001 làm luồng xuyên suốt; có ground truth logs/tickets/SOP và metrics, thêm near-collision IDs, duplicate, missing evidence, timezone boundary và provider failure. Roadmapper cần map requirements và điều chỉnh phase theo scope đã duyệt, không copy nguyên cấu trúc này.
 
@@ -53,12 +53,12 @@ Giữ fixture DH001 làm luồng xuyên suốt; có ground truth logs/tickets/SO
 
 ## Gaps to Address
 
-- Xác thực: local một workspace hay tài khoản admin/kỹ thuật viên; mức phân quyền tài liệu.
-- Support matrix: PDF text/DOCX/CSV/XLSX/TXT/JSONL trước hay cần PDF scan/DOC/XLS cũ.
+- Đã chốt Admin/Kỹ thuật viên; dataset ACL là baseline chưa được xác nhận riêng, có thể điều chỉnh khi discuss-phase 1.
+- Đã chốt PDF text/DOCX/CSV/XLSX/TXT/JSON/JSONL/.log; không OCR/DOC/XLS cũ.
 - Ticket import schema, timeline/priority mapping và quy tắc liên kết incident.
-- Báo cáo theo yêu cầu hay lập lịch; timezone và quy tắc tính kỳ/duration.
+- Báo cáo theo yêu cầu đã chốt; timezone và quy tắc tính kỳ/duration phải công bố khi triển khai.
 - Hardware, quy mô dữ liệu, LLM API provider và các chỉ tiêu nghiệm thu.
-- Chốt Docker Compose/stack; quyết định nào có thể giao người triển khai chọn thì ghi rõ trong yêu cầu.
+- Docker Compose/stack đã chốt; queue, parser cụ thể và package pins là lựa chọn triển khai cần kiểm chứng.
 
 ## Sources
 
