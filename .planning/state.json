@@ -1,0 +1,43 @@
+{
+  "contract": "1.0.0",
+  "flavor": "core",
+  "milestone": null,
+  "phases": [
+    {
+      "number": "1",
+      "name": "Local Workspace and Access Control",
+      "status": "pending"
+    },
+    {
+      "number": "2",
+      "name": "Dataset Ingestion and Source Lifecycle",
+      "status": "pending"
+    },
+    {
+      "number": "3",
+      "name": "Grounded Knowledge Retrieval",
+      "status": "pending"
+    },
+    {
+      "number": "4",
+      "name": "Logistics Incident and Ticket Analysis",
+      "status": "pending"
+    },
+    {
+      "number": "5",
+      "name": "On-Demand Incident Reports and PDF",
+      "status": "pending"
+    },
+    {
+      "number": "6",
+      "name": "MVP Reliability and Acceptance",
+      "status": "pending"
+    }
+  ],
+  "next": {
+    "command": "/gsd:progress --next",
+    "label": "Advance to the next step",
+    "reason": "Phase 1 of 6 · 0% · executing"
+  },
+  "updated_at": "2026-10-03T11:11:29.115Z"
+}
