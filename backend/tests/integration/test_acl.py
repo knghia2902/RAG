@@ -6,6 +6,8 @@ from app.database.models import Account, Dataset, DatasetGrant
 from app.database.session import SessionLocal
 from app.auth.passwords import hash_password
 from tests.conftest import HEADERS, PASSWORD
+from concurrent.futures import ThreadPoolExecutor
+from threading import Barrier
 
 
 def technician(db):
@@ -69,3 +71,56 @@ def test_revoke_after_lookup_before_response(client, admin, db):
     with patch.object(datasets, "recheck_response", side_effect=revoke):
         response = client.get("/api/v1/datasets")
     assert response.status_code == 403 and row.name not in response.text and "total" not in response.text
+
+
+def test_grants_idempotent_safe_targets_live_session_and_rollback(client, admin, db, caplog):
+    from app.main import app
+    tech=technician(db); rows=[Dataset(name=f"Grant {i}") for i in range(2)]
+    db.add_all(rows); db.commit()
+    path=f"/api/v1/admin/users/{tech.id}/datasets"
+    assert client.get(path).status_code==200
+    assert client.get(path).json()=={"dataset_ids":[]}
+    with TestClient(app,base_url="http://next-test:3000") as second:
+        login(second)
+        for _ in range(2):
+            assert client.put(f"{path}/{rows[0].id}",json={},headers=admin).status_code==200
+        assert second.get("/api/v1/datasets").json()["total"]==1
+        with patch.object(SessionLocal.class_,"commit",side_effect=RuntimeError("Injected failure")):
+            assert client.delete(f"{path}/{rows[0].id}",headers=admin).status_code==503
+        assert second.get("/api/v1/datasets").json()["total"]==1
+        for _ in range(2):
+            assert client.delete(f"{path}/{rows[0].id}",headers=admin).status_code==200
+        assert second.get(f"/api/v1/datasets/{rows[0].id}").status_code==404
+        assert second.get("/api/v1/datasets").json()["total"]==0
+        assert second.get(path).status_code==403
+    actor=db.scalar(select(Account).where(Account.role=="admin"))
+    assert client.put(f"/api/v1/admin/users/{actor.id}/datasets/{rows[0].id}",json={},headers=admin).status_code==404
+    assert client.put(f"{path}/{uuid4()}",json={},headers=admin).status_code==404
+    assert client.put(f"{path}/{rows[0].id}",json={},headers=HEADERS).status_code==403
+    assert "dataset.grant" in caplog.text and "dataset.revoke" in caplog.text and PASSWORD not in caplog.text
+
+
+def test_independent_connection_grant_races(client, admin, db):
+    from app.main import app
+    tech=technician(db); rows=[Dataset(name=f"Race {i}") for i in range(2)]
+    db.add_all(rows); db.commit();path=f"/api/v1/admin/users/{tech.id}/datasets"
+    def race(operations):
+        barrier=Barrier(len(operations))
+        def write(operation):
+            method, dataset_id=operation
+            with TestClient(app,base_url="http://next-test:3000") as caller:
+                response=caller.post("/api/v1/auth/login",json={"username":"admin","password":PASSWORD},headers=HEADERS)
+                headers={**HEADERS,"X-CSRF-Token":response.json()["csrf_token"]}
+                barrier.wait(timeout=10)
+                return caller.request(method,f"{path}/{dataset_id}",json={},headers=headers).status_code
+        with ThreadPoolExecutor(max_workers=len(operations)) as pool:
+            assert list(pool.map(write,operations))==[200]*len(operations)
+    race([("PUT",rows[0].id)]*2)
+    assert client.get(path).json()["dataset_ids"]==[str(rows[0].id)]
+    race([("DELETE",rows[0].id)]*2)
+    assert client.get(path).json()["dataset_ids"]==[]
+    race([("PUT",row.id) for row in rows])
+    assert set(client.get(path).json()["dataset_ids"])=={str(row.id) for row in rows}
+    race([("DELETE",rows[0].id),("PUT",rows[0].id)])
+    ids=client.get(path).json()["dataset_ids"]
+    assert str(rows[1].id) in ids and len(ids)==len(set(ids))
