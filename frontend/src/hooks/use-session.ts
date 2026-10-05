@@ -2,6 +2,11 @@
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { api } from "@/lib/api";
+import type { Session } from "@/lib/contracts";
+
+export function sessionDestination(session: Session) {
+  return session.account.must_change_password ? "/change-password" : session.account.role === "admin" ? "/accounts" : "/datasets";
+}
 
 // Only real visible user interaction renews idle; no timer-based heartbeat.
 export function useSessionActivity(csrf: string | undefined) {

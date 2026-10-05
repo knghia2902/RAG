@@ -35,7 +35,7 @@ def test_self_demotion_disable_and_technician_denied(client,admin,db):
     assert client.post("/api/v1/admin/users",json={"username":"bad","display_name":"Bad","role":"admin","temporary_password":PASSWORD},headers=headers).status_code==403
 
 
-def test_reset_disable_revoke_and_failure_rolls_back(client,admin,db):
+def test_reset_disable_revoke_and_failure_rolls_back(client,admin,db,caplog):
     from app.main import app
     target=Account(username="target",display_name="Target",password_hash=hash_password(PASSWORD),role="technician")
     db.add(target);db.commit();old_hash=target.password_hash
@@ -55,6 +55,8 @@ def test_reset_disable_revoke_and_failure_rolls_back(client,admin,db):
         assert second.get("/api/v1/auth/session").status_code==200
         assert client.patch(f"/api/v1/admin/users/{target.id}",json={"active":False},headers=admin).status_code==200
         assert second.get("/api/v1/auth/session").status_code==401
+        assert "account.reset_password" in caplog.text
+        assert PASSWORD not in caplog.text and "changed-password-123456" not in caplog.text
 
 
 def test_independent_connections_concurrent_admin_mutations(db):

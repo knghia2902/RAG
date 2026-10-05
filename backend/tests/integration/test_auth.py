@@ -111,3 +111,43 @@ def test_login_limit_rolling_window_recovery_and_spoofed_ip(client,db,monkeypatc
     assert response.status_code==429 and int(response.headers["Retry-After"])>0
     monkeypatch.setattr(sessions,"now_utc",lambda:start+timedelta(minutes=5))
     assert client.post("/api/v1/auth/login",json={"username":"unknown","password":PASSWORD},headers=HEADERS).status_code==401
+
+
+def test_concurrent_login_failures_do_not_lose_counts(db):
+    from concurrent.futures import ThreadPoolExecutor
+    from fastapi.testclient import TestClient
+    from app.main import app
+    from app.database.models import LoginRateBucket
+    from sqlalchemy import func
+    def fail(index):
+        with TestClient(app,base_url="http://next-test:3000") as client:
+            return client.post("/api/v1/auth/login",json={"username":"unknown","password":PASSWORD},headers=HEADERS).status_code
+    with ThreadPoolExecutor(max_workers=5) as pool:
+        assert list(pool.map(fail,range(5)))==[401]*5
+    assert db.scalar(select(func.count()).select_from(LoginRateBucket))==10
+    assert fail(5)==429
+
+
+def test_failure_timestamps_roll_individually(client,db,monkeypatch):
+    from datetime import datetime,timedelta,timezone
+    from app.auth import sessions
+    start=datetime(2026,1,1,tzinfo=timezone.utc)
+    def fail():return client.post("/api/v1/auth/login",json={"username":"unknown","password":PASSWORD},headers=HEADERS).status_code
+    monkeypatch.setattr(sessions,"now_utc",lambda:start)
+    assert [fail() for _ in range(3)]==[401]*3
+    monkeypatch.setattr(sessions,"now_utc",lambda:start+timedelta(minutes=4))
+    assert [fail() for _ in range(2)]==[401]*2
+    assert fail()==429
+    monkeypatch.setattr(sessions,"now_utc",lambda:start+timedelta(minutes=5))
+    assert [fail() for _ in range(3)]==[401]*3
+    assert fail()==429
+
+
+def test_login_bucket_storage_is_bounded(client,db,monkeypatch):
+    from app.auth import rate_limit
+    from app.database.models import LoginRateBucket
+    from sqlalchemy import func
+    monkeypatch.setattr(rate_limit,"MAX_ROWS",4)
+    def fail():return client.post("/api/v1/auth/login",json={"username":"unknown","password":PASSWORD},headers=HEADERS).status_code
+    assert fail()==401 and fail()==429
+    assert db.scalar(select(func.count()).select_from(LoginRateBucket))==2

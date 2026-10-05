@@ -11,7 +11,7 @@ def get_identity(request: Request, db=Depends(get_db)):
 def get_account(identity=Depends(get_identity)):
     account = identity[1]
     if account.must_change_password:
-        raise HTTPException(403, "Phải đổi mật khẩu")
+        raise HTTPException(403, "password_change_required")
     return account
 
 
