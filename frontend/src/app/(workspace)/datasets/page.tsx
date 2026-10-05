@@ -1,0 +1,5 @@
+"use client";
+import { useEffect,useState } from "react";
+import { api } from "@/lib/api";
+import type { Dataset,Page } from "@/lib/contracts";
+export default function Datasets(){const [data,setData]=useState<Page<Dataset>|null>(null);const [error,setError]=useState("");useEffect(()=>{let active=true;api<Page<Dataset>>("/datasets").then(d=>{if(active)setData(d);}).catch(err=>{if(active){setData(null);setError(err.message);}});return()=>{active=false;};},[]);return <><div className="eyebrow">Không gian làm việc</div><h1>Dataset</h1><section className="card">{error?<p className="error" role="alert">{error}</p>:!data?<p role="status">Đang tải Dataset…</p>:data.total===0?<div className="empty">Chưa có Dataset trong phạm vi của bạn. Liên hệ Admin để được cấp quyền.</div>:<><p className="muted">{data.total} Dataset trong phạm vi của bạn</p><table><thead><tr><th>Tên Dataset</th><th>Mô tả</th></tr></thead><tbody>{data.items.map(d=><tr key={d.id}><td>{d.name}</td><td>{d.description}</td></tr>)}</tbody></table></>}</section></>;}

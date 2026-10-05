@@ -1,0 +1,111 @@
+name: logistics-rag
+x-backend: &backend
+  build: ./backend
+  image: logistics-rag-backend:phase1
+  networks: [local]
+x-test-env: &test-env
+  DATABASE_URL: postgresql+psycopg://rag_test:isolated-test-only@postgres-test:5432/rag_test
+  APP_ORIGIN: http://next-test:3000
+  TEST_MODE: "true"
+  OPENAI_API_KEY: ""
+  LANGCHAIN_TRACING_V2: "false"
+x-api-health: &api-health
+  test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/ready', timeout=2)"]
+  interval: 3s
+  timeout: 3s
+  retries: 30
+x-web-health: &web-health
+  test: [CMD, node, -e, "fetch('http://localhost:3000/login').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+  interval: 3s
+  timeout: 3s
+  retries: 30
+services:
+  postgres:
+    image: pgvector/pgvector:0.8.7-pg18@sha256:2358fcba361ed2233a5ed81b5fe4ca779ccb304120ce531a3bf51c0ed7e2bc11
+    environment:
+      POSTGRES_DB: rag
+      POSTGRES_USER: rag
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-}
+    volumes: [postgres-data:/var/lib/postgresql]
+    networks: [local]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U rag -d rag"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+  migrate:
+    <<: *backend
+    environment: &operational-env
+      DATABASE_URL: postgresql+psycopg://rag:${POSTGRES_PASSWORD:-}@postgres:5432/rag
+      APP_ORIGIN: ${APP_ORIGIN:-http://localhost:3000}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      LANGCHAIN_TRACING_V2: "false"
+    command: [python, -m, alembic, upgrade, head]
+    depends_on:
+      postgres: {condition: service_healthy}
+  backend:
+    <<: *backend
+    environment: *operational-env
+    volumes: [./data/uploads:/app/data/uploads, ./storage:/app/storage]
+    healthcheck: *api-health
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+  frontend:
+    build: {context: ./frontend, target: web, args: {API_TARGET: "http://backend:8000"}}
+    image: logistics-rag-web:phase1
+    ports: ["127.0.0.1:3000:3000"]
+    networks: [local]
+    healthcheck: *web-health
+    depends_on:
+      backend: {condition: service_healthy}
+  postgres-test:
+    image: pgvector/pgvector:0.8.7-pg18@sha256:2358fcba361ed2233a5ed81b5fe4ca779ccb304120ce531a3bf51c0ed7e2bc11
+    environment: {POSTGRES_DB: rag_test, POSTGRES_USER: rag_test, POSTGRES_PASSWORD: isolated-test-only}
+    volumes: [postgres-test-data:/var/lib/postgresql]
+    networks: [test]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U rag_test -d rag_test"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+  migrate-test:
+    <<: *backend
+    networks: [test]
+    environment: *test-env
+    command: [python, -m, alembic, upgrade, head]
+    depends_on:
+      postgres-test: {condition: service_healthy}
+  api-test:
+    <<: *backend
+    networks: [test]
+    environment: *test-env
+    healthcheck: *api-health
+    depends_on:
+      migrate-test: {condition: service_completed_successfully}
+  backend-test:
+    <<: *backend
+    networks: [test]
+    environment: *test-env
+    command: [python, -m, pytest, -q]
+    depends_on:
+      migrate-test: {condition: service_completed_successfully}
+  next-test:
+    build: {context: ./frontend, target: web, args: {API_TARGET: "http://api-test:8000"}}
+    image: logistics-rag-next-test:phase1
+    networks: [test]
+    healthcheck: *web-health
+    depends_on:
+      api-test: {condition: service_healthy}
+  frontend-test:
+    build: {context: ./frontend, target: browser}
+    image: logistics-rag-browser:phase1
+    networks: [test]
+    environment: {PLAYWRIGHT_BASE_URL: "http://next-test:3000", TEST_API_URL: "http://api-test:8000"}
+    depends_on:
+      next-test: {condition: service_healthy}
+networks:
+  local: {internal: true}
+  test: {internal: true}
+volumes:
+  postgres-data:
+  postgres-test-data:

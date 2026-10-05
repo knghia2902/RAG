@@ -1,0 +1,15 @@
+.env
+.env.*
+!.env.example
+__pycache__/
+.pytest_cache/
+.venv/
+node_modules/
+.next/
+playwright-report/
+test-results/
+*.tsbuildinfo
+data/uploads/*
+storage/*
+!data/uploads/.gitkeep
+!storage/.gitkeep
