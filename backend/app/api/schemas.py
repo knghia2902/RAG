@@ -48,6 +48,16 @@ class DatasetPage(DTO):
     page_size: int
 
 
+class DatasetCreate(DTO):
+    name: str = Field(min_length=1, max_length=128)
+    description: str = Field(default="", max_length=2000)
+
+
+class DatasetPatch(DTO):
+    name: str = Field(default=None, min_length=1, max_length=128)
+    description: str = Field(default=None, max_length=2000)
+
+
 class AccountCreate(DTO):
     username: str
     display_name: str = Field(min_length=1, max_length=128)

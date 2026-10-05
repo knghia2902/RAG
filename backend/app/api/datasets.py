@@ -1,16 +1,29 @@
+from uuid import UUID
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import func, select
 from app.database.session import get_db
-from app.auth.policy import dataset_query
+from app.database import datasets
 from app.api.dependencies import get_account
-from app.api.schemas import DatasetDTO, DatasetPage
+from app.api.users import mutation_manager
+from app.api.schemas import DatasetDTO, DatasetPage, DatasetCreate, DatasetPatch
 
-router = APIRouter(prefix="/api/v1/datasets", tags=["datasets"])
+router = APIRouter(prefix="/api/v1", tags=["datasets"])
 
 
-@router.get("", response_model=DatasetPage)
+@router.get("/datasets", response_model=DatasetPage)
 def list_datasets(page: int = Query(1, ge=1), page_size: int = Query(25, ge=1, le=100), account=Depends(get_account), db=Depends(get_db)):
-    query = dataset_query(account)
-    total = db.scalar(select(func.count()).select_from(query.subquery()))
-    rows = db.scalars(query.order_by("name").offset((page - 1) * page_size).limit(page_size)).all()
-    return DatasetPage(items=[DatasetDTO.model_validate(row) for row in rows], total=total, page=page, page_size=page_size)
+    return datasets.list_metadata(db, account, page, page_size)
+
+
+@router.get("/datasets/{dataset_id}", response_model=DatasetDTO)
+def detail(dataset_id: UUID, account=Depends(get_account), db=Depends(get_db)):
+    return datasets.detail_metadata(db, account, dataset_id)
+
+
+@router.post("/admin/datasets", response_model=DatasetDTO, status_code=201)
+def create(payload: DatasetCreate, account=Depends(mutation_manager), db=Depends(get_db)):
+    return datasets.save_metadata(db, account, payload)
+
+
+@router.patch("/admin/datasets/{dataset_id}", response_model=DatasetDTO)
+def update(dataset_id: UUID, payload: DatasetPatch, account=Depends(mutation_manager), db=Depends(get_db)):
+    return datasets.save_metadata(db, account, payload, dataset_id)
