@@ -26,3 +26,16 @@ export function useSessionActivity(csrf: string | undefined) {
     return () => { for (const name of ["pointerdown", "keydown"]) document.removeEventListener(name, touch); };
   }, [csrf, path]);
 }
+
+// Passive reads reconcile current scope without sending activity heartbeats.
+export function useDatasetRefresh(refresh:()=>Promise<void>,clear:()=>void) {
+  const path=usePathname();
+  useEffect(()=>{
+    const reconcile=()=>{if(document.visibilityState==="visible")void refresh();};
+    const rejected=()=>{clear();};
+    const timer=window.setInterval(reconcile,5000);
+    window.addEventListener("focus",reconcile);document.addEventListener("visibilitychange",reconcile);
+    window.addEventListener("dataset-access-changed",rejected);
+    return()=>{window.clearInterval(timer);window.removeEventListener("focus",reconcile);document.removeEventListener("visibilitychange",reconcile);window.removeEventListener("dataset-access-changed",rejected);};
+  },[refresh,clear,path]);
+}

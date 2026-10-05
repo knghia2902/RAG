@@ -8,7 +8,8 @@ from app.auth.policy import require_admin
 from app.auth.csrf import validate_request,validate_csrf
 from app.auth.sessions import resolve_session,SESSION_COOKIE
 from app.api.dependencies import get_account
-from app.api.schemas import AccountCreate,AccountPatch,PasswordReset,AccountDTO,AccountPage
+from app.api.schemas import AccountCreate,AccountPatch,PasswordReset,AccountDTO,AccountPage,DatasetGrants
+from app.database import datasets
 
 router=APIRouter(prefix="/api/v1/admin/users",tags=["accounts"])
 
@@ -51,3 +52,18 @@ def update(target_id:UUID,payload:AccountPatch,actor=Depends(mutation_manager),d
 def reset(target_id:UUID,payload:PasswordReset,actor=Depends(mutation_manager),db=Depends(get_db)):
     row=accounts.reset_password(db,actor,target_id,payload);db.commit();accounts.record_audit(actor,"account.reset_password",row)
     return row
+
+
+@router.get("/{target_id}/datasets",response_model=DatasetGrants)
+def list_grants(target_id:UUID,actor=Depends(manager),db=Depends(get_db)):
+    return datasets.grants(db,actor,target_id)
+
+
+@router.put("/{target_id}/datasets/{dataset_id}",response_model=DatasetGrants)
+def grant(target_id:UUID,dataset_id:UUID,actor=Depends(mutation_manager),db=Depends(get_db)):
+    return datasets.set_grant(db,actor,target_id,dataset_id,True)
+
+
+@router.delete("/{target_id}/datasets/{dataset_id}",response_model=DatasetGrants)
+def revoke(target_id:UUID,dataset_id:UUID,actor=Depends(mutation_manager),db=Depends(get_db)):
+    return datasets.set_grant(db,actor,target_id,dataset_id,False)

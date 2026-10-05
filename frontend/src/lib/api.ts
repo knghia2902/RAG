@@ -5,6 +5,7 @@ export async function api<T>(path: string, options: { method?: string; body?: un
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
     if (response.status === 401 && !path.endsWith("/login")) { window.dispatchEvent(new Event("session-expired")); }
+    if (response.status===401 || (method==="GET"&&path.startsWith("/datasets")&&[403,404].includes(response.status))) { window.dispatchEvent(new Event("dataset-access-changed")); }
     throw new ApiError(response.status, typeof body.detail === "string" ? body.detail : "Không thể hoàn tất yêu cầu");
   }
   return response.status === 204 ? undefined as T : response.json();

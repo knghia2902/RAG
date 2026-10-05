@@ -7,7 +7,8 @@ from app.database.session import SessionLocal
 from app.auth.passwords import hash_password
 from tests.conftest import HEADERS, PASSWORD
 from concurrent.futures import ThreadPoolExecutor
-from threading import Barrier
+from threading import Barrier, Event, local
+import pytest
 
 
 def technician(db):
@@ -124,3 +125,39 @@ def test_independent_connection_grant_races(client, admin, db):
     race([("DELETE",rows[0].id),("PUT",rows[0].id)])
     ids=client.get(path).json()["dataset_ids"]
     assert str(rows[1].id) in ids and len(ids)==len(set(ids))
+
+
+@pytest.mark.parametrize("first,second",[("PUT","DELETE"),("DELETE","PUT")])
+def test_opposing_grants_follow_serialized_commit_order(client,admin,db,first,second):
+    from app.main import app
+    tech=technician(db);row=Dataset(name="Ordered grant")
+    db.add(row);db.flush();db.add(DatasetGrant(account_id=tech.id,dataset_id=row.id));db.commit()
+    path=f"/api/v1/admin/users/{tech.id}/datasets/{row.id}"
+    callers=[TestClient(app,base_url="http://next-test:3000") for _ in range(2)]
+    headers=[]
+    for caller in callers:
+        response=caller.post("/api/v1/auth/login",json={"username":"admin","password":PASSWORD},headers=HEADERS)
+        headers.append({**HEADERS,"X-CSRF-Token":response.json()["csrf_token"]})
+    ready,release,second_started=Event(),Event(),Event();thread=local();original=SessionLocal.class_.commit
+    from app.database import datasets
+    original_grant=datasets.set_grant
+    def set_grant(*args):
+        thread.hold=args[-1]==(first=="PUT")
+        try:return original_grant(*args)
+        finally:thread.hold=False
+    def commit(session):
+        if getattr(thread,"hold",False):
+            ready.set();assert release.wait(timeout=10)
+        return original(session)
+    def write(index,method):
+        if index==1:second_started.set()
+        return callers[index].request(method,path,json={},headers=headers[index]).status_code
+    try:
+        with patch.object(datasets,"set_grant",set_grant),patch.object(SessionLocal.class_,"commit",commit),ThreadPoolExecutor(max_workers=2) as pool:
+            a=pool.submit(write,0,first);assert ready.wait(timeout=10)
+            b=pool.submit(write,1,second);assert second_started.wait(timeout=10);release.set()
+            assert a.result(timeout=10)==b.result(timeout=10)==200
+        assert (str(row.id) in client.get(path.rsplit("/",1)[0]).json()["dataset_ids"])==(second=="PUT")
+    finally:
+        release.set()
+        for caller in callers:caller.close()

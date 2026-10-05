@@ -1,0 +1,21 @@
+"use client";
+import {useCallback,useEffect,useRef,useState} from "react";
+import {api} from "@/lib/api";
+import type {Account,Dataset,DatasetGrants,Page} from "@/lib/contracts";
+
+export default function DatasetGrantPanel({csrf,onClose,onSaved}:{csrf:string;onClose:()=>void;onSaved:()=>Promise<void>}){
+  const dialog=useRef<HTMLDialogElement>(null);const revision=useRef(0);
+  const [users,setUsers]=useState<Account[]>([]);const [datasets,setDatasets]=useState<Dataset[]>([]);const [target,setTarget]=useState("");
+  const [committed,setCommitted]=useState<string[]|null>(null);const [selected,setSelected]=useState<string[]>([]);const [busy,setBusy]=useState(false);const [error,setError]=useState("");const [saved,setSaved]=useState("");
+  useEffect(()=>{const el=dialog.current;const opener=document.activeElement as HTMLElement|null;el?.showModal();let active=true;
+    const loadPages=async<T,>(path:string)=>{const all:T[]=[];let page=1;while(true){const result=await api<Page<T>>(`${path}?page=${page}&page_size=100`);all.push(...result.items);if(all.length>=result.total)return all;page++;}};
+    void Promise.all([loadPages<Account>("/admin/users"),loadPages<Dataset>("/datasets")]).then(([accounts,rows])=>{if(active){setUsers(accounts.filter(a=>a.role==="technician"));setDatasets(rows);}}).catch(err=>{if(active)setError(err.message);});
+    return()=>{active=false;revision.current++;el?.close();opener?.focus();};
+  },[]);
+  const load=useCallback(async(id:string)=>{const current=++revision.current;setCommitted(null);setSelected([]);if(!id)return false;try{const state=await api<DatasetGrants>(`/admin/users/${id}/datasets`);if(current===revision.current){setCommitted(state.dataset_ids);setSelected(state.dataset_ids);return true;}}catch(err){if(current===revision.current)setError(err instanceof Error?err.message:"Không thể tải quyền");}return false;},[]);
+  const save=async()=>{if(!committed||!target)return;setBusy(true);setError("");setSaved("");let failed=false;
+    for(const dataset of datasets){const before=committed.includes(dataset.id),after=selected.includes(dataset.id);if(before===after)continue;try{await api(`/admin/users/${target}/datasets/${dataset.id}`,{method:after?"PUT":"DELETE",csrf});}catch(err){failed=true;setError(`Một số quyền chưa được lưu. ${err instanceof Error?err.message:"Vui lòng thử lại"}`);break;}}
+    try{const loaded=await load(target);await onSaved();if(!failed&&loaded)setSaved("Đã lưu quyền Dataset");}catch(err){setError(err instanceof Error?err.message:"Không thể cập nhật trạng thái quyền");}finally{setBusy(false);}
+  };
+  return <dialog ref={dialog} aria-labelledby="grants-title" onCancel={e=>{if(busy)e.preventDefault();else onClose();}} style={{marginRight:0,marginTop:0,height:"100vh",maxHeight:"100vh",width:"min(460px,100vw)",border:0,padding:28}}><h2 id="grants-title">Cấp quyền Dataset</h2><label htmlFor="grant-user">Kỹ thuật viên</label><select id="grant-user" value={target} disabled={busy} onChange={e=>{setTarget(e.target.value);setError("");setSaved("");void load(e.target.value);}}><option value="">Chọn Kỹ thuật viên</option>{users.map(user=><option value={user.id} key={user.id}>{user.display_name} ({user.username})</option>)}</select>{target&&committed===null?<p role="status">Đang tải quyền Dataset…</p>:target&&datasets.length===0?<p>Chưa có Dataset để cấp quyền.</p>:target&&<fieldset disabled={busy}><legend>Dataset được cấp</legend>{datasets.map(dataset=><label key={dataset.id}><input type="checkbox" style={{width:"auto"}} checked={selected.includes(dataset.id)} onChange={e=>{setSaved("");setSelected(old=>e.target.checked?[...old,dataset.id]:old.filter(id=>id!==dataset.id));}}/>{dataset.name}</label>)}</fieldset>}{error&&<p className="error" role="alert">{error}</p>}{saved&&<p role="status">{saved}</p>}<button disabled={busy||!target||committed===null} onClick={()=>void save()}>Lưu quyền</button> <button disabled={busy} onClick={onClose}>Đóng</button></dialog>;
+}

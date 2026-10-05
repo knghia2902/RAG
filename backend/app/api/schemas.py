@@ -58,6 +58,10 @@ class DatasetPatch(DTO):
     description: str = Field(default=None, max_length=2000)
 
 
+class DatasetGrants(DTO):
+    dataset_ids: list[UUID]
+
+
 class AccountCreate(DTO):
     username: str
     display_name: str = Field(min_length=1, max_length=128)
