@@ -32,10 +32,10 @@ Workflow tự động, granularity standard, kế hoạch độc lập có thể
 4. Mô hình role/permission và policy dataset có contract dùng chung cho các module; các endpoint dữ liệu/lịch sử/nguồn/PDF bổ sung ở phase sau phải dùng policy này và có acceptance check ngay khi triển khai.
 5. Cấu trúc backend/app/{api,rag,llm,modules,database,auth}, frontend và data/storage được tạo đúng; Web dùng API contract, module/provider contracts cho phép thay adapter mà không sửa nghiệp vụ.
 
-**Plans:** 5 plans across 5 waves (ready to execute)
+**Plans:** 1/5 plans executed across 5 waves (ready to execute)
 **Wave 1**
 
-- [ ] 01-01-PLAN.md
+- [x] 01-01-PLAN.md
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -148,7 +148,7 @@ Chi tiết models, parser packages, queue implementation, timezone/report rules 
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Local Workspace and Access Control | 0/5 | Planned    |  |
+| 1. Local Workspace and Access Control | 1/5 | In Progress|  |
 | 2. Dataset Ingestion and Source Lifecycle | 0/TBD | Not started | - |
 | 3. Grounded Knowledge Retrieval | 0/TBD | Not started | - |
 | 4. Logistics Incident and Ticket Analysis | 0/TBD | Not started | - |
