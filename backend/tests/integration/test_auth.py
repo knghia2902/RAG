@@ -41,3 +41,26 @@ def test_disabled_current_account_and_safe_validation(client,admin,db):
     assert response.status_code==422 and "secret" not in response.text
     user=db.scalar(select(Account));user.active=False;db.commit()
     assert client.get("/api/v1/auth/session").status_code==401
+
+
+def test_passive_polling_activity_and_expiry(client,admin,db,monkeypatch):
+    from datetime import timedelta
+    from app.auth import sessions
+    row=db.scalar(select(AuthSession));start=row.created_at
+    monkeypatch.setattr(sessions,"now_utc",lambda:start+timedelta(minutes=20))
+    for path in ("/api/v1/auth/session","/api/v1/datasets"):
+        assert client.get(path).status_code==200
+    db.refresh(row);assert row.last_activity_at==start
+    assert client.post("/api/v1/auth/activity",json={},headers=admin).status_code==204
+    db.refresh(row);assert row.last_activity_at==start+timedelta(minutes=20)
+    monkeypatch.setattr(sessions,"now_utc",lambda:start+timedelta(minutes=50))
+    assert client.post("/api/v1/auth/activity",json={},headers=admin).status_code==401
+    assert client.get("/api/v1/auth/session").status_code==401
+
+
+def test_activity_after_logout_cannot_revive(client,admin,db):
+    token=client.cookies.get("rag_session")
+    assert client.post("/api/v1/auth/logout",json={},headers=admin).status_code==204
+    response=client.post("/api/v1/auth/activity",json={},headers={**admin,"Cookie":f"rag_session={token}"})
+    assert response.status_code==401
+    db.expire_all();row=db.scalar(select(AuthSession));assert row.revoked_at is not None
