@@ -79,3 +79,35 @@ def test_stale_activity_snapshot_after_committed_revocation(client,admin,db):
         record_activity(db,stale)
     assert error.value.status_code==401
     db.rollback();db.refresh(stale);assert stale.revoked_at is not None
+
+
+def test_forced_password_rotation_preserves_absolute_deadline(client,admin,db,monkeypatch):
+    from datetime import timedelta
+    from app.auth import sessions
+    user=db.scalar(select(Account));user.must_change_password=True;db.commit()
+    old_token=client.cookies.get("rag_session");old_csrf=admin["X-CSRF-Token"];created=db.scalar(select(AuthSession)).created_at
+    assert client.get("/api/v1/datasets").status_code==403
+    assert client.get("/api/v1/admin/users").status_code==403
+    assert client.post("/api/v1/auth/change-password",json={"current_password":PASSWORD,"new_password":PASSWORD},headers=admin).status_code==422
+    monkeypatch.setattr(sessions,"now_utc",lambda:created+timedelta(minutes=10))
+    response=client.post("/api/v1/auth/change-password",json={"current_password":PASSWORD,"new_password":"new-password-long-enough"},headers=admin)
+    assert response.status_code==200
+    assert client.cookies.get("rag_session")!=old_token and response.json()["csrf_token"]!=old_csrf
+    current=db.scalar(select(AuthSession).where(AuthSession.token_digest==digest(client.cookies.get("rag_session"))))
+    assert current.created_at==created
+    assert client.get("/api/v1/datasets").status_code==200
+    assert client.get("/api/v1/auth/session",headers={"Cookie":f"rag_session={old_token}"}).status_code==401
+    assert client.post("/api/v1/auth/activity",json={},headers=admin).status_code==403
+
+
+def test_login_limit_rolling_window_recovery_and_spoofed_ip(client,db,monkeypatch):
+    from datetime import datetime,timedelta,timezone
+    from app.auth import sessions
+    start=datetime(2026,1,1,tzinfo=timezone.utc);monkeypatch.setattr(sessions,"now_utc",lambda:start)
+    for index in range(5):
+        response=client.post("/api/v1/auth/login",json={"username":"unknown","password":PASSWORD},headers={**HEADERS,"X-Forwarded-For":f"10.0.0.{index}"})
+        assert response.status_code==401
+    response=client.post("/api/v1/auth/login",json={"username":"other-user","password":PASSWORD},headers=HEADERS)
+    assert response.status_code==429 and int(response.headers["Retry-After"])>0
+    monkeypatch.setattr(sessions,"now_utc",lambda:start+timedelta(minutes=5))
+    assert client.post("/api/v1/auth/login",json={"username":"unknown","password":PASSWORD},headers=HEADERS).status_code==401
