@@ -46,3 +46,32 @@ class DatasetPage(DTO):
     total: int
     page: int
     page_size: int
+
+
+class AccountCreate(DTO):
+    username: str
+    display_name: str = Field(min_length=1, max_length=128)
+    role: Literal["admin", "technician"]
+    temporary_password: str = Field(min_length=15, max_length=128)
+
+    @field_validator("username")
+    @classmethod
+    def username_valid(cls,value):
+        return normalize_username(value)
+
+
+class AccountPatch(DTO):
+    display_name: str | None = Field(default=None, min_length=1, max_length=128)
+    role: Literal["admin", "technician"] | None = None
+    active: bool | None = None
+
+
+class PasswordReset(DTO):
+    temporary_password: str = Field(min_length=15, max_length=128)
+
+
+class AccountPage(DTO):
+    items: list[AccountDTO]
+    total: int
+    page: int
+    page_size: int

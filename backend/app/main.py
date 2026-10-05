@@ -33,6 +33,8 @@ from app.api.auth import router as auth_router
 from app.api.datasets import router as datasets_router
 app.include_router(auth_router)
 app.include_router(datasets_router)
+from app.api.users import router as users_router
+app.include_router(users_router)
 from app.config import get_settings
 if get_settings().test_mode:
     from tests.support import router as test_router

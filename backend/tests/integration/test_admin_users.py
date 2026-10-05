@@ -51,6 +51,10 @@ def test_reset_disable_revoke_and_failure_rolls_back(client,admin,db):
         response=client.post(f"/api/v1/admin/users/{target.id}/reset-password",json={"temporary_password":"changed-password-123456"},headers=admin)
         assert response.status_code==200 and second.get("/api/v1/auth/session").status_code==401
         db.refresh(target);assert target.must_change_password
+        second.post("/api/v1/auth/login",json={"username":"target","password":"changed-password-123456"},headers=HEADERS)
+        assert second.get("/api/v1/auth/session").status_code==200
+        assert client.patch(f"/api/v1/admin/users/{target.id}",json={"active":False},headers=admin).status_code==200
+        assert second.get("/api/v1/auth/session").status_code==401
 
 
 def test_independent_connections_concurrent_admin_mutations(db):
