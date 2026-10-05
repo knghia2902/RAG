@@ -1,7 +1,7 @@
 import hashlib
 import secrets
-from datetime import datetime, timezone
-from sqlalchemy import select
+from datetime import datetime, timedelta, timezone
+from sqlalchemy import select, update
 from fastapi import HTTPException
 from app.database.models import Account, AuthSession
 
@@ -34,12 +34,27 @@ def resolve_session(db, token: str | None, lock=False):
     if lock:
         query = query.with_for_update()
     row = db.execute(query.execution_options(populate_existing=True)).scalar_one_or_none()
-    if row is None or row.revoked_at is not None:
+    now = now_utc()
+    if row is None or row.revoked_at is not None or now >= row.last_activity_at + timedelta(minutes=30) or now >= row.created_at + timedelta(hours=8):
         raise HTTPException(401, "Phiên đăng nhập không hợp lệ")
     account = db.execute(select(Account).where(Account.id == row.account_id).execution_options(populate_existing=True)).scalar_one_or_none()
     if account is None or not account.active:
         raise HTTPException(401, "Phiên đăng nhập không hợp lệ")
     return row, account
+
+
+def record_activity(db, row):
+    # Conditional write rechecks revocation and both cutoffs even if a caller
+    # resolved an older snapshot. Row locks serialize this with logout.
+    now = now_utc()
+    result = db.execute(update(AuthSession).where(
+        AuthSession.id == row.id,
+        AuthSession.revoked_at.is_(None),
+        AuthSession.last_activity_at > now - timedelta(minutes=30),
+        AuthSession.created_at > now - timedelta(hours=8),
+    ).values(last_activity_at=now).execution_options(synchronize_session=False))
+    if result.rowcount != 1:
+        raise HTTPException(401, "Phiên đăng nhập không hợp lệ")
 
 
 def set_cookies(response, token, csrf):

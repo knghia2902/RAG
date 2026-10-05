@@ -64,3 +64,18 @@ def test_activity_after_logout_cannot_revive(client,admin,db):
     response=client.post("/api/v1/auth/activity",json={},headers={**admin,"Cookie":f"rag_session={token}"})
     assert response.status_code==401
     db.expire_all();row=db.scalar(select(AuthSession));assert row.revoked_at is not None
+
+
+def test_stale_activity_snapshot_after_committed_revocation(client,admin,db):
+    from fastapi import HTTPException
+    import pytest
+    from app.auth.sessions import record_activity, now_utc
+    from app.database.session import SessionLocal
+    from sqlalchemy import update
+    stale=db.scalar(select(AuthSession))
+    with SessionLocal.begin() as other:
+        other.execute(update(AuthSession).where(AuthSession.id==stale.id).values(revoked_at=now_utc()))
+    with pytest.raises(HTTPException) as error:
+        record_activity(db,stale)
+    assert error.value.status_code==401
+    db.rollback();db.refresh(stale);assert stale.revoked_at is not None

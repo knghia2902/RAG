@@ -3,7 +3,7 @@ from sqlalchemy import select
 from app.database.session import get_db
 from app.database.models import Account
 from app.auth.passwords import dummy_hash, verify_password
-from app.auth.sessions import CSRF_COOKIE, create_session, set_cookies, clear_cookies, digest, now_utc
+from app.auth.sessions import CSRF_COOKIE, create_session, set_cookies, clear_cookies, digest, now_utc, record_activity
 from app.auth.csrf import validate_request
 from app.api.dependencies import get_identity, unsafe_identity
 from app.api.schemas import AccountDTO, LoginInput, SessionDTO
@@ -38,3 +38,9 @@ def logout(response: Response, identity=Depends(unsafe_identity), db=Depends(get
     identity[0].revoked_at = now_utc()
     db.commit()
     clear_cookies(response)
+
+
+@router.post("/activity", status_code=204)
+def activity(identity=Depends(unsafe_identity), db=Depends(get_db)):
+    record_activity(db, identity[0])
+    db.commit()
