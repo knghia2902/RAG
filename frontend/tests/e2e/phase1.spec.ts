@@ -9,6 +9,7 @@ test("ui-smoke: real role landing, labelled panel, keyboard and logout",async({p
   await page.getByRole("button",{name:"Đăng nhập",exact:true}).click();
   await expect(page).toHaveURL(/\/accounts$/);
   await expect(page.getByRole("navigation",{name:"Điều hướng"})).toBeVisible();
+  await page.screenshot({path:"test-results/phase1-desktop.png",fullPage:true});
   const opener=page.getByRole("button",{name:"Tạo tài khoản",exact:true});await opener.focus();await page.keyboard.press("Enter");
   const panel=page.getByRole("dialog",{name:"Tạo tài khoản"});
   await expect(panel.getByLabel("Tên đăng nhập")).toBeFocused();
@@ -29,7 +30,9 @@ test("passive browser polling preserves idle and exact idle/absolute cutoff clea
     await expect(page).toHaveURL(/accounts$/);await page.getByRole("link",{name:"Dataset",exact:true}).click();await expect(page.getByRole("cell",{name:"Browser WMS",exact:true})).toBeVisible();
     const token=(await page.context().cookies()).find(c=>c.name==="rag_session")!.value;
     const before=await (await request.post("http://api-test:8000/api/v1/_test/session-time",{data:{token}})).json();
+    let polls=0,heartbeats=0;const record=(request:import("@playwright/test").Request)=>{if(request.url().includes("/api/v1/datasets")&&request.method()==="GET")polls++;if(request.url().endsWith("/auth/activity"))heartbeats++;};page.on("request",record);
     await page.clock.runFor(15000);
+    await expect.poll(()=>polls).toBeGreaterThanOrEqual(3);expect(heartbeats).toBe(0);page.off("request",record);
     const after=await (await request.post("http://api-test:8000/api/v1/_test/session-time",{data:{token}})).json();expect(after.last_activity_at).toBe(before.last_activity_at);
     // Test-only DB clock is controlled; no host-clock change or real long sleeps.
     const set=await request.post("http://api-test:8000/api/v1/_test/clock",{data:{token,cutoff:kind}});expect(set.ok()).toBeTruthy();

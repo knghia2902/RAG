@@ -15,6 +15,9 @@ test("Admin sees safe no-key configuration and technician has no configuration a
   await page.getByRole("button",{name:"Làm mới trạng thái"}).click();await expect(page.getByRole("region",{name:"Trạng thái cấu hình"}).getByRole("alert")).toContainText("Không thể tải trạng thái");
   await expect(page.getByText("Chưa cấu hình AI",{exact:true})).not.toBeVisible();
   await page.unroute("**/api/v1/status");await page.getByRole("button",{name:"Thử lại"}).click();await expect(page.getByText("Chưa cấu hình AI",{exact:true})).toBeVisible();
+  await page.route("**/api/v1/status",route=>route.fulfill({status:403,contentType:"application/json",body:JSON.stringify({detail:"Quyền đã thay đổi"})}));
+  await page.getByRole("button",{name:"Làm mới trạng thái"}).click();await expect(page.getByRole("region",{name:"Trạng thái cấu hình"}).getByRole("alert")).toContainText("Quyền đã thay đổi");await expect(page.getByText("Chưa cấu hình AI",{exact:true})).not.toBeVisible();
+  await page.unroute("**/api/v1/status");await page.getByRole("button",{name:"Thử lại"}).click();await expect(page.getByText("Chưa cấu hình AI",{exact:true})).toBeVisible();
   await page.getByRole("link",{name:"Quay lại Dataset"}).click();await expect(page).toHaveURL(/datasets$/);await page.goBack();await expect(page).toHaveURL(/configuration$/);
   const session=await (await page.request.get("/api/v1/auth/session")).json();const headers={Origin:"http://next-test:3000","X-Requested-With":"RAG-Web","X-CSRF-Token":session.csrf_token};
   await page.request.post("/api/v1/admin/users",{data:{username:"status-tech",display_name:"Status Tech",role:"technician",temporary_password:password},headers});
