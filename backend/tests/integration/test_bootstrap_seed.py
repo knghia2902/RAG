@@ -98,3 +98,19 @@ def test_seed_does_not_grant_preexisting_technician(db):
     db.refresh(row)
     assert row.password_hash==before_hash and row.display_name=="Existing"
     assert not snapshot()[2]
+
+
+def test_concurrent_replay_never_restores_revoked_grant(db):
+    seed=seed_module();bootstrap_admin("admin",PASSWORD);seed.seed_demo(PASSWORD,PASSWORD)
+    with SessionLocal.begin() as other: other.execute(delete(DatasetGrant))
+    before=snapshot()
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        assert list(pool.map(lambda _:seed.seed_demo(PASSWORD,PASSWORD),range(2)))==[False,False]
+    assert snapshot()==before
+
+
+@pytest.mark.parametrize("password", ["short", "x"*129])
+def test_invalid_seed_password_writes_nothing(db,password):
+    seed=seed_module();bootstrap_admin("admin",PASSWORD);before=snapshot()
+    with pytest.raises(ValueError):seed.seed_demo(password,PASSWORD)
+    assert snapshot()==before

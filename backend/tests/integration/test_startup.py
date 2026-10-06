@@ -63,3 +63,20 @@ def test_status_unauthenticated_denied_and_readiness_failure_safe(client,admin,m
             response=client.get(path)
             assert response.status_code==503 and sentinel not in response.text+caplog.text
         assert client.get("/health/live").status_code==200
+
+
+def test_status_final_current_role_recheck_and_openapi_allowlist(client,admin,db):
+    from app.api import status
+    from app.database.session import SessionLocal
+    from sqlalchemy import update
+    account=db.scalar(select(Account).where(Account.role=="admin"))
+    def change_role():
+        with SessionLocal.begin() as other:
+            other.execute(update(Account).where(Account.id==account.id).values(role="technician"))
+        return True
+    with patch.object(status,"database_ready",side_effect=change_role):
+        response=client.get("/api/v1/status")
+    assert response.status_code==403 and "provider_configured" not in response.text
+    schema=client.get("/openapi.json").json()["components"]["schemas"]["ConfigurationStatus"]
+    assert set(schema["properties"])=={"database_ready","provider_configured"}
+    assert all(value["type"]=="boolean" for value in schema["properties"].values())

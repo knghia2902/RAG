@@ -22,7 +22,7 @@ Contracts import without API keys, environment settings, LangChain or OpenAI cli
 
 ## DTO bounds and contract synchronization
 
-Pydantic owns backend validation/schema. Current API DTOs are exposed by FastAPI OpenAPI; frontend `src/lib/contracts.ts` mirrors them and must be updated with endpoint schema changes, verified against real API/browser tests. Internal RAG DTOs are not public endpoints or permission credentials. When future routes expose them, connect their request/response schemas to OpenAPI and regenerate or explicitly synchronize frontend contracts.
+Pydantic owns backend validation/schema. Current API DTOs are exposed by FastAPI OpenAPI; frontend types in `src/lib/contracts.ts` and the owning configuration page mirror their response schemas and must be updated with endpoint schema changes, verified against real API/browser tests. Internal RAG DTOs are not public endpoints or permission credentials. When future routes expose them, connect their request/response schemas to OpenAPI and regenerate or explicitly synchronize frontend contracts.
 
 | Field | Inclusive bound |
 |---|---|

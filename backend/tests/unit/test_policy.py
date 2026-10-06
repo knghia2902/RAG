@@ -32,7 +32,7 @@ def test_current_active_admin_has_global_report_read():
     policy.require_all_datasets(principal("admin"), (), capability="report.read")
 
 
-@pytest.mark.parametrize("kwargs", [{"active":False}, {"must_change_password":True}, {"role":"unknown"}])
+@pytest.mark.parametrize("kwargs", [{"active":False}, {"role":"admin","active":False}, {"must_change_password":True}, {"role":"admin","must_change_password":True}, {"role":"unknown"}])
 def test_inactive_password_change_or_unknown_role_denied(kwargs):
     with pytest.raises(HTTPException):
         policy.require_all_datasets(principal(**kwargs), (uuid4(),), capability="report.read")
