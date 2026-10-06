@@ -1,10 +1,12 @@
 ---
 phase: 01-local-workspace-and-access-control
-reviewed: 2026-10-06T06:02:29Z
+reviewed: 2026-10-06T06:54:43Z
 depth: standard
-reviewed_head: 0362b766a9029ff5fa18251e3d99ab37cd4c190b
+reviewed_head: d207f089f0d61b3bfaacd4582f33dfc6d3033653
+reviewed_code_head: 17b2c87
+previous_reviewed_head: 0362b766a9029ff5fa18251e3d99ab37cd4c190b
 diff_base: 41ba345069d74855575727a5c2cc7636fb6820d2
-files_reviewed: 83
+files_reviewed: 86
 files_reviewed_list:
   - ".env.example"
   - ".gitignore"
@@ -88,93 +90,59 @@ files_reviewed_list:
   - "frontend/tests/e2e/status.spec.ts"
   - "frontend/tsconfig.json"
   - "storage/.gitkeep"
+  - "tools/tests/postgres-readiness.Tests.ps1"
+  - "tools/tests/verify-local.Tests.ps1"
+  - "tools/tests/verify-local-sentinel.Tests.ps1"
   - "tools/verify-local.ps1"
 findings:
-  critical: 4
-  warning: 1
+  critical: 0
+  warning: 0
   info: 0
-  total: 5
-status: issues_found
+  total: 0
+status: clean
 ---
 
 # Phase 1: Code Review Report
 
-**Reviewed:** 2026-10-06T06:02:29Z
+**Reviewed:** 2026-10-06T06:54:43Z
 **Depth:** standard
-**Files Reviewed:** 83
-**Status:** issues_found
+**Files Reviewed:** 86
+**Status:** clean
 
 ## Summary
 
-Reviewed the explicit scope against Git changes from `41ba345069d74855575727a5c2cc7636fb6820d2` through `0362b766a9029ff5fa18251e3d99ab37cd4c190b`, the five plan SUMMARY frontmatters, project instructions, and called auth/database/UI helpers. No project-local skills or configured reviewer skill mapping were present. No structural pre-pass was supplied.
+Re-reviewed the original five findings after fixes, all changed production/test/documentation files and the called UI transport/activity paths. The original 83-file standard review remains applicable to unchanged files; the scope now contains 86 files, adding three runner/readiness tests. Git confirms no backend changes since the initial review. Scope is explicit in the supplied JSON, with diff base `41ba345069d74855575727a5c2cc7636fb6820d2`.
 
-Five defects remain: one acceptance-runner data-loss risk, three incorrect browser behaviors, and one cleanup robustness failure. BLOCKER classification follows the review contract for incorrect behavior or data-loss risk; it does not imply the three browser defects have the same impact as volume deletion. The existing 76 backend / 7 browser passes and operational acceptance pass were supplied by the orchestrator; this review does not claim to have rerun them or to have executed the destructive volume scenario. Reproduction sequences below follow the actual control flow and identify missing cases in those suites.
+Reviewed checkout: `d207f089f0d61b3bfaacd4582f33dfc6d3033653`; latest source fix: `17b2c87`. Both fix reports were checked against actual implementation and regression assertions. No structural pre-pass was supplied. No additional concrete bugs, vulnerabilities or robustness findings were identified in the changed scope. Historical dispositions below are not counted as current findings.
 
-Future ingestion, retrieval, report/PDF endpoints and provider implementations are intentionally outside Phase 1. Their absence is not a finding. No source files were modified and no commits were made.
+No source files were modified and no commits were made. Future ingestion/retrieval, generation, reports/PDFs and provider implementation remain outside Phase 1.
 
 ## Narrative Findings (AI reviewer)
 
-## Critical Issues
+All reviewed files meet the reviewed Phase 1 quality requirements. No unresolved issues found.
 
-### CR-01: Existing unlabelled volumes can be mounted and deleted by the acceptance runner
+### Original finding dispositions
 
-**Severity:** BLOCKER
-**File:** `D:/KhacNghia/RAG/tools/verify-local.ps1:43-46`
-**Related lines:** `69`, `75-78`, `100-101`, `135-138`
-**Issue:** The preflight only looks for volumes with `com.docker.compose.project=$TestProject`. The generated configuration nevertheless assigns predictable explicit names such as `rag-phase1-acceptance_postgres-data` and `rag-phase1-acceptance_postgres-test-data`. A volume with one of those names and no project label passes the preflight. Compose can reuse that existing volume, and the unconditional `down --volumes` cleanup targets the volumes declared in the generated configuration, without verifying ownership. An existing operational database in the first name can fail the fresh-database check and then be deleted in `finally`. An existing test database in the second name can be cleared by the selected tests before cleanup. The comment that cleanup removes only freshly created labelled resources is not enforced by the code.
+| Original finding | Original severity | Disposition | Implementation and regression evidence inspected |
+| --- | --- | --- | --- |
+| CR-01: Unlabelled volume reuse/deletion | BLOCKER | Resolved | `tools/verify-local.ps1:16-36` assigns a unique run/project and checks ownership labels. Lines 87-118 reject exact legacy/current volume and network names regardless of labels, pre-create external resources and verify ownership before use. Lines 193-206 remove only verified containers, recorded network IDs and volumes with matching labels/creation timestamp. No `down --volumes` or orphan cleanup remains. `tools/tests/verify-local.Tests.ps1:56-61` tests collisions and create-time ownership mismatch; `tools/tests/verify-local-sentinel.Tests.ps1:19-30` checks sentinel identity/content preservation. |
+| CR-02: Reset validation blocked metadata saves | BLOCKER | Resolved | `frontend/src/components/AccountPanel.tsx:13` restores the prior required state in a synchronous finally, including invalid input and asynchronous reset failure. Creation retains its required password. `frontend/tests/e2e/accounts.spec.ts:4-14` covers empty-reset and reset-503 recovery followed by actual metadata saving. |
+| CR-03: Obsolete completion dismissed replacement dialog | BLOCKER | Resolved | `frontend/src/app/(workspace)/datasets/page.tsx:10-12` prevents busy Escape, marks the instance unmounted in cleanup, and checks that flag before parent refresh/close callbacks or local error/busy updates. `frontend/tests/e2e/datasets.spec.ts:4-15` covers delayed-save Escape and externally unmounted/replaced instances after the original mutation actually commits. No rollback on unmount is claimed. |
+| CR-04: Polling cancelled authorized pending detail | BLOCKER | Resolved | `frontend/src/app/(workspace)/datasets/page.tsx:16-22` separates selected identity from request generations. Authorized refresh preserves pending detail; missing scope, rejected access, page/selection changes and cleanup invalidate it. Completion checks generation plus selected ID. `frontend/tests/e2e/datasets.spec.ts:16-38` covers both response orders, exclusion and 403 rejection; the real two-browser revocation scenario remains at lines 40-59. |
+| WR-01: Teardown skipped environment/temp cleanup | WARNING | Resolved | `tools/verify-local.ps1:189-222` preserves acceptance errors, collects independent teardown errors and guarantees environment restoration plus individually attempted file deletion in a nested finally. Success occurs only after cleanup; either error fails the run. `tools/tests/verify-local.Tests.ps1:63-65` checks restoration, credential-directory deletion and preservation of both errors under mocked teardown failure. |
 
-**Reproduction:** In a disposable Docker environment, pre-create an unlabelled volume named `<TestProject>_postgres-data`, put a sentinel file in it, and run the acceptance script with that TestProject. The label query is empty although the exact configured volume name already exists. The first database start mounts that volume; cleanup subsequently requests its deletion. Do not perform this reproduction against an operator volume. Docker documents that Compose [reuses existing named volumes and uses an explicit name as-is](https://docs.docker.com/reference/compose-file/volumes/).
+### Additional changed-scope checks
 
-**Fix:** After resolving the generated configuration, check existence of every actual volume and network name, regardless of labels, and reject collisions before any container starts. Prefer names containing a unique run identifier. Record the resources actually created for this run and verify a run-specific ownership label before destructive cleanup; reject concurrent reuse of the same project. Add a disposable sentinel-volume regression that proves a preexisting unlabelled resource is rejected and preserved.
+Both PostgreSQL healthchecks now probe TCP at `docker-compose.yml:32` and `:67`. `tools/tests/postgres-readiness.Tests.ps1:19-41` holds the pinned image at an initialization barrier, checks temporary Unix readiness/TCP rejection, then final TCP readiness and both Compose definitions. This avoids accepting the initialization server as final readiness. Network topology, migration gates, unpublished API/database/test ports and frontend-only loopback publication remain as reviewed. The changed operator documentation matches run ownership, cleanup and readiness behavior.
 
-### CR-02: A failed reset attempt makes a temporary password mandatory for ordinary account edits
+### Verification provenance and limits
 
-**Severity:** BLOCKER
-**File:** `D:/KhacNghia/RAG/frontend/src/components/AccountPanel.tsx:13`
-**Related lines:** `8-12`
-**Issue:** The reset button imperatively sets `field.required=true` on the shared form's temporary-password field and never restores it. On an existing account, clicking reset with an empty password leaves the dialog open with that field required. A later attempt to save only the display name, role or active flag is blocked by native form validation. The same problem follows a reset API failure: the catch clears the password, while `required` stays true. Those metadata changes do not require a password and are otherwise supported by the backend.
+This re-review inspected source, regression assertions, Git scope and fix reports; it did not rerun broad suites or execute a destructive operator-volume scenario. Supplied executed evidence: eight targeted UI regressions passed; full browser suite 15 passed in 36.1 seconds; production build, separate typecheck and lint passed; nine mocked runner assertions passed; real disposable sentinel preservation passed; pinned-image readiness proof three checks passed; final acceptance including owned cleanup passed in 160.97 seconds with 21 selected backend tests passed and one warning. The runner report does not retain the warning's detailed text; no claim about its cause is made here.
 
-**Reproduction:** Open an existing account, leave the temporary password empty, click reset, change the display name, then click save account. No PATCH is sent; the password field reports a required-value error. Alternatively, return a 503 for reset and retry a metadata-only edit after the catch clears the field.
-
-**Fix:** Validate the reset input without permanently mutating the metadata form's required state. Use a separate reset form, or restore the prior `required` value in `finally` around reset validation. Keep it required for account creation only. Cover both invalid reset input and a failed reset request followed by a successful metadata-only save.
-
-### CR-03: Completing a dismissed metadata save closes a newer dialog and discards its edits
-
-**Severity:** BLOCKER
-**File:** `D:/KhacNghia/RAG/frontend/src/app/(workspace)/datasets/page.tsx:12`
-**Related lines:** `9-11`, `16`, `22`
-**Issue:** Unlike the account and grant dialogs, MetadataPanel permits Escape cancellation during an in-flight save: `onCancel={onClose}` has no busy guard. The asynchronous submit then continues after unmount and calls the parent `onClose` after `onSaved`. That parent callback unconditionally sets the current panel to undefined. If the Admin opens another create/edit dialog before the old request completes, the old completion closes the new dialog and discards the new unsaved form. The original mutation can also commit after the operator has dismissed its UI, leaving its result unclear.
-
-**Reproduction:** Delay a metadata POST/PATCH response, submit the form, press Escape, open a second metadata dialog and enter a different name. Release the first response. Its eventual `onClose` removes the second dialog. This follows the real parent callback at line 22; unmounting does not cancel the HTTP request or the submit continuation.
-
-**Fix:** Prevent Escape while busy and mark the dialog busy, matching the other mutation dialogs. Also invalidate the submit continuation on unmount or use a panel identity so an old completion cannot close a newer instance. Do not claim cancellation rolls back a request that may already have committed. Add a delayed-request browser regression for Escape and reopening.
-
-### CR-04: A passive list response silently cancels a valid dataset detail selection
-
-**Severity:** BLOCKER
-**File:** `D:/KhacNghia/RAG/frontend/src/app/(workspace)/datasets/page.tsx:18`
-**Related lines:** `16-20`, `22`; `D:/KhacNghia/RAG/frontend/src/hooks/use-session.ts:31-39`
-**Issue:** Every successful list refresh increments `detailSequence.current`, even when the selected dataset remains authorized and the list has not changed. A detail request captures that same sequence and only displays its result if the sequence is unchanged. A five-second passive refresh that finishes between the click and the detail response therefore invalidates the user's request. With no existing detail, `setDetail(old => ...)` preserves null, so the user gets no detail and no error despite a successful authorized GET. This is a request-ordering defect, independent of grant revocation.
-
-**Reproduction:** Hold a successful `/datasets` polling response, click Xem for a currently listed dataset and hold the detail response. Release the list response first, then the successful detail response. The refresh increments the detail sequence; the click continuation fails its equality check and never sets the detail. The existing browser test only checks the ordinary response order.
-
-**Fix:** Track the selected/pending dataset ID separately from the list-request generation. Keep a pending detail request valid when a fresh authorized list still includes that ID. Invalidate it when selection changes, the dataset leaves the authorized scope, the page changes, or an access-rejection event arrives. Add a browser regression that controls the two response orders while also preserving the existing revocation-clearing behavior.
-
-## Warnings
-
-### WR-01: Docker cleanup failure skips environment restoration and temporary-secret deletion
-
-**Severity:** WARNING
-**File:** `D:/KhacNghia/RAG/tools/verify-local.ps1:135-142`
-**Related lines:** `15`, `17-23`, `37-38`, `61-73`
-**Issue:** The first action in `finally` is `Compose down`, whose Docker wrapper throws on any nonzero exit. If Docker becomes unavailable or teardown fails, that throw exits the finally block before restoring POSTGRES_PASSWORD/OPENAI_API_KEY/APP_ORIGIN or deleting the temporary files. The generated compose.json contains the ephemeral database credential. Invoking this script from the current PowerShell process also leaves that process's environment overwritten. An ordinary failed cleanup thus defeats the cleanup steps that do not require Docker and can mask the original acceptance failure.
-
-**Reproduction:** Make the Docker wrapper throw for the cleanup down call after `$owned=true`. Lines 140-142 are never reached; environment values and compose.json remain. No real Docker outage is needed to reproduce this control-flow case with a mocked wrapper.
-
-**Fix:** Put Docker teardown in its own try/catch and put environment restoration and temporary-file cleanup in a nested finally that always executes. Preserve/report the original acceptance failure and any teardown failure separately, returning nonzero if either fails. Ensure each temporary-file cleanup is independently attempted even if another removal fails. Add a mocked-cleanup failure check proving restoration and secret-file deletion still occur.
+Unchanged backend evidence remains the prior 76-test result. No remote-machine LAN probe or human visual/keyboard approval is claimed. These limits do not reopen the concrete original defects.
 
 ---
 
-_Reviewed: 2026-10-06T06:02:29Z_
+_Reviewed: 2026-10-06T06:54:43Z_
 _Reviewer: gsd-code-reviewer_
 _Depth: standard_
