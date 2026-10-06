@@ -1,6 +1,16 @@
 import { test,expect, type Page } from "@playwright/test";
 const temporary="test-password-fifteen-plus",changed="new-password-long-enough";
 async function login(page:Page,username:string,password:string){await page.goto("/login");await page.getByLabel("Tên đăng nhập").fill(username);await page.getByLabel("Mật khẩu",{exact:true}).fill(password);await page.getByRole("button",{name:"Đăng nhập",exact:true}).click();}
+test("narrow viewport retains navigation, account table and accessible right panel",async({page,request})=>{
+  await request.post("http://api-test:8000/api/v1/_test/reset");await page.setViewportSize({width:390,height:844});await login(page,"browser-admin",temporary);
+  await expect(page).toHaveURL(/accounts$/);await expect(page.getByRole("table")).toBeVisible();
+  await expect(page.getByRole("navigation",{name:"Điều hướng"})).toBeVisible();
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
+  await page.getByRole("button",{name:"Tạo tài khoản",exact:true}).click();const panel=page.getByRole("dialog");
+  const bounds=await panel.boundingBox();expect(bounds).not.toBeNull();expect(bounds!.x).toBeGreaterThanOrEqual(0);expect(bounds!.x+bounds!.width).toBeLessThanOrEqual(390);
+  await page.screenshot({path:"test-results/phase1-narrow.png",fullPage:true});
+  await page.keyboard.press("Escape");await expect(panel).not.toBeVisible();await expect(page.getByRole("button",{name:"Tạo tài khoản",exact:true})).toBeFocused();
+});
 test("Admin panel creates user; forced change rotates cookie and reset disables second client",async({page,request,browser})=>{
   await request.post("http://api-test:8000/api/v1/_test/reset");await login(page,"browser-admin",temporary);await expect(page).toHaveURL(/accounts$/);
   await page.getByRole("button",{name:"Tạo tài khoản",exact:true}).click();const dialog=page.getByRole("dialog");await expect(dialog.getByLabel("Tên đăng nhập")).toBeFocused();
