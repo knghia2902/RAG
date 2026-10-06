@@ -21,9 +21,21 @@ for(const listFirst of [true,false])test(`review CR-04 authorized detail survive
   await page.route(/\/api\/v1\/datasets\/[0-9a-f-]+$/,async route=>{const response=await route.fetch();detailEntered();await heldDetail;await route.fulfill({response});});
   try{await page.evaluate(()=>window.dispatchEvent(new Event("focus")));await listPending;await page.getByRole("button",{name:"Xem Browser WMS"}).click();await detailPending;
     const detail=page.getByRole("region",{name:"Chi tiết Dataset"});
-    if(listFirst){const response=page.waitForResponse(r=>r.url().includes("/datasets?")&&r.request().method()==="GET");releaseList();await response;await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));releaseDetail();}else{releaseDetail();await expect(detail).toBeVisible();releaseList();}
+    const listResponse=page.waitForResponse(r=>r.url().includes("/datasets?")&&r.request().method()==="GET");
+    if(listFirst){releaseList();await listResponse;await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));releaseDetail();}else{releaseDetail();await expect(detail).toBeVisible();releaseList();await listResponse;await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));}
     await expect(detail).toBeVisible();await expect(detail).toContainText("Browser WMS");
   }finally{releaseList();releaseDetail();}
+});
+for(const denied of [false,true])test(`review CR-04 pending detail stays cleared after ${denied?"403 access rejection":"refreshed scope excludes selection"}`,async({page,request})=>{
+  await request.post("http://api-test:8000/api/v1/_test/reset");await login(page,"browser-admin");await expect(page).toHaveURL(/accounts$/);await page.getByRole("link",{name:"Dataset",exact:true}).click();await expect(page.getByRole("button",{name:"Xem Browser WMS"})).toBeVisible();
+  let release!:()=>void,entered!:()=>void;const held=new Promise<void>(r=>{release=r;}),pending=new Promise<void>(r=>{entered=r;});
+  await page.route(/\/api\/v1\/datasets\/[0-9a-f-]+$/,async route=>{const response=await route.fetch();entered();await held;await route.fulfill({response});});
+  try{await page.getByRole("button",{name:"Xem Browser WMS"}).click();await pending;
+    await page.route("**/api/v1/datasets?*",async route=>{if(denied)return route.fulfill({status:403,contentType:"application/json",body:JSON.stringify({detail:"Quyền truy cập đã thay đổi"})});const response=await route.fetch();const body=await response.json();await route.fulfill({response,json:{...body,items:[],total:0}});});
+    const listResponse=page.waitForResponse(r=>r.url().includes("/datasets?"));await page.evaluate(()=>window.dispatchEvent(new Event("focus")));await listResponse;
+    if(denied)await expect(page.getByRole("alert").filter({hasText:"Quyền truy cập đã thay đổi"})).toBeVisible();else await expect(page.getByText("Chưa có Dataset. Tạo Dataset để quản lý phạm vi dữ liệu.")).toBeVisible();
+    const detailResponse=page.waitForResponse(r=>/\/datasets\/[0-9a-f-]+$/.test(r.url()));release();await detailResponse;await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));await expect(page.getByRole("region",{name:"Chi tiết Dataset"})).not.toBeVisible();
+  }finally{release();}
 });
 test("Admin grants per item and an open technician page reconciles grant and revocation",async({page,request,browser})=>{
   await request.post("http://api-test:8000/api/v1/_test/reset");await login(page,"browser-admin");await expect(page).toHaveURL(/accounts$/);
