@@ -2,7 +2,7 @@
 
 ## Overview
 
-MVP Web theo các luồng sử dụng end-to-end: quản trị/quyền → dữ liệu → hỏi đáp có nguồn → phân tích sự cố/ticket → báo cáo PDF → nghiệm thu. Stack đã chốt Python/FastAPI, LangChain, PostgreSQL/pgvector, OpenAI Embeddings và LLM API, Next.js/TypeScript, Docker Compose. Cấu trúc code theo PROJECT.md. Đây là roadmap khởi tạo, chưa triển khai ứng dụng.
+MVP Web theo các luồng sử dụng end-to-end: quản trị/quyền → dữ liệu → hỏi đáp có nguồn → phân tích sự cố/ticket → báo cáo PDF → nghiệm thu. Stack đã chốt Python/FastAPI, LangChain, PostgreSQL/pgvector, OpenAI Embeddings và LLM API, Next.js/TypeScript, Docker Compose. Cấu trúc code theo PROJECT.md. Phase 1 đã triển khai và kiểm chứng kỹ thuật; đang chờ nghiệm thu thủ công.
 
 Workflow tự động, granularity standard, kế hoạch độc lập có thể chạy song song khi không xung đột dependency/ownership. Vertical MVP là phương án tổ chức mặc định phù hợp mục tiêu MVP người dùng chốt. Dataset ACL là baseline thiết kế, cần cụ thể hóa ở phase 1. Không thực hiện Agent, MCP, OCR hoặc scheduler trong milestone này.
 
@@ -19,7 +19,7 @@ Workflow tự động, granularity standard, kế hoạch độc lập có thể
 
 ### Phase 1: Local Workspace and Access Control
 
-**Goal:** Admin/Kỹ thuật viên sử dụng được Web local, đăng nhập và quản lý tài khoản/phạm vi dataset qua FastAPI với các boundary module đã chốt.
+**Goal:** As a Admin hoặc Kỹ thuật viên, I want to sử dụng Web local để đăng nhập và quản lý tài khoản/phạm vi dataset qua FastAPI với các boundary module đã chốt, so that sử dụng nền tảng RAG trong đúng phạm vi quyền được cấp.
 **Mode:** mvp
 **Depends on:** Nothing (first phase)
 **Requirements:** AUTH-01, AUTH-02, AUTH-03, AUTH-04, AUTH-05, SYS-01, SYS-04
@@ -32,26 +32,26 @@ Workflow tự động, granularity standard, kế hoạch độc lập có thể
 4. Mô hình role/permission và policy dataset có contract dùng chung cho các module; các endpoint dữ liệu/lịch sử/nguồn/PDF bổ sung ở phase sau phải dùng policy này và có acceptance check ngay khi triển khai.
 5. Cấu trúc backend/app/{api,rag,llm,modules,database,auth}, frontend và data/storage được tạo đúng; Web dùng API contract, module/provider contracts cho phép thay adapter mà không sửa nghiệp vụ.
 
-**Plans:** 1/5 plans executed across 5 waves (ready to execute)
+**Plans:** 5/5 plans executed across 5 waves; human UAT pending
 **Wave 1**
 
 - [x] 01-01-PLAN.md
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-02-PLAN.md
+- [x] 01-02-PLAN.md
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 01-03-PLAN.md
+- [x] 01-03-PLAN.md
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 01-04-PLAN.md
+- [x] 01-04-PLAN.md
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 01-05-PLAN.md
+- [x] 01-05-PLAN.md
 
 ### Phase 2: Dataset Ingestion and Source Lifecycle
 
@@ -148,7 +148,7 @@ Chi tiết models, parser packages, queue implementation, timezone/report rules 
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Local Workspace and Access Control | 1/5 | In Progress|  |
+| 1. Local Workspace and Access Control | 5/5 | Human UAT pending | - |
 | 2. Dataset Ingestion and Source Lifecycle | 0/TBD | Not started | - |
 | 3. Grounded Knowledge Retrieval | 0/TBD | Not started | - |
 | 4. Logistics Incident and Ticket Analysis | 0/TBD | Not started | - |
@@ -156,4 +156,4 @@ Chi tiết models, parser packages, queue implementation, timezone/report rules 
 | 6. MVP Reliability and Acceptance | 0/TBD | Not started | - |
 
 ---
-*Created: 2026-10-03 under the user-authorized automatic workflow. No implementation plans or code executed yet.*
+*Created: 2026-10-03. Updated: 2026-10-06; all Phase 1 plans executed, code review clean, verifier human_needed.*
