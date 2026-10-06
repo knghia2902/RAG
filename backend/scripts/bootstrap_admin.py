@@ -20,7 +20,7 @@ def bootstrap_admin(username: str, password: str, display_name: str | None = Non
 
 def main():
     username = input("Username Admin: ")
-    password = getpass.getpass("Mật khẩu (15–128 ký tự): ")
+    password = getpass.getpass("Mật khẩu (8–128 ký tự): ")
     if password != getpass.getpass("Nhập lại mật khẩu: "):
         raise SystemExit("Mật khẩu không khớp")
     try:

@@ -1,8 +1,33 @@
 from sqlalchemy import select
 from app.auth.sessions import digest
 from app.database.models import Account, AuthSession, Dataset, DatasetGrant
-from app.auth.passwords import hash_password
+import pytest
+from pydantic import ValidationError
+from app.auth.passwords import hash_password, validate_password
+from app.api.schemas import LoginInput, AccountCreate, PasswordReset
+from app.api.auth import PasswordChange
 from tests.conftest import HEADERS, PASSWORD
+
+
+def test_account_password_policy_boundaries():
+    fields = (
+        (LoginInput, lambda password: {"username": "operator", "password": password}),
+        (AccountCreate, lambda password: {"username": "operator", "display_name": "Operator", "role": "technician", "temporary_password": password}),
+        (PasswordReset, lambda password: {"temporary_password": password}),
+        (PasswordChange, lambda password: {"current_password": password, "new_password": password}),
+    )
+    for length in (8, 128):
+        password = "x" * length
+        assert validate_password(password) == password
+        for model, payload in fields:
+            model(**payload(password))
+    for length in (7, 129):
+        password = "x" * length
+        with pytest.raises(ValueError):
+            validate_password(password)
+        for model, payload in fields:
+            with pytest.raises(ValidationError):
+                model(**payload(password))
 
 
 def test_login_digest_logout_replay(client, admin, db):
@@ -90,7 +115,7 @@ def test_forced_password_rotation_preserves_absolute_deadline(client,admin,db,mo
     assert client.get("/api/v1/admin/users").status_code==403
     assert client.post("/api/v1/auth/change-password",json={"current_password":PASSWORD,"new_password":PASSWORD},headers=admin).status_code==422
     monkeypatch.setattr(sessions,"now_utc",lambda:created+timedelta(minutes=10))
-    response=client.post("/api/v1/auth/change-password",json={"current_password":PASSWORD,"new_password":"new-password-long-enough"},headers=admin)
+    response=client.post("/api/v1/auth/change-password",json={"current_password":PASSWORD,"new_password":"newpass8"},headers=admin)
     assert response.status_code==200
     assert client.cookies.get("rag_session")!=old_token and response.json()["csrf_token"]!=old_csrf
     current=db.scalar(select(AuthSession).where(AuthSession.token_digest==digest(client.cookies.get("rag_session"))))

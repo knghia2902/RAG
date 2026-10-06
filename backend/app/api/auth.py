@@ -54,8 +54,8 @@ def activity(identity=Depends(unsafe_identity), db=Depends(get_db)):
 from pydantic import Field
 from app.api.schemas import DTO
 class PasswordChange(DTO):
-    current_password: str=Field(min_length=15,max_length=128)
-    new_password: str=Field(min_length=15,max_length=128)
+    current_password: str=Field(min_length=8,max_length=128)
+    new_password: str=Field(min_length=8,max_length=128)
 
 
 def password_identity(request:Request,db=Depends(get_db)):

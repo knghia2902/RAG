@@ -11,7 +11,7 @@ class DTO(BaseModel):
 
 class LoginInput(DTO):
     username: str
-    password: str = Field(min_length=15, max_length=128)
+    password: str = Field(min_length=8, max_length=128)
 
     @field_validator("username")
     @classmethod
@@ -66,7 +66,7 @@ class AccountCreate(DTO):
     username: str
     display_name: str = Field(min_length=1, max_length=128)
     role: Literal["admin", "technician"]
-    temporary_password: str = Field(min_length=15, max_length=128)
+    temporary_password: str = Field(min_length=8, max_length=128)
 
     @field_validator("username")
     @classmethod
@@ -81,7 +81,7 @@ class AccountPatch(DTO):
 
 
 class PasswordReset(DTO):
-    temporary_password: str = Field(min_length=15, max_length=128)
+    temporary_password: str = Field(min_length=8, max_length=128)
 
 
 class AccountPage(DTO):

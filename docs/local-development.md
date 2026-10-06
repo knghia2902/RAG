@@ -16,7 +16,7 @@ docker compose exec -it backend python -m scripts.bootstrap_admin
 
 Trong editor, thay placeholder `POSTGRES_PASSWORD` bằng mật khẩu mạnh URL-safe (ký tự chữ/số hoặc `-._~`), giữ `APP_ORIGIN=http://localhost:3000`. Không in `.env`, không commit, không gửi screenshot secrets. Để `OPENAI_API_KEY=` trống cho Phase 1. Key tùy chọn chỉ nằm server-side; Web hiển thị trạng thái boolean, không hiển thị/chỉnh key. Không cần cài dependency ứng dụng trên host: image dùng lockfiles và digests.
 
-`migrate` phải thoát 0, backend/frontend phải healthy; Alembic hiện `0001_access_control (head)`. Bootstrap tương tác nhập username và hai lần mật khẩu 15–128 ký tự; mật khẩu không echo. Chạy lại không thay Admin hiện có. Mở http://localhost:3000/login: Admin vào Tài khoản. Chỉ frontend publish `127.0.0.1:3000`; API/PostgreSQL không publish.
+`migrate` phải thoát 0, backend/frontend phải healthy; Alembic hiện `0001_access_control (head)`. Bootstrap tương tác nhập username và hai lần mật khẩu tài khoản 8–128 ký tự; mật khẩu không echo. Chạy lại không thay Admin hiện có. Mở http://localhost:3000/login: Admin vào Tài khoản. Chỉ frontend publish `127.0.0.1:3000`; API/PostgreSQL không publish.
 
 Seed là lệnh riêng, tùy chọn, sau bootstrap:
 
@@ -76,6 +76,6 @@ First build test images with `docker compose build backend-test next-test fronte
 
 Tests never clear operational/demo data. Browser proof asserts its session digest and dataset through api-test; backend-test can query the same database. Operational database checks must show no `Browser WMS` row. Python requirements are fully hash locked for Python 3.12, npm uses package-lock, and base images include exact digests. `pip check`, typecheck, lint and production build validate compatibility rather than assuming registry metadata proves it.
 
-Authentication uses Argon2, opaque SHA-256-digested sessions, HttpOnly host-only Strict cookies. HTTP loopback alone permits Secure=false. Login requires exact Origin/Host, JSON and custom header; authenticated mutations additionally require synchronizer CSRF. No tokens in localStorage. Username is normalized immutable ASCII; passwords contain 15–128 Unicode characters without trimming.
+Authentication uses Argon2, opaque SHA-256-digested sessions, HttpOnly host-only Strict cookies. HTTP loopback alone permits Secure=false. Login requires exact Origin/Host, JSON and custom header; authenticated mutations additionally require synchronizer CSRF. No tokens in localStorage. Username is normalized immutable ASCII; account passwords contain 8–128 Unicode characters without trimming. The PostgreSQL `POSTGRES_PASSWORD` remains a separate database-secret requirement in `.env`.
 
 Sessions reject at 30 minutes idle or 8 hours absolute, including equality. GET polling is passive. Visible navigation, key and pointer actions send a CSRF-protected activity request at most once per minute; no heartbeat timer renews idle. Logout and activity serialize through row locks; conditional activity also rejects a snapshot read before another transaction committed revocation. An already-authorized response cannot be recalled. Next rewrites change Host to the exact internal backend destination; the API accepts only that destination or the configured browser Host, alongside the exact browser Origin, and does not trust arbitrary forwarded headers.

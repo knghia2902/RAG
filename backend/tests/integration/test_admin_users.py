@@ -23,6 +23,35 @@ def test_admin_create_duplicate_safe_dto_and_metadata(client,admin,db):
     assert client.get("/api/v1/admin/users").json()["total"]==2
 
 
+def test_eight_character_password_works_for_create_login_change_and_reset(client,admin,db):
+    from app.main import app
+
+    initial = "short123"
+    changed = "newpass8"
+    reset = "reset888"
+    payload = {"username":"short-tech","display_name":"Short Password","role":"technician","temporary_password":initial}
+    for invalid in ("x" * 7, "x" * 129):
+        assert client.post("/api/v1/admin/users",json={**payload,"temporary_password":invalid},headers=admin).status_code==422
+    created=client.post("/api/v1/admin/users",json=payload,headers=admin)
+    assert created.status_code==201
+    user_id=created.json()["id"]
+
+    with TestClient(app,base_url="http://next-test:3000") as technician:
+        login=technician.post("/api/v1/auth/login",json={"username":"short-tech","password":initial},headers=HEADERS)
+        assert login.status_code==200
+        change_headers={**HEADERS,"X-CSRF-Token":login.json()["csrf_token"]}
+        changed_response=technician.post("/api/v1/auth/change-password",json={"current_password":initial,"new_password":changed},headers=change_headers)
+        assert changed_response.status_code==200
+
+    path=f"/api/v1/admin/users/{user_id}/reset-password"
+    for invalid in ("x" * 7, "x" * 129):
+        assert client.post(path,json={"temporary_password":invalid},headers=admin).status_code==422
+    assert client.post(path,json={"temporary_password":reset},headers=admin).status_code==200
+    with TestClient(app,base_url="http://next-test:3000") as technician:
+        login=technician.post("/api/v1/auth/login",json={"username":"short-tech","password":reset},headers=HEADERS)
+        assert login.status_code==200
+
+
 def test_self_demotion_disable_and_technician_denied(client,admin,db):
     actor=db.scalar(select(Account));path=f"/api/v1/admin/users/{actor.id}"
     for payload in ({"active":False},{"role":"technician"}):

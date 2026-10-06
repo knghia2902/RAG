@@ -37,7 +37,7 @@ def seed_demo(granted_password: str, ungranted_password: str) -> bool:
 def main():
     values = []
     for username in ("demo-granted", "demo-ungranted"):
-        password = getpass.getpass(f"Mật khẩu {username} (15–128 ký tự): ")
+        password = getpass.getpass(f"Mật khẩu {username} (8–128 ký tự): ")
         if password != getpass.getpass("Nhập lại mật khẩu: "):
             raise SystemExit("Mật khẩu không khớp; không thay đổi dữ liệu")
         values.append(password)

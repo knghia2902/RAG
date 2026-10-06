@@ -10,7 +10,7 @@ import pytest
 from sqlalchemy import select, delete
 from app.database.models import Account, Dataset, DatasetGrant
 from app.database.session import SessionLocal
-from scripts.bootstrap_admin import bootstrap_admin
+from scripts.bootstrap_admin import bootstrap_admin, main as bootstrap_main
 from tests.conftest import PASSWORD
 
 
@@ -86,11 +86,23 @@ def test_seed_crash_before_commit_rolls_back_entire_seed(db):
 
 def test_seed_cli_getpass_separate_from_bootstrap(monkeypatch,db,capsys):
     seed=seed_module();bootstrap_admin("admin",PASSWORD)
-    monkeypatch.setattr(seed.getpass,"getpass",lambda _:PASSWORD)
+    prompts=[]
+    monkeypatch.setattr(seed.getpass,"getpass",lambda prompt:(prompts.append(prompt),"short123")[1])
     seed.main()
     output=capsys.readouterr().out
     assert PASSWORD not in output and "Admin" not in output
+    assert all("8–128" in prompt for prompt in prompts)
     before=snapshot();seed.main();assert snapshot()==before
+
+
+def test_bootstrap_cli_accepts_eight_character_password(monkeypatch,db,capsys):
+    import scripts.bootstrap_admin as bootstrap_script
+    prompts=[]
+    monkeypatch.setattr("builtins.input",lambda _:"cli-admin")
+    monkeypatch.setattr(bootstrap_script.getpass,"getpass",lambda prompt:(prompts.append(prompt),"short123")[1])
+    bootstrap_main()
+    assert "Admin" in capsys.readouterr().out
+    assert prompts[0].endswith("8–128 ký tự): ")
 
 
 def test_seed_does_not_grant_preexisting_technician(db):
@@ -113,10 +125,17 @@ def test_concurrent_replay_never_restores_revoked_grant(db):
     assert snapshot()==before
 
 
-@pytest.mark.parametrize("password", ["short", "x"*129])
+@pytest.mark.parametrize("password", ["x"*7, "x"*129])
 def test_invalid_seed_password_writes_nothing(db,password):
     seed=seed_module();bootstrap_admin("admin",PASSWORD);before=snapshot()
     with pytest.raises(ValueError):seed.seed_demo(password,PASSWORD)
+    assert snapshot()==before
+
+
+@pytest.mark.parametrize("password", ["x"*7, "x"*129])
+def test_invalid_bootstrap_password_writes_nothing(db,password):
+    before=snapshot()
+    with pytest.raises(ValueError):bootstrap_admin("invalid-admin",password)
     assert snapshot()==before
 
 

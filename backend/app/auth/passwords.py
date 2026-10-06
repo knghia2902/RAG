@@ -13,8 +13,8 @@ def normalize_username(value: str) -> str:
 
 
 def validate_password(value: str) -> str:
-    if not 15 <= len(value) <= 128:
-        raise ValueError("Password must contain 15–128 characters")
+    if not 8 <= len(value) <= 128:
+        raise ValueError("Password must contain 8–128 characters")
     return value
 
 
