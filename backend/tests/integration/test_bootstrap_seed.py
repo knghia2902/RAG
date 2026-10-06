@@ -1,4 +1,8 @@
 import importlib
+import subprocess
+import tempfile
+import time
+from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 from threading import Barrier
 from unittest.mock import patch
@@ -114,3 +118,68 @@ def test_invalid_seed_password_writes_nothing(db,password):
     seed=seed_module();bootstrap_admin("admin",PASSWORD);before=snapshot()
     with pytest.raises(ValueError):seed.seed_demo(password,PASSWORD)
     assert snapshot()==before
+
+
+@pytest.mark.parametrize("operation", ["seed", "bootstrap"])
+def test_process_killed_after_flush_rolls_back_and_retry_succeeds(db, operation):
+    """SIGKILL a real DB transaction, rather than simulating an exception."""
+    if operation == "seed":
+        bootstrap_admin("admin", PASSWORD)
+    before = snapshot()
+    with tempfile.TemporaryDirectory() as directory:
+        marker = Path(directory) / "flushed"
+        code = '''
+import sys, signal
+from pathlib import Path
+from app.database.session import SessionLocal
+from app.database.models import Account, DatasetGrant
+from scripts.bootstrap_admin import bootstrap_admin
+from scripts.seed_demo import seed_demo
+original = SessionLocal.class_.flush
+operation, marker = sys.argv[1:]
+def pause_after_write(session, *args, **kwargs):
+    target = DatasetGrant if operation == 'seed' else Account
+    found = any(isinstance(row, target) for row in session.new)
+    result = original(session, *args, **kwargs)
+    if found:
+        Path(marker).touch()
+        signal.pause()
+    return result
+SessionLocal.class_.flush = pause_after_write
+password = 'test-password-fifteen-plus'
+seed_demo(password, password) if operation == 'seed' else bootstrap_admin('crash-admin', password)
+'''
+        process = subprocess.Popen(["python", "-c", code, operation, str(marker)], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        try:
+            deadline = time.monotonic() + 15
+            while not marker.exists() and process.poll() is None and time.monotonic() < deadline:
+                time.sleep(.02)
+            assert marker.exists(), "Child did not reach its flushed uncommitted transaction"
+            process.kill()
+            process.wait(timeout=10)
+            assert process.returncode != 0
+        finally:
+            if process.poll() is None:
+                process.kill()
+            process.communicate(timeout=10)
+    assert snapshot() == before
+    if operation == "seed":
+        assert seed_module().seed_demo(PASSWORD, PASSWORD)
+        assert len(snapshot()[2]) == 1
+    else:
+        assert bootstrap_admin("retry-admin", PASSWORD)
+        assert not bootstrap_admin("second-admin", PASSWORD)
+        assert len(snapshot()[0]) == 1
+
+
+def test_real_cli_seed_replay_preserves_full_snapshot(db):
+    bootstrap_admin("admin", PASSWORD)
+    code = "from unittest.mock import patch; from scripts.seed_demo import main; " \
+           "p=patch('getpass.getpass', return_value='test-password-fifteen-plus'); p.start(); main()"
+    first = subprocess.run(["python", "-c", code], capture_output=True, text=True, timeout=15)
+    assert first.returncode == 0, first.stderr
+    before = snapshot()
+    replay = subprocess.run(["python", "-c", code], capture_output=True, text=True, timeout=15)
+    assert replay.returncode == 0, replay.stderr
+    assert PASSWORD not in first.stdout + replay.stdout
+    assert snapshot() == before

@@ -16,7 +16,8 @@ def test_head_vector_constraints_and_replay(db):
         assert connection.scalar(text("SELECT extversion FROM pg_extension WHERE extname='vector'"))=="0.8.7"
         names=connection.scalars(text("SELECT conname FROM pg_constraint WHERE conrelid='accounts'::regclass")).all()
         assert "account_role" in names and "username_normalized" in names
-    subprocess.run(["python","-m","alembic","upgrade","head"],check=True)
+    for _ in range(2):
+        subprocess.run(["python","-m","alembic","upgrade","head"],check=True)
     assert db.scalar(select(func.count()).select_from(Account))==1
     with pytest.raises(DBAPIError):
         db.execute(text("UPDATE accounts SET username='changed'"));db.commit()
@@ -35,3 +36,17 @@ def test_concurrent_bootstrap_at_most_one_admin(db):
         results=list(pool.map(lambda name:bootstrap_admin(name,PASSWORD),["admin-one","admin-two"]))
     assert sorted(results)==[False,True]
     assert db.scalar(select(func.count()).select_from(Account).where(Account.role=="admin"))==1
+
+
+def test_independent_bootstrap_processes_serialize(db):
+    code = "import sys; from scripts.bootstrap_admin import bootstrap_admin; " \
+           "print(bootstrap_admin(sys.argv[1], 'test-password-fifteen-plus'))"
+    processes = [subprocess.Popen(["python", "-c", code, name], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                 for name in ("process-one", "process-two")]
+    results = []
+    for process in processes:
+        out, error = process.communicate(timeout=20)
+        assert process.returncode == 0, error
+        results.append(out.strip())
+    assert sorted(results) == ["False", "True"]
+    assert db.scalar(select(func.count()).select_from(Account)) == 1

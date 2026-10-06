@@ -54,7 +54,7 @@ services:
     build: {context: ./frontend, target: web, args: {API_TARGET: "http://backend:8000"}}
     image: logistics-rag-web:phase1
     ports: ["127.0.0.1:3000:3000"]
-    networks: [local]
+    networks: [local, web]
     healthcheck: *web-health
     depends_on:
       backend: {condition: service_healthy}
@@ -106,6 +106,7 @@ services:
 networks:
   local: {internal: true}
   test: {internal: true}
+  web: {}
 volumes:
   postgres-data:
   postgres-test-data:
