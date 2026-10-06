@@ -13,7 +13,11 @@ $composeFile = Join-Path $temp 'compose.json'
 $envFile = Join-Path $temp 'empty.env'
 $failureFile = Join-Path $temp 'failure.json'
 $oldPassword = $env:POSTGRES_PASSWORD; $oldKey = $env:OPENAI_API_KEY; $oldOrigin = $env:APP_ORIGIN
-$owned = $false
+$runId = [guid]::NewGuid().ToString('N')
+$runProject = "$TestProject-$runId"
+$runLabel = 'com.logistics-rag.acceptance-run'
+$createdVolumes = @(); $createdNetworks = @()
+$acceptanceError = $null; $cleanupErrors = @()
 function Docker([string[]]$Arguments) {
     # Windows PowerShell 5 represents ordinary Docker stderr progress as ErrorRecord.
     # Decide success solely from the native exit code; never treat progress as failure.
@@ -23,7 +27,21 @@ function Docker([string[]]$Arguments) {
     return $output
 }
 function Compose([string[]]$Arguments) {
-    Docker (@('compose','--project-directory',$repo,'--env-file',$envFile,'-p',$TestProject,'-f',$composeFile) + $Arguments)
+    Docker (@('compose','--project-directory',$repo,'--env-file',$envFile,'-p',$runProject,'-f',$composeFile) + $Arguments)
+}
+function IsOwned($Resource) {
+    if ($null -eq $Resource.Labels) { return $false }
+    $label = $Resource.Labels.PSObject.Properties[$runLabel]
+    $project = $Resource.Labels.PSObject.Properties['com.docker.compose.project']
+    return ($null -ne $label -and $label.Value -eq $runId -and $null -ne $project -and $project.Value -eq $runProject)
+}
+function RemoveOwnedContainers {
+    $ids = @(Docker @('ps','-aq','--filter',"label=com.docker.compose.project=$runProject",'--filter',"label=$runLabel=$runId") | Where-Object { $_ })
+    foreach ($id in $ids) {
+        $resource = @((Docker @('inspect',$id) | Out-String | ConvertFrom-Json))[0]
+        if (-not (IsOwned $resource.Config)) { throw 'Refusing to remove a container without this run ownership.' }
+        $null = Docker @('rm','-f',$resource.Id)
+    }
 }
 function Pass([string]$Name) { Write-Host "PASS $Name" }
 function Check([bool]$Condition, [string]$Name) { if (-not $Condition) { throw "FAIL $Name" }; Pass $Name }
@@ -66,20 +84,57 @@ try {
     $config.services.backend.volumes = @(@{type='volume';source='acceptance-uploads';target='/app/data/uploads'},@{type='volume';source='acceptance-storage';target='/app/storage'})
     $config.volumes | Add-Member -NotePropertyName 'acceptance-uploads' -NotePropertyValue @{name="${TestProject}_uploads"}
     $config.volumes | Add-Member -NotePropertyName 'acceptance-storage' -NotePropertyValue @{name="${TestProject}_storage"}
-    foreach ($volume in $config.volumes.PSObject.Properties) { $volume.Value.name = "${TestProject}_$($volume.Name)" }
-    foreach ($network in $config.networks.PSObject.Properties) { $network.Value.name = "${TestProject}_$($network.Name)" }
-    $config.name = $TestProject
+    # Check exact names regardless of labels. Legacy predictable names are also refused.
+    $volumeNames = @(Docker @('volume','ls','--format','{{.Name}}'))
+    $networkNames = @(Docker @('network','ls','--format','{{.Name}}'))
+    foreach ($kind in @('volumes','networks')) {
+        $existingNames = if ($kind -eq 'volumes') { $volumeNames } else { $networkNames }
+        foreach ($property in $config.$kind.PSObject.Properties) {
+            foreach ($name in @("${TestProject}_$($property.Name)","${runProject}_$($property.Name)")) {
+                if ($existingNames -contains $name) { throw "Refusing existing exact $kind name: $name" }
+            }
+        }
+    }
+    Pass 'Exact volume/network names are unused regardless of labels'
+    # Pre-create unique external resources and verify ownership before any mounting.
+    # Docker volume create can silently reuse a name, so its return value is insufficient.
+    foreach ($volume in $config.volumes.PSObject.Properties) {
+        $name = "${runProject}_$($volume.Name)"
+        $null = Docker @('volume','create','--label',"$runLabel=$runId",'--label',"com.docker.compose.project=$runProject",$name)
+        $resource = @((Docker @('volume','inspect',$name) | Out-String | ConvertFrom-Json))[0]
+        if (-not (IsOwned $resource)) { throw 'Refusing to mount a volume without this run ownership.' }
+        $createdVolumes += $resource
+        $volume.Value = @{name=$name;external=$true}
+    }
+    foreach ($network in $config.networks.PSObject.Properties) {
+        $name = "${runProject}_$($network.Name)"
+        $arguments = @('network','create','--driver','bridge','--label',"$runLabel=$runId",'--label',"com.docker.compose.project=$runProject")
+        if ($network.Value.PSObject.Properties['internal'] -and $network.Value.internal) { $arguments += '--internal' }
+        $id = (Docker ($arguments + $name) | Out-String).Trim()
+        $resource = @((Docker @('network','inspect',$id) | Out-String | ConvertFrom-Json))[0]
+        if (-not (IsOwned $resource)) { throw 'Refusing to join a network without this run ownership.' }
+        $createdNetworks += $resource
+        $network.Value = @{name=$name;external=$true}
+    }
+    foreach ($service in $config.services.PSObject.Properties) {
+        $labels = @{}
+        if ($service.Value.PSObject.Properties['labels']) {
+            foreach ($label in $service.Value.labels.PSObject.Properties) { $labels[$label.Name] = $label.Value }
+        }
+        $labels[$runLabel] = $runId
+        $service.Value | Add-Member -Force -NotePropertyName labels -NotePropertyValue $labels
+    }
+    $config.name = $runProject
     $config.services.frontend.ports[0].published = "$TestPort"
     [IO.File]::WriteAllText($composeFile, ($config | ConvertTo-Json -Depth 100))
     [IO.File]::WriteAllText($failureFile, '{"services":{"migrate":{"command":["python","-c","raise SystemExit(41)"]}}}')
-    $owned = $true
     $null = Compose @('build','backend','backend-test','frontend','next-test','frontend-test')
     $null = Compose @('up','-d','--wait','postgres')
     $empty = (Compose @('exec','-T','postgres','psql','-U','rag','-d','rag','-tAc',"SELECT count(*) FROM information_schema.tables WHERE table_schema='public'") | Out-String).Trim()
     Check ($empty -eq '0') 'Fresh PostgreSQL has no application tables'
     # A deliberate failing migration must stop dependency startup, not just return 503.
     $ErrorActionPreference = 'Continue'
-    $failureOutput = & docker.exe compose --project-directory $repo --env-file $envFile -p $TestProject -f $composeFile -f $failureFile up -d frontend 2>&1
+    $failureOutput = & docker.exe compose --project-directory $repo --env-file $envFile -p $runProject -f $composeFile -f $failureFile up -d frontend 2>&1
     $failedExit = $LASTEXITCODE
     $ErrorActionPreference = 'Stop'
     Check ($failedExit -ne 0) 'Failed migration rejects Compose startup'
@@ -87,8 +142,8 @@ try {
         $service = InspectService $name
         Check ($null -eq $service -or -not $service.State.Running) "Failed migration leaves $name stopped"
     }
-    # Down without volumes retains the same verified empty database.
-    $null = Compose @('down')
+    # Remove only this run's containers; external volumes/networks stay for replay.
+    RemoveOwnedContainers
     $null = Compose @('up','-d','--wait','frontend')
     $revision = (Compose @('exec','-T','postgres','psql','-U','rag','-d','rag','-tAc',"SELECT version_num FROM alembic_version") | Out-String).Trim()
     Check ($revision -eq '0001_access_control') 'Real Alembic applies expected head'
@@ -131,13 +186,37 @@ try {
     Check ((Invoke-WebRequest -UseBasicParsing "http://127.0.0.1:$TestPort/login").StatusCode -eq 200) 'Host login reachable without AI key'
     $null = Compose @('exec','-T','backend','python','-m','pip','check')
     Pass 'Locked backend packages compatible'
-    Write-Host ('PASS all acceptance checks; elapsed {0:N2}s' -f $timer.Elapsed.TotalSeconds)
+} catch {
+    $acceptanceError = $_
 } finally {
-    if ($owned) {
-        # Only this freshly-created project's labelled resources; never operational down -v.
-        $null = Compose @('down','--volumes','--remove-orphans')
+    try {
+        try { RemoveOwnedContainers } catch { $cleanupErrors += $_.Exception.Message }
+        foreach ($resource in $createdNetworks) {
+            try {
+                $current = @((Docker @('network','inspect',$resource.Id) | Out-String | ConvertFrom-Json))[0]
+                if (-not (IsOwned $current)) { throw 'Refusing network cleanup: ownership changed.' }
+                $null = Docker @('network','rm',$resource.Id)
+            } catch { $cleanupErrors += $_.Exception.Message }
+        }
+        foreach ($resource in $createdVolumes) {
+            try {
+                $current = @((Docker @('volume','inspect',$resource.Name) | Out-String | ConvertFrom-Json))[0]
+                if (-not (IsOwned $current) -or $current.CreatedAt -ne $resource.CreatedAt) { throw 'Refusing volume cleanup: ownership changed.' }
+                $null = Docker @('volume','rm',$resource.Name)
+            } catch { $cleanupErrors += $_.Exception.Message }
+        }
+    } finally {
+        $env:POSTGRES_PASSWORD = $oldPassword; $env:OPENAI_API_KEY = $oldKey; $env:APP_ORIGIN = $oldOrigin
+        foreach ($path in @($composeFile,$envFile,$failureFile,$temp)) {
+            try { if (Test-Path -LiteralPath $path) { Remove-Item -LiteralPath $path -ErrorAction Stop } }
+            catch { $cleanupErrors += "Temporary cleanup failed: $($_.Exception.Message)" }
+        }
     }
-    $env:POSTGRES_PASSWORD = $oldPassword; $env:OPENAI_API_KEY = $oldKey; $env:APP_ORIGIN = $oldOrigin
-    foreach ($path in @($composeFile,$envFile,$failureFile)) { if (Test-Path -LiteralPath $path) { Remove-Item -LiteralPath $path } }
-    if (Test-Path -LiteralPath $temp) { Remove-Item -LiteralPath $temp }
 }
+if ($acceptanceError -or $cleanupErrors.Count) {
+    $messages = @()
+    if ($acceptanceError) { $messages += "Acceptance failed: $($acceptanceError.Exception.Message)" }
+    if ($cleanupErrors.Count) { $messages += "Teardown failed: $($cleanupErrors -join '; ')" }
+    throw ($messages -join [Environment]::NewLine)
+}
+Write-Host ('PASS all acceptance checks and owned cleanup; elapsed {0:N2}s' -f $timer.Elapsed.TotalSeconds)

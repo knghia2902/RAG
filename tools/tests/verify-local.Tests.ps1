@@ -4,10 +4,13 @@ $script:failures = @()
 function Assert([bool]$Condition, [string]$Name) {
     if ($Condition) { Write-Host "PASS $Name" } else { $script:failures += $Name; Write-Host "FAIL $Name" }
 }
-function Run-Mocked([bool]$Collision, [bool]$CleanupFails) {
+function Run-Mocked([bool]$Collision, [bool]$CleanupFails, [string]$CollisionKind = 'volume', [bool]$OwnershipMismatch = $false) {
     $global:runnerMockcollision = $Collision; $global:runnerMockcleanupFails = $CleanupFails
     $global:runnerMockbuildReached = $false; $global:runnerMockdestructive = $false; $global:runnerMockgenerated = $null
     $global:runnerMockbase = 'rag-phase1-acceptance-mocked'
+    $global:runnerMockResources = @{}
+    $global:runnerMockCollisionKind = $CollisionKind
+    $global:runnerMockOwnershipMismatch = $OwnershipMismatch
     $saved = @($env:POSTGRES_PASSWORD,$env:OPENAI_API_KEY,$env:APP_ORIGIN)
     $env:POSTGRES_PASSWORD = 'original-password'; $env:OPENAI_API_KEY = 'original-key'; $env:APP_ORIGIN = 'original-origin'
     function docker { }
@@ -16,8 +19,19 @@ function Run-Mocked([bool]$Collision, [bool]$CleanupFails) {
         if ($a[0] -eq 'version') { return '29.8.1' }
         if ($a[0] -eq 'info') { return 'linux' }
         if ($a[0] -eq 'ps') { return }
-        if ($a[0] -eq 'volume' -and $a[1] -eq 'ls') { if ($global:runnerMockcollision -and $a -contains '--format') { return "$($global:runnerMockbase)_postgres-data" }; return }
-        if ($a[0] -eq 'network' -and $a[1] -eq 'ls') { return }
+        if ($a[0] -eq 'volume' -and $a[1] -eq 'ls') { if ($global:runnerMockcollision -and $global:runnerMockCollisionKind -eq 'volume' -and $a -contains '--format') { return "$($global:runnerMockbase)_postgres-data" }; return }
+        if ($a[0] -eq 'network' -and $a[1] -eq 'ls') { if ($global:runnerMockcollision -and $global:runnerMockCollisionKind -eq 'network') { return "$($global:runnerMockbase)_local" }; return }
+        if ($a[0] -in @('volume','network') -and $a[1] -eq 'create') {
+            $labels = @{}
+            for ($i=0; $i -lt $a.Count; $i++) { if ($a[$i] -eq '--label') { $pair=$a[$i+1].Split('=',2); $labels[$pair[0]]=$pair[1] } }
+            if ($global:runnerMockOwnershipMismatch) { $labels = @{} }
+            $name=$a[-1]; $resource=@{Name=$name;Id=$name;Labels=$labels;CreatedAt='mock-created'}
+            $global:runnerMockResources[$name]=$resource
+            return $name
+        }
+        if ($a[0] -in @('volume','network') -and $a[1] -eq 'inspect' -and $global:runnerMockResources.ContainsKey($a[2])) {
+            return (ConvertTo-Json -Depth 10 -InputObject @($global:runnerMockResources[$a[2]]))
+        }
         if ($a[0] -eq 'volume' -and $a[1] -eq 'inspect') {
             if ($global:runnerMockcollision -and $a[2] -eq "$($global:runnerMockbase)_postgres-data") { return '[{"Name":"sentinel","Labels":{}}]' }
             $global:LASTEXITCODE = 1; return 'not found'
@@ -39,8 +53,11 @@ function Run-Mocked([bool]$Collision, [bool]$CleanupFails) {
     try { & $Runner -TestProject $global:runnerMockbase } catch { $caught = $_.Exception.Message }
     try {
         Write-Host "Mocked result: $caught"
-        if ($Collision) {
-            Assert (-not $global:runnerMockbuildReached) 'Unlabelled exact-name collision rejects before build/start'
+        if ($OwnershipMismatch) {
+            Assert (-not $global:runnerMockbuildReached -and $caught -match 'without this run ownership') 'Create-time volume reuse race refuses unowned mount'
+            Assert (-not $global:runnerMockdestructive) 'Create-time unowned resource is preserved during cleanup'
+        } elseif ($Collision) {
+            Assert (-not $global:runnerMockbuildReached -and $caught -match 'Refusing existing exact') "Unlabelled exact $CollisionKind name collision rejects before build/start"
             Assert (-not $global:runnerMockdestructive) 'Unowned collision never reaches destructive cleanup'
         } else {
             Assert ($env:POSTGRES_PASSWORD -eq 'original-password' -and $env:OPENAI_API_KEY -eq 'original-key' -and $env:APP_ORIGIN -eq 'original-origin') 'Teardown failure always restores environment'
@@ -57,5 +74,7 @@ function Run-Mocked([bool]$Collision, [bool]$CleanupFails) {
     }
 }
 Run-Mocked $true $false
+Run-Mocked $true $false 'network'
+Run-Mocked $false $false 'volume' $true
 Run-Mocked $false $true
 if ($script:failures.Count) { throw "$($script:failures.Count) runner safety regressions failed" }
