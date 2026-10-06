@@ -27,6 +27,8 @@ def test_core_imports_do_not_depend_on_provider_implementations():
             for node in ast.walk(tree):
                 modules = [n.name for n in node.names] if isinstance(node, ast.Import) else [node.module or ""] if isinstance(node, ast.ImportFrom) else []
                 assert not any(m.split(".")[0] in {"openai", "langchain", "langchain_core", "langchain_openai", "langchain_postgres"} for m in modules), str(path)
+                if folder == "rag":
+                    assert not any(m.startswith(("app.auth", "app.database", "app.api")) for m in modules), str(path)
     assert (root / "rag" / "contracts.py").exists(), "Boundary contract missing"
 
 
@@ -97,6 +99,18 @@ def test_scope_query_chunk_and_generation_limits():
     for size in (0,101):
         with pytest.raises(ValidationError): llm.GenerationRequest(question="Why?",evidence=(evidence,)*size)
     assert len(llm.GenerationRequest(question="Why?",evidence=(evidence,)*100).evidence) == 100
+    for size in (1,8000):
+        assert len(llm.GenerationRequest(question="x"*size,evidence=(evidence,)).question)==size
+    for size in (0,8001):
+        with pytest.raises(ValidationError): llm.GenerationRequest(question="x"*size,evidence=(evidence,))
+    for size in (1,32000):
+        assert len(llm.GenerationResult(text="x"*size,citations=(locator,)).text)==size
+    for size in (0,32001):
+        with pytest.raises(ValidationError): llm.GenerationResult(text="x"*size,citations=(locator,))
+    for size in (1,100):
+        assert len(llm.GenerationResult(text="Result",citations=(locator,)*size).citations)==size
+    for size in (0,101):
+        with pytest.raises(ValidationError): llm.GenerationResult(text="Result",citations=(locator,)*size)
     with pytest.raises(ValidationError): c.SourceLocator(source_id=uuid4(),source_version=1,unknown=True)
 
 

@@ -1,6 +1,8 @@
 from sqlalchemy import select
 from fastapi import HTTPException
 from app.database.models import Account, Dataset, DatasetGrant
+from dataclasses import dataclass
+from uuid import UUID
 
 CAPABILITIES = {
     "admin": {"accounts.manage", "datasets.manage", "repository.upload", "repository.delete", "repository.reindex", "metadata.read", "analyze", "ticket.analyze", "report.create", "report.read"},
@@ -28,11 +30,38 @@ def allowed_dataset_ids(db, account):
     return set(db.scalars(dataset_query(account).with_only_columns(Dataset.id)).all())
 
 
-def require_all_datasets(db, account, dataset_ids, capability="metadata.read"):
+@dataclass(frozen=True)
+class Principal:
+    """Backend-only snapshot; callers must reload it before each resource response."""
+    role: str
+    dataset_ids: frozenset[UUID]
+    active: bool = True
+    must_change_password: bool = False
+
+
+def current_principal(db, account):
     account = current_account(db, account)
-    ids = set(dataset_ids)
-    if not has_capability(account, capability) or not ids or not ids.issubset(allowed_dataset_ids(db, account)):
-        raise HTTPException(403, "Quyền truy cập đã thay đổi")
+    grants = frozenset(db.scalars(select(DatasetGrant.dataset_id).where(DatasetGrant.account_id == account.id)))
+    return Principal(account.role, grants, account.active, account.must_change_password)
+
+
+def require_all_datasets(principal, provenance_ids, capability="metadata.read", *, capability_mapping=None):
+    """Pure, whole-resource decision; never return a partially authorized resource."""
+    mapping = CAPABILITIES if capability_mapping is None else capability_mapping
+    permitted = principal.active and not principal.must_change_password and capability in mapping.get(principal.role, set())
+    if not permitted:
+        raise HTTPException(403, "permission_changed")
+    # Admin report access is global, including legacy resources without provenance.
+    if principal.role == "admin":
+        return
+    ids = frozenset(provenance_ids or ())
+    if not ids or not ids.issubset(principal.dataset_ids):
+        raise HTTPException(403, "permission_changed")
+
+
+def authorize_resource(db, account, provenance_ids, capability="metadata.read"):
+    """Shared service seam: current SQL identity/grants before pure authorization."""
+    require_all_datasets(current_principal(db, account), provenance_ids, capability)
 
 
 def require_admin(account):

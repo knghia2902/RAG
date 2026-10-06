@@ -55,3 +55,26 @@ def test_ticket_analysis_does_not_grant_repository_management():
     assert policy.has_capability(tech, "ticket.analyze")
     for action in ("repository.upload", "repository.delete", "repository.reindex"):
         assert not policy.has_capability(tech, action)
+
+
+def test_resource_service_reloads_current_database_state(db):
+    from sqlalchemy import delete, update
+    from app.database.models import Account, Dataset, DatasetGrant
+    from app.database.session import SessionLocal
+    from app.auth.passwords import hash_password
+    from tests.conftest import PASSWORD
+    account = Account(username="policy-tech", display_name="Tech",role="technician",password_hash=hash_password(PASSWORD))
+    a,b = Dataset(name="Policy A"), Dataset(name="Policy B")
+    db.add_all([account,a,b]);db.flush()
+    db.add_all([DatasetGrant(account_id=account.id,dataset_id=row.id) for row in (a,b)]);db.commit()
+    policy.authorize_resource(db,account,(a.id,b.id),capability="report.read")
+    with SessionLocal.begin() as other:
+        other.execute(delete(DatasetGrant).where(DatasetGrant.account_id==account.id,DatasetGrant.dataset_id==a.id))
+    with pytest.raises(HTTPException) as exc:
+        policy.authorize_resource(db,account,(a.id,b.id),capability="report.read")
+    assert exc.value.detail=="permission_changed"
+    policy.authorize_resource(db,account,(b.id,),capability="report.read")
+    with SessionLocal.begin() as other:
+        other.execute(update(Account).where(Account.id==account.id).values(active=False))
+    with pytest.raises(HTTPException):
+        policy.authorize_resource(db,account,(b.id,),capability="report.read")
