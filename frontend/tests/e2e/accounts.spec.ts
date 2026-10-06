@@ -1,6 +1,17 @@
 import { test,expect, type Page } from "@playwright/test";
 const temporary="test-password-fifteen-plus",changed="new-password-long-enough";
 async function login(page:Page,username:string,password:string){await page.goto("/login");await page.getByLabel("Tên đăng nhập").fill(username);await page.getByLabel("Mật khẩu",{exact:true}).fill(password);await page.getByRole("button",{name:"Đăng nhập",exact:true}).click();}
+for(const failedRequest of [false,true])test(`review CR-02 metadata save works after ${failedRequest?"failed API":"invalid empty"} reset`,async({page,request})=>{
+  await request.post("http://api-test:8000/api/v1/_test/reset");await login(page,"browser-admin",temporary);await expect(page).toHaveURL(/accounts$/);
+  await page.getByRole("button",{name:"Chỉnh sửa browser-admin"}).click();const panel=page.getByRole("dialog");
+  if(failedRequest){await page.route("**/reset-password",route=>route.fulfill({status:503,contentType:"application/json",body:JSON.stringify({detail:"Reset unavailable"})}));await panel.getByLabel("Mật khẩu tạm").fill(temporary);}
+  await panel.getByRole("button",{name:"Đặt lại mật khẩu",exact:true}).click();
+  if(failedRequest)await expect(panel.getByRole("alert")).toHaveText("Reset unavailable");
+  await expect(panel.getByLabel("Mật khẩu tạm")).toHaveValue("");
+  await panel.getByLabel("Họ tên").fill("Metadata after reset");
+  await panel.getByRole("button",{name:"Lưu tài khoản"}).click();
+  await expect(panel).not.toBeVisible();await expect(page.getByRole("row",{name:/browser-admin/})).toContainText("Metadata after reset");
+});
 test("narrow viewport retains navigation, account table and accessible right panel",async({page,request})=>{
   await request.post("http://api-test:8000/api/v1/_test/reset");await page.setViewportSize({width:390,height:844});await login(page,"browser-admin",temporary);
   await expect(page).toHaveURL(/accounts$/);await expect(page.getByRole("table")).toBeVisible();
