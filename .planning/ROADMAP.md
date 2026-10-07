@@ -75,7 +75,7 @@ Workflow tự động, granularity standard, kế hoạch độc lập có thể
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 02-02-PLAN.md
+- [x] 02-02-PLAN.md
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
