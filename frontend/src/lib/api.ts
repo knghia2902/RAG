@@ -10,3 +10,23 @@ export async function api<T>(path: string, options: { method?: string; body?: un
   }
   return response.status === 204 ? undefined as T : response.json();
 }
+
+export async function uploadFiles<T>(path: string, formData: FormData, options?: { csrf?: string }): Promise<T> {
+  const response = await fetch(`/api/v1${path}`, {
+    method: "POST",
+    credentials: "same-origin",
+    cache: "no-store",
+    headers: {
+      "X-Requested-With": "RAG-Web",
+      ...(options?.csrf ? { "X-CSRF-Token": options.csrf } : {}),
+    },
+    body: formData,
+  });
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    if (response.status === 401) { window.dispatchEvent(new Event("session-expired")); }
+    if (response.status === 403 || response.status === 404) { window.dispatchEvent(new Event("dataset-access-changed")); }
+    throw new ApiError(response.status, typeof body.detail === "string" ? body.detail : "Không thể tải tệp lên");
+  }
+  return response.json();
+}
