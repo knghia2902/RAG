@@ -5,7 +5,18 @@ from fastapi.testclient import TestClient
 from sqlalchemy import delete
 from app.config import get_settings
 from app.database.session import SessionLocal
-from app.database.models import Account, AuthSession, Dataset, DatasetGrant, LoginRateBucket
+from app.database.models import (
+    Account,
+    AuthSession,
+    CanonicalRecord,
+    Dataset,
+    DatasetGrant,
+    ImportJob,
+    LoginRateBucket,
+    ParseRun,
+    Source,
+    SourceVersion,
+)
 from scripts.bootstrap_admin import bootstrap_admin
 
 PASSWORD = "test-password-fifteen-plus"
@@ -15,7 +26,19 @@ HEADERS = {"Origin": "http://next-test:3000", "X-Requested-With": "RAG-Web", "Co
 def reset_database():
     assert get_settings().test_mode, "Never reset operational DB"
     with SessionLocal.begin() as db:
-        for model in (DatasetGrant, AuthSession, LoginRateBucket, Dataset, Account):
+        db.execute(Source.__table__.update().values(active_version_id=None))
+        for model in (
+            CanonicalRecord,
+            ParseRun,
+            ImportJob,
+            SourceVersion,
+            Source,
+            DatasetGrant,
+            AuthSession,
+            LoginRateBucket,
+            Dataset,
+            Account,
+        ):
             db.execute(delete(model))
 
 
