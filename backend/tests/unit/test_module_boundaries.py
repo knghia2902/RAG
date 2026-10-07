@@ -120,3 +120,49 @@ def test_rag_retriever_receives_scope_not_role():
     for name in ("Parser", "Chunker", "EmbeddingProvider", "Retriever"):
         assert getattr(c,name)._is_protocol
     assert importlib.import_module("app.llm.contracts").LLMProvider._is_protocol
+
+
+def test_source_dtos_enforce_extra_forbid_frozen_and_no_storage_keys():
+    from app.api import schemas
+
+    dto_classes = [
+        schemas.SourceProfileDTO,
+        schemas.SourceVersionDTO,
+        schemas.IngestionJobDTO,
+        schemas.SourceDTO,
+        schemas.SourcePage,
+        schemas.UploadResultItemDTO,
+        schemas.UploadBatchResponseDTO,
+        schemas.SourceLocatorDTO,
+        schemas.EvidenceExcerptDTO,
+        schemas.EvidencePreviewPage,
+    ]
+
+    for cls in dto_classes:
+        assert cls.model_config.get("extra") == "forbid", f"{cls.__name__} must forbid extra fields"
+        assert cls.model_config.get("frozen") is True, f"{cls.__name__} must be frozen"
+
+        for forbidden in ("storage_key", "raw_path", "storage_path", "file_path", "server_path"):
+            assert forbidden not in cls.model_fields, f"{cls.__name__} must not leak {forbidden}"
+
+    with pytest.raises(ValidationError):
+        schemas.SourceProfileDTO(
+            id="doc",
+            name="Doc",
+            description="Desc",
+            supported_formats=[".txt"],
+            expected_fields=[],
+            optional_fields=[],
+            extra_field="disallowed",
+        )
+
+    profile = schemas.SourceProfileDTO(
+        id="doc",
+        name="Doc",
+        description="Desc",
+        supported_formats=[".txt"],
+        expected_fields=[],
+        optional_fields=[],
+    )
+    with pytest.raises(ValidationError):
+        profile.name = "Mutated"

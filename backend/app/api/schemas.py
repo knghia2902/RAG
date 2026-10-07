@@ -1,12 +1,12 @@
 from datetime import datetime
 from uuid import UUID
-from typing import Literal
+from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from app.auth.passwords import normalize_username, validate_password
 
 
 class DTO(BaseModel):
-    model_config = ConfigDict(extra="forbid", from_attributes=True)
+    model_config = ConfigDict(extra="forbid", from_attributes=True, frozen=True)
 
 
 class LoginInput(DTO):
@@ -86,6 +86,101 @@ class PasswordReset(DTO):
 
 class AccountPage(DTO):
     items: list[AccountDTO]
+    total: int
+    page: int
+    page_size: int
+
+
+class SourceProfileDTO(DTO):
+    id: str
+    name: str
+    description: str
+    supported_formats: list[str]
+    expected_fields: list[str]
+    optional_fields: list[str]
+
+
+class SourceVersionDTO(DTO):
+    id: UUID
+    version_number: int
+    content_hash: str
+    size_bytes: int
+    mime_type: str
+    created_at: datetime
+
+
+class IngestionJobDTO(DTO):
+    id: UUID
+    source_version_id: UUID
+    state: str
+    attempt_count: int
+    error_code: str | None = None
+    error_message: str | None = None
+    diagnostics: list[dict[str, Any]] | None = None
+    created_at: datetime
+    updated_at: datetime
+
+
+class SourceDTO(DTO):
+    id: UUID
+    dataset_id: UUID
+    logical_filename: str
+    profile_id: str
+    active_version_id: UUID | None = None
+    active_version_number: int | None = None
+    status: str
+    error_message: str | None = None
+    created_at: datetime
+    updated_at: datetime
+
+
+class SourcePage(DTO):
+    items: list[SourceDTO]
+    total: int
+    page: int
+    page_size: int
+
+
+class UploadResultItemDTO(DTO):
+    filename: str
+    source_id: UUID
+    version_number: int
+    status: str
+    job_id: UUID
+    is_duplicate: bool
+    message: str
+
+
+class UploadBatchResponseDTO(DTO):
+    items: list[UploadResultItemDTO]
+
+
+class SourceLocatorDTO(DTO):
+    source_id: UUID
+    source_version: int
+    page: int | None = None
+    section: str | None = None
+    sheet: str | None = None
+    row: int | None = None
+    event: int | None = None
+    record: int | None = None
+    line_start: int | None = None
+    line_end: int | None = None
+    json_path: str | None = None
+
+
+class EvidenceExcerptDTO(DTO):
+    id: UUID
+    position: int
+    text: str
+    locator: SourceLocatorDTO
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class EvidencePreviewPage(DTO):
+    source_id: UUID
+    version_number: int
+    items: list[EvidenceExcerptDTO]
     total: int
     page: int
     page_size: int
