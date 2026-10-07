@@ -83,7 +83,7 @@ Workflow tự động, granularity standard, kế hoạch độc lập có thể
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 02-04-PLAN.md
+- [x] 02-04-PLAN.md
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
