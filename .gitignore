@@ -11,5 +11,6 @@ test-results/
 *.tsbuildinfo
 data/uploads/*
 storage/*
+backend/storage/
 !data/uploads/.gitkeep
 !storage/.gitkeep
