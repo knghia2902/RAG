@@ -16,12 +16,12 @@
 
 ### Data and Document Management
 
-- [ ] **DATA-01**: Admin có thể tạo dataset, upload tài liệu/dữ liệu vào dataset và xem danh sách cùng metadata nguồn.
-- [ ] **DATA-02**: Admin có thể nhập PDF có text, DOCX, CSV, XLSX, TXT, JSON, JSONL và .log; dữ liệu không hợp lệ/không hỗ trợ được báo lỗi rõ ràng, không âm thầm đánh dấu thành công.
-- [ ] **DATA-03**: Admin có thể xem trạng thái xử lý và lỗi ingestion, thử lại job lỗi; retry không nhân đôi bản ghi và trạng thái có thể khôi phục sau restart.
-- [ ] **DATA-04**: Người dùng được cấp quyền có thể xem đoạn nguồn với version và locator: trang/section, sheet/row, JSON record/path hoặc dòng/event log tương ứng.
-- [ ] **DATA-05**: Admin có thể xóa nguồn và lập chỉ mục lại; nguồn đã xóa hoặc version không còn active không được dùng trong lần truy xuất mới.
-- [ ] **DATA-06**: Dữ liệu log/ticket/incident/bảng được chuẩn hóa theo schema công bố trước import, giữ ID, hệ thống, trạng thái/ưu tiên, timestamp và nguồn; bản ghi thiếu trường/lỗi được phản ánh trong kết quả import.
+- [x] **DATA-01**: Admin có thể tạo dataset, upload tài liệu/dữ liệu vào dataset và xem danh sách cùng metadata nguồn.
+- [x] **DATA-02**: Admin có thể nhập PDF có text, DOCX, CSV, XLSX, TXT, JSON, JSONL và .log; dữ liệu không hợp lệ/không hỗ trợ được báo lỗi rõ ràng, không âm thầm đánh dấu thành công.
+- [x] **DATA-03**: Admin có thể xem trạng thái xử lý và lỗi ingestion, thử lại job lỗi; retry không nhân đôi bản ghi và trạng thái có thể khôi phục sau restart.
+- [x] **DATA-04**: Người dùng được cấp quyền có thể xem đoạn nguồn với version và locator: trang/section, sheet/row, JSON record/path hoặc dòng/event log tương ứng.
+- [x] **DATA-05**: Admin có thể xóa nguồn và lập chỉ mục lại; nguồn đã xóa hoặc version không còn active không được dùng trong lần truy xuất mới.
+- [x] **DATA-06**: Dữ liệu log/ticket/incident/bảng được chuẩn hóa theo schema công bố trước import, giữ ID, hệ thống, trạng thái/ưu tiên, timestamp và nguồn; bản ghi thiếu trường/lỗi được phản ánh trong kết quả import.
 
 ### RAG and Evidence
 
@@ -97,12 +97,12 @@ Mỗi yêu cầu v1 phải có evidence nghiệm thu phù hợp. Bộ eval phả
 | AUTH-03 | Phase 1 | Validated |
 | AUTH-04 | Phase 1 | Policy contract validated; source/retrieval/history/report/PDF checks carry forward |
 | AUTH-05 | Phase 1 | Capability contract validated; report endpoint carries forward |
-| DATA-01 | Phase 2 | Pending |
-| DATA-02 | Phase 2 | Pending |
-| DATA-03 | Phase 2 | Pending |
-| DATA-04 | Phase 2 | Pending |
-| DATA-05 | Phase 2 | Pending |
-| DATA-06 | Phase 2 | Pending |
+| DATA-01 | Phase 2 | Validated |
+| DATA-02 | Phase 2 | Validated |
+| DATA-03 | Phase 2 | Validated |
+| DATA-04 | Phase 2 | Validated |
+| DATA-05 | Phase 2 | Validated |
+| DATA-06 | Phase 2 | Validated |
 | RAG-01 | Phase 3 | Pending |
 | RAG-02 | Phase 3 | Pending |
 | RAG-03 | Phase 3 | Pending |

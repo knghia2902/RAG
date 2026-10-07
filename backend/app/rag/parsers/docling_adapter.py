@@ -30,7 +30,11 @@ class DoclingAdapter:
 
     def __init__(self) -> None:
         # CRITICAL SECURITY / SCOPE CONSTRAINT: do_ocr=False
-        self.pipeline_options = PdfPipelineOptions(do_ocr=False)
+        self.pipeline_options = PdfPipelineOptions(
+            do_ocr=False,
+            do_table_structure=False,
+            generate_page_images=False,
+        )
         self.converter = DocumentConverter(
             format_options={
                 InputFormat.PDF: PdfFormatOption(pipeline_options=self.pipeline_options)

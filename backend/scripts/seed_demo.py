@@ -38,7 +38,7 @@ def main():
     values = []
     for username in ("demo-granted", "demo-ungranted"):
         password = getpass.getpass(f"Mật khẩu {username} (8–128 ký tự): ")
-        if password != getpass.getpass("Nhập lại mật khẩu: "):
+        if password != getpass.getpass("Nhập lại mật khẩu (8–128 ký tự): "):
             raise SystemExit("Mật khẩu không khớp; không thay đổi dữ liệu")
         values.append(password)
     try:

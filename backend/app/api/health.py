@@ -15,7 +15,7 @@ class HealthStatus(BaseModel):
 def database_ready() -> bool:
     try:
         with SessionLocal() as db:
-            return db.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0001_access_control"
+            return db.execute(text("SELECT version_num FROM alembic_version")).scalar_one() in ("0001_access_control", "0002_source_lifecycle")
     except Exception:
         # Never expose driver messages, connection strings or credentials.
         return False

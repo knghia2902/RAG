@@ -9,7 +9,7 @@ Workflow tự động, granularity standard, kế hoạch độc lập có thể
 ## Phases
 
 - [x] **Phase 1: Local Workspace and Access Control** - Chạy Web/API/database local và sử dụng tài khoản Admin/Kỹ thuật viên với quyền dataset. (completed 2026-10-07)
-- [ ] **Phase 2: Dataset Ingestion and Source Lifecycle** - Upload đa định dạng, chuẩn hóa dữ liệu và quản lý nguồn có provenance.
+- [x] **Phase 2: Dataset Ingestion and Source Lifecycle** - Upload đa định dạng, chuẩn hóa dữ liệu và quản lý nguồn có provenance. (completed 2026-10-07)
 - [ ] **Phase 3: Grounded Knowledge Retrieval** - Hỏi đáp LangChain/pgvector qua OpenAI providers, truy xuất chính xác và xem bằng chứng.
 - [ ] **Phase 4: Logistics Incident and Ticket Analysis** - Phân tích log/ticket WMS–TMS, giả thuyết nguyên nhân và đề xuất xử lý có nguồn.
 - [ ] **Phase 5: On-Demand Incident Reports and PDF** - Báo cáo số liệu xác định theo kỳ/custom, nhận xét có nguồn và PDF.
@@ -68,7 +68,7 @@ Workflow tự động, granularity standard, kế hoạch độc lập có thể
 4. Admin xóa/reprocess nguồn; chỉ version active được đọc và đưa vào index ở phase 3. Người mất quyền không xem/tải được nguồn qua API trực tiếp.
 5. Loader/parser boundary trả nội dung và provenance mà không phụ thuộc LLM; OCR/format chưa hỗ trợ báo rõ và không đánh dấu ready sai.
 
-**Plans:** 3/5 plans complete
+**Plans:** 5/5 plans complete
 **Wave 1**
 
 - [x] 02-01-PLAN.md
@@ -168,7 +168,7 @@ Chi tiết models, parser packages, queue implementation, timezone/report rules 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Local Workspace and Access Control | 5/5 | Complete    | 2026-10-07 |
-| 2. Dataset Ingestion and Source Lifecycle | 0/TBD | Not started | - |
+| 2. Dataset Ingestion and Source Lifecycle | 5/5 | Complete    | 2026-10-07 |
 | 3. Grounded Knowledge Retrieval | 0/TBD | Not started | - |
 | 4. Logistics Incident and Ticket Analysis | 0/TBD | Not started | - |
 | 5. On-Demand Incident Reports and PDF | 0/TBD | Not started | - |

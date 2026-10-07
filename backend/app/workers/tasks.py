@@ -34,7 +34,8 @@ logger = logging.getLogger("rag.worker")
 
 def get_source_storage_path(storage_key: str) -> Path:
     """Trả về đường dẫn an toàn tới tệp nguồn trong storage riêng tư."""
-    storage_dir = os.environ.get("STORAGE_DIR", "/app/storage")
+    default_dir = "/tmp/storage" if os.environ.get("TEST_MODE") == "true" else "/app/storage"
+    storage_dir = os.environ.get("STORAGE_DIR", default_dir)
     return Path(storage_dir) / "sources" / storage_key
 
 
