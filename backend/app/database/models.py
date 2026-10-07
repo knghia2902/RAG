@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, Integer, String, UniqueConstraint
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, Index, Integer, String, UniqueConstraint, text
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -66,3 +66,93 @@ class LoginRateBucket(Base):
     key: Mapped[str] = mapped_column(String(64), primary_key=True)
     window_start: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     failures: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+
+
+class Source(Base):
+    __tablename__ = "sources"
+    __table_args__ = (
+        Index(
+            "ix_sources_dataset_filename_active",
+            "dataset_id",
+            "logical_filename",
+            unique=True,
+            postgresql_where=text("deleted_at IS NULL"),
+        ),
+    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    dataset_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("datasets.id"), index=True, nullable=False)
+    logical_filename: Mapped[str] = mapped_column(String(255), nullable=False)
+    profile_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    active_version_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("source_versions.id", use_alter=True, name="fk_sources_active_version"),
+        nullable=True,
+    )
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow, nullable=False)
+
+
+class SourceVersion(Base):
+    __tablename__ = "source_versions"
+    __table_args__ = (
+        UniqueConstraint("source_id", "version_number", name="uq_source_versions_num"),
+        CheckConstraint("version_number >= 1", name="positive_version_number"),
+    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    source_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("sources.id"), index=True, nullable=False)
+    version_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    content_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    storage_key: Mapped[str] = mapped_column(String(255), nullable=False)
+    size_bytes: Mapped[int] = mapped_column(Integer, nullable=False)
+    mime_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+
+
+class ImportJob(Base):
+    __tablename__ = "import_jobs"
+    __table_args__ = (
+        CheckConstraint("state IN ('queued','processing','ready','failed')", name="job_state_valid"),
+    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    source_version_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("source_versions.id"), index=True, nullable=False)
+    state: Mapped[str] = mapped_column(String(32), default="queued", nullable=False)
+    attempt_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    max_attempts: Mapped[int] = mapped_column(Integer, default=3, nullable=False)
+    lease_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    error_code: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    error_message: Mapped[str | None] = mapped_column(String(1000), nullable=True)
+    diagnostics: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow, nullable=False)
+
+
+class ParseRun(Base):
+    __tablename__ = "parse_runs"
+    __table_args__ = (
+        CheckConstraint("status IN ('staged','published','failed')", name="parse_run_status_valid"),
+    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    source_version_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("source_versions.id"), index=True, nullable=False)
+    job_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("import_jobs.id"), nullable=False)
+    parser_name: Mapped[str] = mapped_column(String(64), nullable=False)
+    parser_version: Mapped[str] = mapped_column(String(32), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), default="staged", nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+
+
+class CanonicalRecord(Base):
+    __tablename__ = "canonical_records"
+    __table_args__ = (
+        CheckConstraint("position >= 1", name="positive_position"),
+    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    parse_run_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("parse_runs.id"), index=True, nullable=False)
+    source_version_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("source_versions.id"), index=True, nullable=False)
+    dataset_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("datasets.id"), index=True, nullable=False)
+    position: Mapped[int] = mapped_column(Integer, nullable=False)
+    locator_data: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    content_text: Mapped[str] = mapped_column(String, nullable=False)
+    record_metadata: Mapped[dict] = mapped_column(JSONB, default=dict, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+

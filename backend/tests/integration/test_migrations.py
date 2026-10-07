@@ -10,18 +10,47 @@ from tests.conftest import PASSWORD
 
 
 def test_head_vector_constraints_and_replay(db):
-    bootstrap_admin("admin",PASSWORD)
+    bootstrap_admin("admin", PASSWORD)
     with engine.connect() as connection:
-        assert connection.scalar(text("SELECT version_num FROM alembic_version"))=="0001_access_control"
-        assert connection.scalar(text("SELECT extversion FROM pg_extension WHERE extname='vector'"))=="0.8.7"
-        names=connection.scalars(text("SELECT conname FROM pg_constraint WHERE conrelid='accounts'::regclass")).all()
+        assert connection.scalar(text("SELECT version_num FROM alembic_version")) in ("0001_access_control", "0002_source_lifecycle")
+        assert connection.scalar(text("SELECT extversion FROM pg_extension WHERE extname='vector'")) == "0.8.7"
+        names = connection.scalars(text("SELECT conname FROM pg_constraint WHERE conrelid='accounts'::regclass")).all()
         assert "account_role" in names and "username_normalized" in names
     for _ in range(2):
-        subprocess.run(["python","-m","alembic","upgrade","head"],check=True)
-    assert db.scalar(select(func.count()).select_from(Account))==1
+        subprocess.run(["python", "-m", "alembic", "upgrade", "head"], check=True)
+    with engine.connect() as connection:
+        assert connection.scalar(text("SELECT version_num FROM alembic_version")) == "0002_source_lifecycle"
+    assert db.scalar(select(func.count()).select_from(Account)) == 1
     with pytest.raises(DBAPIError):
-        db.execute(text("UPDATE accounts SET username='changed'"));db.commit()
+        db.execute(text("UPDATE accounts SET username='changed'"))
+        db.commit()
     db.rollback()
+
+
+def test_migration_0002_source_lifecycle_schema(db):
+    subprocess.run(["python", "-m", "alembic", "upgrade", "head"], check=True)
+    with engine.connect() as connection:
+        assert connection.scalar(text("SELECT version_num FROM alembic_version")) == "0002_source_lifecycle"
+        tables = connection.scalars(text(
+            "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"
+        )).all()
+        for t in ("sources", "source_versions", "import_jobs", "parse_runs", "canonical_records"):
+            assert t in tables, f"Table {t} missing"
+
+        indexes = connection.scalars(text(
+            "SELECT indexname FROM pg_indexes WHERE tablename = 'sources'"
+        )).all()
+        assert "ix_sources_dataset_filename_active" in indexes, "Partial unique index missing"
+
+        constraints = connection.scalars(text(
+            "SELECT conname FROM pg_constraint WHERE conrelid IN ("
+            "'source_versions'::regclass, 'import_jobs'::regclass, 'parse_runs'::regclass, 'canonical_records'::regclass)"
+        )).all()
+        assert "uq_source_versions_num" in constraints
+        assert "positive_version_number" in constraints
+        assert "job_state_valid" in constraints
+        assert "parse_run_status_valid" in constraints
+        assert "positive_position" in constraints
 
 
 def test_empty_upgrade_and_not_ready_before_head(client,db):
