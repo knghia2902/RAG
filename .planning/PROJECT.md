@@ -16,13 +16,17 @@ Kỹ thuật viên có thể tìm bằng chứng liên quan và nhận phân tí
 
 ### Validated
 
-Chưa có — cần triển khai và kiểm chứng MVP.
+- Admin/Kỹ thuật viên đăng nhập và đăng xuất; tài khoản bị vô hiệu hóa mất quyền truy cập API; Admin tạo, cập nhật role, đặt lại mật khẩu và vô hiệu hóa tài khoản — Phase 1 (AUTH-01, AUTH-02).
+- Admin cấp/thu hồi quyền dataset; Kỹ thuật viên mặc định không có quyền và chỉ thấy dataset được cấp — Phase 1 (AUTH-03).
+- Local Docker Compose runtime với PostgreSQL + pgvector, dữ liệu bền vững qua restart và giao diện chỉ publish trên loopback — Phase 1 (SYS-01).
+- Web gọi FastAPI theo contract; module/provider boundary và policy seam có thể mở rộng — Phase 1 (SYS-04).
+- Policy contract cho nguồn, lịch sử kết quả và báo cáo được xác định cho các module sau; endpoint thực tế và kiểm tra quyền tại các endpoint đó vẫn là phần việc của các phase tương ứng — Phase 1 slice (AUTH-04, AUTH-05).
 
 ### Active
 
-- [ ] Admin quản lý tài khoản, cấp phạm vi dữ liệu, quản lý tài liệu/dataset và cấu hình hệ thống; xem toàn bộ báo cáo.
-- [ ] Kỹ thuật viên đăng nhập, tra cứu/phân tích và tạo/xem báo cáo trong phạm vi được cấp quyền.
-- [ ] Role/permission được thiết kế mở để bổ sung vai trò sau này; kiểm tra quyền phía backend cho truy xuất, nguồn và báo cáo.
+- [ ] Admin upload/quản lý tài liệu và dataset, theo dõi ingestion, cấu hình provider và xem báo cáo.
+- [ ] Kỹ thuật viên tra cứu/phân tích bằng RAG và tạo/xem báo cáo trong phạm vi dataset được cấp.
+- [ ] Áp dụng và kiểm thử policy hiện hành trên các endpoint nguồn, truy xuất, lịch sử và báo cáo/PDF khi những module đó được triển khai.
 - [ ] Parser hỗ trợ PDF có text, DOCX, CSV, XLSX, TXT, JSON/JSONL và .log; tách module để thêm OCR sau này.
 - [ ] Người dùng upload và quản lý dữ liệu/tài liệu trên Web.
 - [ ] Lập chỉ mục các nguồn dữ liệu phù hợp để truy xuất bằng RAG.
@@ -153,4 +157,4 @@ Sau mỗi phase: chuyển yêu cầu đã kiểm chứng sang Validated; chuyể
 Sau mỗi milestone: rà soát toàn bộ tài liệu, giá trị cốt lõi, phạm vi loại trừ và bối cảnh sử dụng thực tế.
 
 ---
-*Last updated: 2026-10-03 after user locked Modular RAG stack and project structure.*
+*Last updated: 2026-10-07 after Phase 1 UAT and access-control acceptance.*

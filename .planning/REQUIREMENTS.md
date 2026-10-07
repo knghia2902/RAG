@@ -1,7 +1,7 @@
 # Requirements: Modular RAG cho IT & Logistics
 
 **Defined:** 2026-10-03
-**Status:** v1 scope defined from user decisions; stack updated to FastAPI/LangChain/pgvector/OpenAI/Next.js. Roadmap follows vertical MVP slices under the authorized automatic workflow.
+**Status:** v1 scope defined from user decisions; Phase 1 requirements are validated or explicitly carried forward at the Phase 1 policy-contract boundary. Remaining v1 requirements are still active in later phases.
 **Core Value:** Kỹ thuật viên tìm bằng chứng và nhận phân tích, đề xuất xử lý sự cố logistics kèm nguồn để kiểm tra.
 
 ## v1 Requirements
@@ -92,11 +92,11 @@ Mỗi yêu cầu v1 phải có evidence nghiệm thu phù hợp. Bộ eval phả
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 1 | Pending |
-| AUTH-02 | Phase 1 | Pending |
-| AUTH-03 | Phase 1 | Pending |
-| AUTH-04 | Phase 1 | Pending |
-| AUTH-05 | Phase 1 | Pending |
+| AUTH-01 | Phase 1 | Validated |
+| AUTH-02 | Phase 1 | Validated |
+| AUTH-03 | Phase 1 | Validated |
+| AUTH-04 | Phase 1 | Policy contract validated; source/retrieval/history/report/PDF checks carry forward |
+| AUTH-05 | Phase 1 | Capability contract validated; report endpoint carries forward |
 | DATA-01 | Phase 2 | Pending |
 | DATA-02 | Phase 2 | Pending |
 | DATA-03 | Phase 2 | Pending |
@@ -119,10 +119,10 @@ Mỗi yêu cầu v1 phải có evidence nghiệm thu phù hợp. Bộ eval phả
 | REP-04 | Phase 5 | Pending |
 | REP-05 | Phase 5 | Pending |
 | REP-06 | Phase 5 | Pending |
-| SYS-01 | Phase 1 | Pending |
+| SYS-01 | Phase 1 | Validated |
 | SYS-02 | Phase 3 | Pending |
 | SYS-03 | Phase 3 | Pending |
-| SYS-04 | Phase 1 | Pending |
+| SYS-04 | Phase 1 | Validated |
 | SYS-05 | Phase 3 | Pending |
 | EVAL-01 | Phase 4 | Pending |
 | EVAL-02 | Phase 6 | Pending |

@@ -6,7 +6,7 @@
     {
       "number": "1",
       "name": "Local Workspace and Access Control",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "number": "2",
@@ -36,8 +36,8 @@
   ],
   "next": {
     "command": "/gsd:progress --next",
-    "label": "Advance to the next step",
-    "reason": "Phase 1 of 6 · 0% · executing"
+    "label": "Advance to the next step (plan phase 2)",
+    "reason": "Phase 2 of 6 — needs a plan"
   },
-  "updated_at": "2026-10-03T11:11:29.115Z"
+  "updated_at": "2026-10-07T04:50:01.161Z"
 }
