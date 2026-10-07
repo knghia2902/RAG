@@ -1,140 +1,35 @@
 import pytest
 from datetime import datetime, timezone
-from pydantic import BaseModel, Field
+from app.rag.parsers.base import ParserDiagnostic
+from app.rag.parsers.profiles import (
+    PROFILES,
+    ProfileDefinition,
+    ProfileValidationResult,
+    get_profile,
+    normalize_timestamp,
+    validate_document_profile,
+    validate_incident_record,
+    validate_log_record,
+    validate_operations_table_record,
+    validate_records,
+    validate_ticket_record,
+)
 
 
-class ParserDiagnostic(BaseModel):
-    row: int | None = None
-    record: int | None = None
-    field: str | None = None
-    reason: str
+def test_profile_definitions_exist_and_conform():
+    assert len(PROFILES) == 5
+    for expected_id in ("document", "log", "ticket", "incident", "operations_table"):
+        profile = get_profile(expected_id)
+        assert isinstance(profile, ProfileDefinition)
+        assert profile.id == expected_id
+        assert len(profile.name) > 0
+        assert len(profile.supported_formats) > 0
 
+    assert "timestamp" in PROFILES["log"].expected_fields
+    assert "ticket_id" in PROFILES["ticket"].expected_fields
+    assert "incident_id" in PROFILES["incident"].expected_fields
+    assert "entity_id" in PROFILES["operations_table"].expected_fields
 
-class ProfileValidationResult(BaseModel):
-    is_valid: bool
-    normalized_data: dict | list | None = None
-    diagnostics: list[ParserDiagnostic] = Field(default_factory=list)
-
-
-def validate_document_profile(content: str) -> ProfileValidationResult:
-    if not content or not content.strip():
-        return ProfileValidationResult(
-            is_valid=False,
-            diagnostics=[ParserDiagnostic(row=1, field="content", reason="Nội dung tài liệu không được để trống")]
-        )
-    return ProfileValidationResult(is_valid=True, normalized_data={"text": content.strip()})
-
-
-def validate_log_record(row: int, record: dict) -> ProfileValidationResult:
-    diagnostics = []
-    for req in ("timestamp", "system", "severity"):
-        if req not in record or not record[req]:
-            diagnostics.append(ParserDiagnostic(row=row, field=req, reason=f"Thiếu trường bắt buộc '{req}'"))
-
-    if diagnostics:
-        return ProfileValidationResult(is_valid=False, diagnostics=diagnostics)
-
-    raw_ts = record["timestamp"]
-    try:
-        dt = datetime.fromisoformat(raw_ts)
-        if dt.tzinfo is None:
-            return ProfileValidationResult(
-                is_valid=False,
-                diagnostics=[ParserDiagnostic(row=row, field="timestamp", reason="Timestamp phải có thông tin múi giờ (UTC)")]
-            )
-        utc_ts = dt.astimezone(timezone.utc).isoformat()
-    except Exception:
-        return ProfileValidationResult(
-            is_valid=False,
-            diagnostics=[ParserDiagnostic(row=row, field="timestamp", reason="Định dạng timestamp không hợp lệ, yêu cầu ISO-8601")]
-        )
-
-    normalized = {
-        "timestamp": utc_ts,
-        "system": str(record["system"]).strip(),
-        "severity": str(record["severity"]).upper().strip(),
-        "message": record.get("message", "").strip(),
-        "trace_id": record.get("trace_id")
-    }
-    return ProfileValidationResult(is_valid=True, normalized_data=normalized)
-
-
-def validate_ticket_record(row: int, record: dict) -> ProfileValidationResult:
-    diagnostics = []
-    for req in ("ticket_id", "system", "status", "priority", "opened_at"):
-        if req not in record or not record[req]:
-            diagnostics.append(ParserDiagnostic(row=row, field=req, reason=f"Thiếu trường bắt buộc '{req}'"))
-
-    if diagnostics:
-        return ProfileValidationResult(is_valid=False, diagnostics=diagnostics)
-
-    try:
-        opened_dt = datetime.fromisoformat(record["opened_at"])
-        if opened_dt.tzinfo is None:
-            diagnostics.append(ParserDiagnostic(row=row, field="opened_at", reason="opened_at phải có thông tin múi giờ (UTC)"))
-    except Exception:
-        diagnostics.append(ParserDiagnostic(row=row, field="opened_at", reason="Định dạng opened_at không hợp lệ"))
-
-    if diagnostics:
-        return ProfileValidationResult(is_valid=False, diagnostics=diagnostics)
-
-    return ProfileValidationResult(
-        is_valid=True,
-        normalized_data={
-            "ticket_id": str(record["ticket_id"]).strip(),
-            "system": str(record["system"]).strip(),
-            "status": str(record["status"]).lower().strip(),
-            "priority": str(record["priority"]).upper().strip(),
-            "opened_at": opened_dt.astimezone(timezone.utc).isoformat(),
-            "resolved_at": record.get("resolved_at"),
-            "assignee": record.get("assignee")
-        }
-    )
-
-
-def validate_incident_record(row: int, record: dict) -> ProfileValidationResult:
-    diagnostics = []
-    for req in ("incident_id", "system", "status", "priority", "created_at"):
-        if req not in record or not record[req]:
-            diagnostics.append(ParserDiagnostic(row=row, field=req, reason=f"Thiếu trường bắt buộc '{req}'"))
-
-    if diagnostics:
-        return ProfileValidationResult(is_valid=False, diagnostics=diagnostics)
-
-    return ProfileValidationResult(
-        is_valid=True,
-        normalized_data={
-            "incident_id": str(record["incident_id"]).strip(),
-            "system": str(record["system"]).strip(),
-            "status": str(record["status"]).lower().strip(),
-            "priority": str(record["priority"]).upper().strip(),
-            "created_at": record["created_at"],
-            "confirmed_cause": record.get("confirmed_cause")
-        }
-    )
-
-
-def validate_operations_table_record(row: int, record: dict) -> ProfileValidationResult:
-    diagnostics = []
-    for req in ("entity_id", "entity_type", "status", "updated_at"):
-        if req not in record or not record[req]:
-            diagnostics.append(ParserDiagnostic(row=row, field=req, reason=f"Thiếu trường bắt buộc '{req}'"))
-
-    if diagnostics:
-        return ProfileValidationResult(is_valid=False, diagnostics=diagnostics)
-
-    return ProfileValidationResult(
-        is_valid=True,
-        normalized_data={
-            "entity_id": str(record["entity_id"]).strip(),
-            "entity_type": str(record["entity_type"]).strip(),
-            "status": str(record["status"]).strip(),
-            "updated_at": record["updated_at"]
-        }
-    )
-
-
-# --- Test Cases ---
 
 def test_document_profile_valid_and_empty():
     res_valid = validate_document_profile("SOP quy trình xử lý lỗi đồng bộ WMS-TMS")
@@ -218,3 +113,43 @@ def test_operations_table_profile_row_validation():
     res = validate_operations_table_record(row=12, record=row_data)
     assert res.is_valid
     assert res.normalized_data["entity_id"] == "ORDER-5512"
+
+
+def test_validate_records_batch_processing():
+    records = [
+        {
+            "ticket_id": "TCK-1",
+            "system": "WMS",
+            "status": "OPEN",
+            "priority": "P1",
+            "opened_at": "2026-10-07T01:00:00Z",
+            "category": "inventory",
+        },
+        {
+            "ticket_id": "TCK-2",
+            "system": "TMS",
+            # missing status, priority, opened_at
+        },
+    ]
+    normalized, diagnostics, is_valid = validate_records("ticket", records)
+    assert not is_valid
+    assert len(diagnostics) >= 3
+    assert all(d.row == 2 for d in diagnostics)
+    assert len(normalized) == 1
+    assert normalized[0]["category"] == "inventory"
+
+
+def test_normalize_timestamp_formats_and_errors():
+    dt_z = normalize_timestamp("2026-10-07T10:00:00Z")
+    assert dt_z.tzinfo == timezone.utc
+    assert dt_z.hour == 10
+
+    dt_offset = normalize_timestamp("2026-10-07T17:00:00+07:00")
+    assert dt_offset.tzinfo == timezone.utc
+    assert dt_offset.hour == 10
+
+    with pytest.raises(ValueError, match="múi giờ"):
+        normalize_timestamp("2026-10-07 10:00:00")
+
+    with pytest.raises(ValueError, match="ISO-8601"):
+        normalize_timestamp("not-a-timestamp")
