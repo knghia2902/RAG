@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Plan 02-04 completed
-last_updated: "2026-10-07T11:55:00.000Z"
-last_activity: 2026-10-07 -- Plan 02-04 completed (Source API Routes & Live Scope Authorization)
+stopped_at: Plan 02-05 completed
+last_updated: "2026-10-07T12:12:00.000Z"
+last_activity: 2026-10-07 -- Plan 02-05 completed (Vietnamese Source Workspace UI & End-to-End Acceptance)
 progress:
   total_phases: 6
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 10
-  completed_plans: 9
-  percent: 90
+  completed_plans: 10
+  percent: 100
 ---
 
 # Project State
@@ -21,22 +21,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-07)
 
 **Core value:** Kỹ thuật viên tìm bằng chứng và nhận phân tích, đề xuất xử lý sự cố logistics kèm nguồn để kiểm tra.
-**Current focus:** Phase 02 — Dataset Ingestion and Source Lifecycle
+**Current focus:** Phase 02 — Dataset Ingestion and Source Lifecycle (Completed)
 
 ## Current Position
 
-Phase: 02 (Dataset Ingestion and Source Lifecycle) — EXECUTING
-Plan: 4 of 5 complete (Next: Plan 02-05)
-Status: Executing Phase 02
-Last activity: 2026-10-07 -- Plan 02-04 completed
+Phase: 02 (Dataset Ingestion and Source Lifecycle) — COMPLETED
+Plan: 5 of 5 complete (Plan 02-05 completed)
+Status: Completed Phase 02
+Last activity: 2026-10-07 -- Plan 02-05 completed
 
-Progress: [▓▓▓▓▓▓▓▓░░] 80% (4 of 5 plans complete)
+Progress: [▓▓▓▓▓▓▓▓▓▓] 100% (5 of 5 plans complete in Phase 02)
 
 ## Performance Metrics
 
-- Total plans completed: 5 of 5 in Phase 1
+- Total plans completed: 5 of 5 in Phase 1, 5 of 5 in Phase 2 (10 plans total)
 - Execution time: Per-plan timings recorded in committed SUMMARY files.
-- Phase 1 completion: implementation verification passed (24/24 must-haves), all 5 manual UAT checks passed, security audit has 0 open threats, and Nyquist validation has 0 gaps. Automated evidence includes 76 backend and 15 browser scenarios, build/typecheck/lint, and isolated operational acceptance.
+- Phase 2 completion: multi-format parsers (Docling PDF/DOCX, CSV/XLSX, JSON/JSONL, TXT/LOG), schema profiles, immutable versions, durable Celery jobs, live scope authorization, Vietnamese workspace UI, and E2E acceptance tests are complete and verified.
 
 ## Accumulated Context
 
@@ -47,7 +47,7 @@ Detailed decisions: PROJECT.md.
 - FastAPI + LangChain + PostgreSQL/pgvector + Next.js/TypeScript; Docker Compose.
 - OpenAI Embeddings and generation APIs, two provider interfaces; local/Gemini later.
 - Admin/Kỹ thuật viên; dataset ACL baseline; evidence and PDF enforce current permissions.
-- Phase 1 complete: login/session, account administration, dataset grants, local Compose runtime and reusable authorization/module contracts are accepted; future source/retrieval/history/report endpoints still require their own permission tests.
+- Phase 2 complete: multi-file multipart upload, immutable source versions, published schema validation, atomic activation guarantee, format-specific locators (Trang, Dòng, Sheet/Hàng, JSON Path), and Vietnamese workspace dialogs.
 - PDF text/DOCX/TXT/LOG/JSON/JSONL/CSV/XLSX; report on demand; OCR/MCP/Agent/scheduler deferred.
 - Automatic workflow, standard granularity, parallel independent plans, Git tracking, inherit model.
 
@@ -57,7 +57,7 @@ No separate pending todos.
 
 ### Blockers/Concerns
 
-Phase 2 must settle ingestion schemas, source-version/provenance behavior, parser limits, queue choice and dependency pins. Embedding/generation models and API credentials are needed before real provider calls in Phase 3; no keys were requested or API calls run during Phase 1.
+Phase 2 completed. Embedding/generation models and API credentials are needed before real provider calls in Phase 3; no keys were requested or API calls run during Phase 1 and Phase 2.
 
 ### Quick Tasks Completed
 
@@ -71,6 +71,6 @@ OCR, scheduler/report delivery, MCP, Agent/tools, real connectors, Excel/Word, l
 
 ## Session Continuity
 
-Last session: 2026-10-07T11:55:00.000Z
-Stopped at: Plan 02-04 completed
-Resume file: .planning/phases/02-dataset-ingestion-and-source-lifecycle/02-05-PLAN.md
+Last session: 2026-10-07T12:12:00.000Z
+Stopped at: Plan 02-05 completed
+Resume file: .planning/phases/02-dataset-ingestion-and-source-lifecycle/02-05-SUMMARY.md

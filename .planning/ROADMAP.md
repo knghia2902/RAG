@@ -87,7 +87,7 @@ Workflow tự động, granularity standard, kế hoạch độc lập có thể
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 02-05-PLAN.md
+- [x] 02-05-PLAN.md
 
 ### Phase 3: Grounded Knowledge Retrieval
 
