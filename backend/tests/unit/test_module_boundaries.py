@@ -23,7 +23,7 @@ def test_core_imports_do_not_depend_on_provider_implementations():
     root = Path("app")
     for folder in ("auth", "database", "rag", "llm", "modules"):
         for path in (root / folder).rglob("*.py"):
-            tree = ast.parse(path.read_text())
+            tree = ast.parse(path.read_text(encoding="utf-8"))
             for node in ast.walk(tree):
                 modules = [n.name for n in node.names] if isinstance(node, ast.Import) else [node.module or ""] if isinstance(node, ast.ImportFrom) else []
                 assert not any(m.split(".")[0] in {"openai", "langchain", "langchain_core", "langchain_openai", "langchain_postgres"} for m in modules), str(path)
