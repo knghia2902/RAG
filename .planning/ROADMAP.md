@@ -68,7 +68,26 @@ Workflow tự động, granularity standard, kế hoạch độc lập có thể
 4. Admin xóa/reprocess nguồn; chỉ version active được đọc và đưa vào index ở phase 3. Người mất quyền không xem/tải được nguồn qua API trực tiếp.
 5. Loader/parser boundary trả nội dung và provenance mà không phụ thuộc LLM; OCR/format chưa hỗ trợ báo rõ và không đánh dấu ready sai.
 
-**Plans:** TBD
+**Plans:** 1/5 plans complete
+**Wave 1**
+
+- [x] 02-01-PLAN.md
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 02-02-PLAN.md
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 02-03-PLAN.md
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 02-04-PLAN.md
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 02-05-PLAN.md
 
 ### Phase 3: Grounded Knowledge Retrieval
 
