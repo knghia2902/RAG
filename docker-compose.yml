@@ -33,6 +33,18 @@ services:
       interval: 3s
       timeout: 3s
       retries: 30
+  rabbitmq:
+    image: rabbitmq:4.3.6-management@sha256:8b09335a92a5ad6c57fba3089d380c85b54a72fa34b077c598a2eb34d31481b3
+    environment:
+      RABBITMQ_DEFAULT_USER: rag
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-rabbitmq-local-pass}
+    volumes: [rabbitmq-data:/var/lib/rabbitmq]
+    networks: [local]
+    healthcheck:
+      test: [CMD, rabbitmq-diagnostics, check_port_connectivity]
+      interval: 5s
+      timeout: 5s
+      retries: 30
   migrate:
     <<: *backend
     environment: &operational-env
@@ -40,6 +52,7 @@ services:
       APP_ORIGIN: ${APP_ORIGIN:-http://localhost:3000}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       LANGCHAIN_TRACING_V2: "false"
+      RABBITMQ_URL: amqp://rag:${RABBITMQ_PASSWORD:-rabbitmq-local-pass}@rabbitmq:5672//
     command: [python, -m, alembic, upgrade, head]
     depends_on:
       postgres: {condition: service_healthy}
@@ -50,6 +63,18 @@ services:
     healthcheck: *api-health
     depends_on:
       migrate: {condition: service_completed_successfully}
+      rabbitmq: {condition: service_healthy}
+  worker:
+    <<: *backend
+    environment:
+      <<: *operational-env
+      RABBITMQ_URL: amqp://rag:${RABBITMQ_PASSWORD:-rabbitmq-local-pass}@rabbitmq:5672//
+    volumes: [./data/uploads:/app/data/uploads, ./storage:/app/storage]
+    command: [python, -m, celery, -A, app.workers.celery_app.celery_app, worker, --loglevel=info, --concurrency=2]
+    networks: [local]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      rabbitmq: {condition: service_healthy}
   frontend:
     build: {context: ./frontend, target: web, args: {API_TARGET: "http://backend:8000"}}
     image: logistics-rag-web:phase1
@@ -110,3 +135,4 @@ networks:
 volumes:
   postgres-data:
   postgres-test-data:
+  rabbitmq-data:
