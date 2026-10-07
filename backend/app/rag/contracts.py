@@ -20,6 +20,9 @@ class SourceLocator(BoundaryDTO):
     row: Position | None = None
     event: Position | None = None
     record: Position | None = None
+    line_start: Position | None = None
+    line_end: Position | None = None
+    json_path: LocatorText | None = None
 
 
 class AuthorizedScope(BoundaryDTO):
