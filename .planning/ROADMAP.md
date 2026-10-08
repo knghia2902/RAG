@@ -104,10 +104,10 @@ Workflow tự động, granularity standard, kế hoạch độc lập có thể
 4. ACL/active-source filters áp dụng trước mọi retrieval branch, context chỉ chứa bằng chứng được phép; response và history kiểm tra quyền hiện tại, không trả dữ liệu đã mất quyền trong quá trình request.
 5. Context generation có token budget; secret fixtures được che trước embedding và generation egress; timeout/API errors hiển thị rõ, cloud tracing tắt mặc định và secrets không xuất hiện trên Web.
 
-**Plans:** 0/5 plans complete
+**Plans:** 1/5 plans complete
 **Wave 1**
 
-- [ ] 03-01-PLAN.md
+- [x] 03-01-PLAN.md
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
