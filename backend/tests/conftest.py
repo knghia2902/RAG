@@ -9,8 +9,11 @@ from app.database.models import (
     Account,
     AuthSession,
     CanonicalRecord,
+    ChatMessage,
+    ChatSession,
     Dataset,
     DatasetGrant,
+    EmbeddingRecord,
     ImportJob,
     LoginRateBucket,
     ParseRun,
@@ -28,6 +31,9 @@ def reset_database():
     with SessionLocal.begin() as db:
         db.execute(Source.__table__.update().values(active_version_id=None))
         for model in (
+            EmbeddingRecord,
+            ChatMessage,
+            ChatSession,
             CanonicalRecord,
             ParseRun,
             ImportJob,
