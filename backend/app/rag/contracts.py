@@ -1,5 +1,5 @@
 """Provider-free DTOs and adapter protocols. No policy or provider clients here."""
-from typing import Annotated, Protocol
+from typing import Annotated, Protocol, runtime_checkable
 from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -55,6 +55,7 @@ class Chunker(Protocol):
     def chunk(self, evidence: EvidenceChunk) -> tuple[EvidenceChunk, ...]: ...
 
 
+@runtime_checkable
 class EmbeddingProvider(Protocol):
     @property
     def index(self) -> EmbeddingIndex: ...

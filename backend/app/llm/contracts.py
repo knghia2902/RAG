@@ -1,5 +1,5 @@
 """Generation only receives selected evidence, separately from embedding APIs."""
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 from pydantic import Field
 from app.rag.contracts import BoundaryDTO, EvidenceChunk, SourceLocator
 
@@ -14,5 +14,6 @@ class GenerationResult(BoundaryDTO):
     citations: tuple[SourceLocator, ...] = Field(min_length=1, max_length=100)
 
 
+@runtime_checkable
 class LLMProvider(Protocol):
     def generate(self, request: GenerationRequest) -> GenerationResult: ...
