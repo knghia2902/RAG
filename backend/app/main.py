@@ -25,8 +25,10 @@ from app.api.users import router as users_router
 app.include_router(users_router)
 from app.api.health import router as health_router
 from app.api.status import router as status_router
+from app.api import config
 app.include_router(health_router)
 app.include_router(status_router)
+app.include_router(config.router)
 from app.config import get_settings
 if get_settings().test_mode:
     from tests.support import router as test_router

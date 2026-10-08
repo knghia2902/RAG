@@ -223,6 +223,13 @@ def process_ingestion_job(self, job_id_str: str) -> None:
             db.commit()
             logger.info("Kích hoạt thành công phiên bản %s cho nguồn %s", version.id, source.id)
 
+            # Lập chỉ mục vector cho phiên bản mới được kích hoạt
+            try:
+                from app.database.sources import index_source_version
+                index_source_version(db, version.id)
+            except Exception as e:
+                logger.error("Lỗi khi lập chỉ mục vector cho version %s: %s", version.id, e)
+
         except UnsupportedFormatError as exc:
             job.state = "failed"
             job.error_code = "UNSUPPORTED_FORMAT"
@@ -253,3 +260,12 @@ def process_ingestion_job(self, job_id_str: str) -> None:
             else:
                 db.commit()
                 raise self.retry(exc=exc, countdown=2 ** retries)
+
+
+@celery_app.task
+def index_source_version_task(source_version_id_str: str) -> int:
+    """Tác vụ Celery lập chỉ mục vector cho source version."""
+    from app.database.sources import index_source_version
+    with SessionLocal() as db:
+        return index_source_version(db, UUID(source_version_id_str))
+

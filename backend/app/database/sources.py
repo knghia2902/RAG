@@ -21,6 +21,7 @@ from app.database.models import (
     Account,
     CanonicalRecord,
     Dataset,
+    EmbeddingRecord,
     ImportJob,
     ParseRun,
     Source,
@@ -287,6 +288,7 @@ def tombstone_source(
         raise HTTPException(404, "Không tìm thấy Nguồn dữ liệu")
 
     source.deleted_at = utcnow()
+    delete_source_embeddings(db, source.id)
     db.commit()
 
     logger.warning(
@@ -296,6 +298,78 @@ def tombstone_source(
         dataset_id,
         source.id,
     )
+
+
+def index_source_version(
+    db: Session,
+    source_version_id: UUID,
+    provider: Any | None = None,
+) -> int:
+    """Đồng bộ hóa các bản ghi canonical_records của version thành embedding_records."""
+    from app.config import get_settings
+    from app.providers.openai_embedding import OpenAIEmbeddingAdapter
+    from app.providers.fake import FakeEmbeddingAdapter
+    from app.rag.embeddings import EmbeddingService
+
+    if provider is None:
+        settings = get_settings()
+        key = settings.openai_api_key.get_secret_value() if settings.openai_api_key else ""
+        if key and not settings.test_mode:
+            provider = OpenAIEmbeddingAdapter(api_key=key)
+        else:
+            provider = FakeEmbeddingAdapter()
+
+    service = EmbeddingService(provider=provider)
+    version = db.get(SourceVersion, source_version_id)
+    if not version:
+        return 0
+
+    records = db.scalars(
+        select(CanonicalRecord)
+        .where(CanonicalRecord.source_version_id == source_version_id)
+        .order_by(CanonicalRecord.position)
+    ).all()
+    if not records:
+        return 0
+
+    # Xóa embeddings cũ nếu có để đảm bảo tính bất biến/idempotency
+    db.execute(delete(EmbeddingRecord).where(EmbeddingRecord.source_version_id == source_version_id))
+
+    texts = [r.content_text for r in records]
+    vectors = service.sanitize_and_embed(texts)
+
+    idx_info = service.index
+    new_embeddings = [
+        EmbeddingRecord(
+            canonical_record_id=r.id,
+            dataset_id=r.dataset_id,
+            source_version_id=r.source_version_id,
+            model_name=idx_info.model,
+            dimension=idx_info.dimension,
+            index_version=idx_info.index_version,
+            embedding=vec,
+        )
+        for r, vec in zip(records, vectors)
+    ]
+    db.add_all(new_embeddings)
+    db.commit()
+    logger.info("Đã lập chỉ mục %s vector cho version %s", len(new_embeddings), source_version_id)
+    return len(new_embeddings)
+
+
+def delete_source_embeddings(db: Session, source_id: UUID) -> int:
+    """Xóa toàn bộ vector embeddings thuộc về một nguồn (khi tombstone/xóa nguồn)."""
+    version_ids = db.scalars(
+        select(SourceVersion.id).where(SourceVersion.source_id == source_id)
+    ).all()
+    if not version_ids:
+        return 0
+
+    result = db.execute(
+        delete(EmbeddingRecord).where(EmbeddingRecord.source_version_id.in_(version_ids))
+    )
+    db.commit()
+    return result.rowcount or 0
 
 
 def reconcile_stale_jobs(db: Session) -> int:

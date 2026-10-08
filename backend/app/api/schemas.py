@@ -184,3 +184,19 @@ class EvidencePreviewPage(DTO):
     total: int
     page: int
     page_size: int
+
+
+class ModelConfigDTO(DTO):
+    embedding_provider: str
+    embedding_model: str
+    embedding_dimension: int
+    index_version: str
+    llm_provider: str
+    llm_model: str
+    openai_configured: bool
+
+
+class UpdateModelConfigDTO(DTO):
+    llm_model: str | None = None
+    embedding_model: str | None = None
+
