@@ -200,3 +200,47 @@ class UpdateModelConfigDTO(DTO):
     llm_model: str | None = None
     embedding_model: str | None = None
 
+
+class ChatSessionDTO(DTO):
+    id: UUID
+    title: str
+    created_at: datetime
+    updated_at: datetime
+
+
+class ChatMessageDTO(DTO):
+    id: UUID
+    role: str
+    content: str
+    citations: list[dict[str, Any]] = Field(default_factory=list)
+    has_uncertainty: bool = False
+    has_conflict: bool = False
+    created_at: datetime
+
+
+class ChatQueryRequestDTO(DTO):
+    question: str = Field(min_length=1, max_length=2000)
+    session_id: UUID | None = None
+    dataset_ids: list[UUID] | None = None
+    profile_id: str | None = None
+    start_time: datetime | None = None
+    end_time: datetime | None = None
+
+
+class ChatQueryResponseDTO(DTO):
+    session_id: UUID
+    message: ChatMessageDTO
+    citations: list[dict[str, Any]] = Field(default_factory=list)
+
+
+class CitationPreviewResponseDTO(DTO):
+    citation_index: int
+    dataset_id: UUID
+    dataset_name: str
+    source_id: UUID
+    logical_filename: str
+    version_number: int
+    locator: SourceLocatorDTO
+    excerpt_text: str
+
+

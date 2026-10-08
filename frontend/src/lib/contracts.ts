@@ -82,3 +82,66 @@ export type UploadResultItem = {
 export type UploadBatchResponse = {
   items: UploadResultItem[];
 };
+
+export type ChatSession = {
+  id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CitationItem = {
+  citation_index: number;
+  dataset_id: string;
+  source_id: string;
+  source_version: number;
+  locator: SourceLocator;
+  excerpt_text: string;
+};
+
+export type ChatMessage = {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  citations: CitationItem[];
+  has_uncertainty: boolean;
+  has_conflict: boolean;
+  created_at: string;
+};
+
+export type ChatQueryRequest = {
+  question: string;
+  session_id?: string;
+  dataset_ids?: string[];
+  profile_id?: string;
+  start_time?: string;
+  end_time?: string;
+};
+
+export type ChatQueryResponse = {
+  session_id: string;
+  message: ChatMessage;
+  citations: CitationItem[];
+};
+
+export type CitationPreviewDetail = {
+  citation_index: number;
+  dataset_id: string;
+  dataset_name: string;
+  source_id: string;
+  logical_filename: string;
+  version_number: number;
+  locator: SourceLocator;
+  excerpt_text: string;
+};
+
+export type ModelConfig = {
+  embedding_provider: string;
+  embedding_model: string;
+  embedding_dimension: number;
+  index_version: string;
+  llm_provider: string;
+  llm_model: string;
+  openai_configured: boolean;
+};
+
