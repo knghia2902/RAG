@@ -104,7 +104,7 @@ Workflow tự động, granularity standard, kế hoạch độc lập có thể
 4. ACL/active-source filters áp dụng trước mọi retrieval branch, context chỉ chứa bằng chứng được phép; response và history kiểm tra quyền hiện tại, không trả dữ liệu đã mất quyền trong quá trình request.
 5. Context generation có token budget; secret fixtures được che trước embedding và generation egress; timeout/API errors hiển thị rõ, cloud tracing tắt mặc định và secrets không xuất hiện trên Web.
 
-**Plans:** 3/5 plans complete
+**Plans:** 4/5 plans complete
 **Wave 1**
 
 - [x] 03-01-PLAN.md
@@ -119,12 +119,12 @@ Workflow tự động, granularity standard, kế hoạch độc lập có thể
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 03-04-PLAN.md
-
+- [x] 03-04-PLAN.md
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
 - [ ] 03-05-PLAN.md
+
 
 ### Phase 4: Logistics Incident and Ticket Analysis
 
