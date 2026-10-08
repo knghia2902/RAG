@@ -50,8 +50,10 @@ def reset_database():
 
 @pytest.fixture(scope="session", autouse=True)
 def migrate():
-    assert get_settings().test_mode
+    if not get_settings().test_mode:
+        pytest.skip("Integration tests require test_mode=True and isolated postgres-test/rag_test")
     subprocess.run(["python", "-m", "alembic", "upgrade", "head"], check=True)
+
 
 
 @pytest.fixture(autouse=True)
