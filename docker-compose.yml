@@ -34,7 +34,7 @@ services:
       timeout: 3s
       retries: 30
   rabbitmq:
-    image: rabbitmq:4.3.6-management@sha256:8b09335a92a5ad6c57fba3089d380c85b54a72fa34b077c598a2eb34d31481b3
+    image: rabbitmq:4-management@sha256:8dd6e3570ddaa2ef82a6c3a8950e79c1f73893adfbdddbc374fc1f1ac8a0f5dd
     environment:
       RABBITMQ_DEFAULT_USER: rag
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-rabbitmq-local-pass}

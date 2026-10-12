@@ -1,9 +1,8 @@
-FROM python:3.12.15-slim@sha256:29113dcae7aad06daa8e95260fa09f27d62be33b9687ea3774f771d601a02256
-ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+FROM logistics-rag-backend:phase1
+USER root
 WORKDIR /app/backend
-COPY requirements.lock .
-RUN python -m pip install --no-cache-dir --require-hashes -r requirements.lock && python -m pip check
+RUN pip install --no-cache-dir pgvector==0.3.6 openai==1.50.0
 COPY . .
-RUN useradd --uid 10001 --create-home app
+RUN chown -R app:app /app/backend
 USER app
 CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--no-proxy-headers"]
