@@ -10,15 +10,17 @@ x-test-env: &test-env
   OPENAI_API_KEY: ""
   LANGCHAIN_TRACING_V2: "false"
 x-api-health: &api-health
-  test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/ready', timeout=2)"]
-  interval: 3s
-  timeout: 3s
+  test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/ready', timeout=4)"]
+  interval: 5s
+  timeout: 5s
   retries: 30
+  start_period: 45s
 x-web-health: &web-health
   test: [CMD, node, -e, "fetch('http://localhost:3000/login').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
-  interval: 3s
-  timeout: 3s
+  interval: 5s
+  timeout: 5s
   retries: 30
+  start_period: 30s
 services:
   postgres:
     image: pgvector/pgvector:0.8.7-pg18@sha256:2358fcba361ed2233a5ed81b5fe4ca779ccb304120ce531a3bf51c0ed7e2bc11
