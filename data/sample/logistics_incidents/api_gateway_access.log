@@ -1,0 +1,4 @@
+2026-10-14 08:15:02 [INFO] POST /api/v1/sync/order_id=DH001 from WMS to TMS Dispatch Service
+2026-10-14 08:15:05 [ERROR] Upstream TMS timeout after 3000ms: POST /tms/v1/shipments for DH001 -> HTTP 504 Gateway Timeout
+2026-10-14 09:00:03 [INFO] POST /tms/v1/shipments for DH010 -> HTTP 200 OK
+2026-10-14 09:10:05 [INFO] POST /tms/v1/shipments for DH0011 -> HTTP 200 OK

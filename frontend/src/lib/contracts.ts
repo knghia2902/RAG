@@ -145,3 +145,79 @@ export type ModelConfig = {
   openai_configured: boolean;
 };
 
+export type SystemType = "WMS" | "TMS" | "API_GATEWAY" | "ERP" | "INVENTORY" | "OTHER";
+export type SeverityType = "P1" | "P2" | "P3" | "P4";
+
+export type TimelineEvent = {
+  event_id: string;
+  timestamp: string;
+  system: SystemType;
+  event_name: string;
+  status: string;
+  is_failure_point: boolean;
+  citation_id?: number;
+  source_filename: string;
+  line_number?: number;
+  raw_snippet: string;
+};
+
+export type IncidentClassification = {
+  error_group: string;
+  primary_system: SystemType;
+  suggested_priority: SeverityType;
+  confidence: number;
+};
+
+export type RootCauseHypothesis = {
+  hypothesis: string;
+  supporting_evidence_citations: number[];
+  is_confirmed: boolean;
+  confidence_level: string;
+};
+
+export type ActionStep = {
+  step_number: number;
+  action: string;
+  sop_reference: string;
+  sop_citation_id?: number;
+  expected_outcome: string;
+};
+
+export type IncidentAnalysisDetail = {
+  id: string;
+  order_id: string;
+  ticket_id?: string;
+  title: string;
+  input_mode: string;
+  summary: string;
+  classification: IncidentClassification;
+  timeline: TimelineEvent[];
+  hypotheses: RootCauseHypothesis[];
+  missing_information: string[];
+  recommended_actions: ActionStep[];
+  citations: Array<{
+    citation_id: number;
+    kind: string;
+    source: string;
+    line?: number;
+    dataset_id?: string;
+    timestamp?: string;
+    system?: string;
+    snippet: string;
+  }>;
+  created_at: string;
+};
+
+export type IncidentHistoryItem = {
+  id: string;
+  order_id: string;
+  ticket_id?: string;
+  title: string;
+  input_mode: string;
+  error_group: string;
+  primary_system: string;
+  suggested_priority: string;
+  created_at: string;
+};
+
+

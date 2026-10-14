@@ -1,0 +1,22 @@
+[
+  {
+    "ticket_id": "TCK-LOG-1001",
+    "order_id": "DH001",
+    "timestamp": "2026-10-14T08:25:00Z",
+    "system": "WMS",
+    "severity": "P1",
+    "description": "Đơn hàng DH001 đã đóng gói tại kho Sóng Thần lúc 08:15 nhưng sau 10 phút hệ thống TMS vẫn chưa ghi nhận để điều phối xe, nguy cơ trễ chuyến giao hàng.",
+    "customer_id": "CUST-881",
+    "reported_by": "DieuPhoi_SongThan"
+  },
+  {
+    "ticket_id": "TCK-LOG-1002",
+    "order_id": "DH010",
+    "timestamp": "2026-10-14T09:05:00Z",
+    "system": "TMS",
+    "severity": "P3",
+    "description": "Đơn hàng DH010 đã nhận lệnh điều xe thành công, cần xác nhận thời gian xuất bến.",
+    "customer_id": "CUST-102",
+    "reported_by": "DieuPhoi_BinhDuong"
+  }
+]
