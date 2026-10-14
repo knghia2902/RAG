@@ -87,7 +87,7 @@ Write-Host "      -> Docker Desktop da san sang!" -ForegroundColor Green
 
 # 3. Khoi chay Docker Compose
 Write-Host "[3/5] Dang khoi dong cac containers (PostgreSQL pgvector, RabbitMQ, Backend, Frontend)..." -ForegroundColor Yellow
-docker compose up -d postgres rabbitmq migrate backend worker frontend
+docker compose up -d --build postgres rabbitmq migrate backend worker frontend
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "[LOI] Khong the khoi dong cac dich vu qua docker compose." -ForegroundColor Red

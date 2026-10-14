@@ -12,14 +12,14 @@ from tests.conftest import PASSWORD
 def test_head_vector_constraints_and_replay(db):
     bootstrap_admin("admin", PASSWORD)
     with engine.connect() as connection:
-        assert connection.scalar(text("SELECT version_num FROM alembic_version")) in ("0001_access_control", "0002_source_lifecycle", "0003_pgvector_and_chat")
+        assert connection.scalar(text("SELECT version_num FROM alembic_version")) in ("0001_access_control", "0002_source_lifecycle", "0003_pgvector_and_chat", "0004_incident_analysis")
         assert connection.scalar(text("SELECT extversion FROM pg_extension WHERE extname='vector'")) == "0.8.7"
         names = connection.scalars(text("SELECT conname FROM pg_constraint WHERE conrelid='accounts'::regclass")).all()
         assert "account_role" in names and "username_normalized" in names
     for _ in range(2):
         subprocess.run(["python", "-m", "alembic", "upgrade", "head"], check=True)
     with engine.connect() as connection:
-        assert connection.scalar(text("SELECT version_num FROM alembic_version")) in ("0002_source_lifecycle", "0003_pgvector_and_chat")
+        assert connection.scalar(text("SELECT version_num FROM alembic_version")) in ("0002_source_lifecycle", "0003_pgvector_and_chat", "0004_incident_analysis")
     assert db.scalar(select(func.count()).select_from(Account)) == 1
     with pytest.raises(DBAPIError):
         db.execute(text("UPDATE accounts SET username='changed'"))
@@ -30,7 +30,7 @@ def test_head_vector_constraints_and_replay(db):
 def test_migration_0002_source_lifecycle_schema(db):
     subprocess.run(["python", "-m", "alembic", "upgrade", "head"], check=True)
     with engine.connect() as connection:
-        assert connection.scalar(text("SELECT version_num FROM alembic_version")) in ("0002_source_lifecycle", "0003_pgvector_and_chat")
+        assert connection.scalar(text("SELECT version_num FROM alembic_version")) in ("0002_source_lifecycle", "0003_pgvector_and_chat", "0004_incident_analysis")
         tables = connection.scalars(text(
             "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"
         )).all()
