@@ -43,6 +43,10 @@ class FakeEmbeddingAdapter(EmbeddingProvider):
         result = self.embed(tuple(texts))
         return [list(vec) for vec in result]
 
+    def embed_query(self, text: str) -> list[float]:
+        return list(self.embed((text,))[0])
+
+
 
 class FakeLLMAdapter(LLMProvider):
     def __init__(self, model: str = "fake-llm-mini"):

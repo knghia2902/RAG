@@ -46,7 +46,11 @@ class SOPMatcher:
         if not dataset_ids:
             return []
 
-        query_vector = self.embedding_provider.embed_query(error_description)
+        if hasattr(self.embedding_provider, "embed_query"):
+            query_vector = list(self.embedding_provider.embed_query(error_description))
+        else:
+            query_vector = list(self.embedding_provider.embed((error_description,))[0])
+
 
         # 1. Retrieve SOP procedures
         sop_raw = search_dense_records(

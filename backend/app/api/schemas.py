@@ -244,3 +244,38 @@ class CitationPreviewResponseDTO(DTO):
     excerpt_text: str
 
 
+class AnalyzeIncidentRequestDTO(DTO):
+    order_id: str = Field(min_length=3, max_length=64, pattern=r"^[A-Za-z0-9_-]+$")
+    description: str | None = None
+    system: str | None = None
+
+
+class IncidentHistoryItemDTO(DTO):
+    id: UUID
+    order_id: str
+    ticket_id: str | None = None
+    title: str
+    input_mode: str
+    error_group: str
+    primary_system: str
+    suggested_priority: str
+    created_at: datetime
+
+
+class IncidentAnalysisDetailDTO(DTO):
+    id: UUID
+    order_id: str
+    ticket_id: str | None = None
+    title: str
+    input_mode: str
+    summary: str
+    classification: dict[str, Any]
+    timeline: list[dict[str, Any]]
+    hypotheses: list[dict[str, Any]]
+    missing_information: list[str]
+    recommended_actions: list[dict[str, Any]]
+    citations: list[dict[str, Any]]
+    created_at: datetime
+
+
+

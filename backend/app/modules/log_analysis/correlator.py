@@ -128,17 +128,31 @@ class CrossSystemLogCorrelator:
         lower_fn = filename.lower()
         lower_text = text.lower()
 
-        if "wms" in lower_fn or "kho" in lower_fn or "wms" in lower_text:
-            return SystemEnum.WMS
-        if "api_gateway" in lower_fn or "gateway" in lower_fn or "api" in lower_fn or "api_gateway" in lower_text:
+        # 1. Prioritize explicit text keywords
+        if "api_gateway" in lower_text or "gateway" in lower_text or "api gateway" in lower_text:
             return SystemEnum.API_GATEWAY
-        if "tms" in lower_fn or "dieu_phoi" in lower_fn or "dispatch" in lower_fn or "tms" in lower_text:
+        if "tms" in lower_text or "dieu_phoi" in lower_text or "dispatch" in lower_text:
             return SystemEnum.TMS
-        if "inventory" in lower_fn or "inventory" in lower_text:
+        if "wms" in lower_text or "kho" in lower_text:
+            return SystemEnum.WMS
+        if "inventory" in lower_text:
             return SystemEnum.INVENTORY
-        if "erp" in lower_fn or "erp" in lower_text:
+        if "erp" in lower_text:
+            return SystemEnum.ERP
+
+        # 2. Fallback to filename patterns
+        if "api_gateway" in lower_fn or "gateway" in lower_fn or "api" in lower_fn:
+            return SystemEnum.API_GATEWAY
+        if "tms" in lower_fn or "dieu_phoi" in lower_fn or "dispatch" in lower_fn:
+            return SystemEnum.TMS
+        if "wms" in lower_fn or "kho" in lower_fn:
+            return SystemEnum.WMS
+        if "inventory" in lower_fn:
+            return SystemEnum.INVENTORY
+        if "erp" in lower_fn:
             return SystemEnum.ERP
         return SystemEnum.OTHER
+
 
     def _detect_event_and_status(self, text: str) -> tuple[str, str]:
         upper_text = text.upper()

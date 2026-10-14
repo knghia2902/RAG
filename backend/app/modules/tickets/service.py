@@ -41,3 +41,7 @@ class TicketService:
             return self.validator.validate_json(decoded_text)
         else:
             return self.validator.validate_csv(decoded_text)
+
+    def process_uploaded_file(self, content_bytes: bytes, filename: str) -> ValidationResult:
+        return self.process_uploaded_ticket_file(filename=filename, content_bytes=content_bytes)
+

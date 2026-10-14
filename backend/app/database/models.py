@@ -194,3 +194,20 @@ class ChatMessage(Base):
     has_conflict: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
 
+
+class IncidentAnalysis(Base):
+    __tablename__ = "incident_analyses"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    account_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("accounts.id"), index=True, nullable=False)
+    order_id: Mapped[str] = mapped_column(String(64), index=True, nullable=False)
+    ticket_id: Mapped[str | None] = mapped_column(String(64), index=True, nullable=True)
+    input_mode: Mapped[str] = mapped_column(String(32), nullable=False)
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    classification_json: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    timeline_json: Mapped[list[dict]] = mapped_column(JSONB, nullable=False)
+    analysis_json: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    citations_json: Mapped[list[dict]] = mapped_column(JSONB, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+
+

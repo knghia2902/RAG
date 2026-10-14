@@ -15,6 +15,7 @@ from app.database.models import (
     DatasetGrant,
     EmbeddingRecord,
     ImportJob,
+    IncidentAnalysis,
     LoginRateBucket,
     ParseRun,
     Source,
@@ -31,6 +32,7 @@ def reset_database():
     with SessionLocal.begin() as db:
         db.execute(Source.__table__.update().values(active_version_id=None))
         for model in (
+            IncidentAnalysis,
             EmbeddingRecord,
             ChatMessage,
             ChatSession,
