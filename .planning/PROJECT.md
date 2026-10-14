@@ -24,6 +24,7 @@ Kỹ thuật viên có thể tìm bằng chứng liên quan và nhận phân tí
 - Ingestion tài liệu đa định dạng, quản lý vòng đời nguồn/phiên bản, xem trước trích đoạn có tọa độ nguồn — Phase 2 (DATA-01 đến DATA-06).
 - Truy xuất tri thức có bằng chứng trích dẫn inline, phân biệt mã định danh chính xác (DH001 vs DH010), lọc phạm vi và Live Scope Recheck — Phase 3 (RAG-01 đến RAG-05, SYS-02).
 - Phân tích sự cố logistics đa hệ thống WMS/API/TMS theo mã đơn hàng, cô lập điểm đứt gãy đồng bộ đầu tiên, upload ticket kiểm định schema nghiêm ngặt theo dòng, phân loại P1-P4, phân định nguyên nhân vs giả thuyết, cảnh báo thiếu log (RAG-05), dẫn chứng quy trình SOP-LOG-01 và Live Scope Recheck thời gian thực — Phase 4 (INC-01, INC-02, INC-03, INC-04, INC-05, EVAL-01, AUTH-04).
+- Báo cáo sự cố IT & Logistics theo yêu cầu theo ngày/tuần/tháng/tùy chọn trong scope dataset múi giờ Asia/Ho_Chi_Minh; tính toán 100% tất định từ canonical records (không từ context top-k); đếm độc lập ticket và incident; MTTR tính riêng cho sự cố đã đóng; phát hiện lỗi lặp lại (System + Error Group >= 2); tổng hợp narrative LLM với mask_secrets và fallback SYS-05; xuất PDF chuẩn in A4 tiếng Việt WeasyPrint 70.0; và Live Scope Recheck từ chối HTTP 403 nếu quyền bị thu hồi — Phase 5 (REP-01 đến REP-06, EVAL-03).
 
 ### Active
 
@@ -38,9 +39,9 @@ Kỹ thuật viên có thể tìm bằng chứng liên quan và nhận phân tí
 - [ ] Tổng hợp nguyên nhân có khả năng xảy ra và đề xuất các bước xử lý dựa trên bằng chứng.
 - [ ] Hỏi đáp dựa trên dữ liệu được lập chỉ mục.
 - [ ] Hiển thị tài liệu và đoạn dữ liệu được sử dụng trong câu trả lời/phân tích.
-- [ ] Tạo báo cáo sự cố IT kết hợp sự cố hệ thống logistics theo yêu cầu, chọn kỳ ngày/tuần/tháng hoặc khoảng thời gian tùy chọn và xuất PDF.
-- [ ] Report Service tách riêng để bổ sung scheduler và gửi báo cáo định kỳ sau này.
-- [ ] Báo cáo gồm tổng số ticket/sự cố, nhóm lỗi, ưu tiên, hệ thống liên quan, nguyên nhân nếu xác định được, trạng thái, thời gian phát sinh/xử lý, lỗi lặp lại, đề xuất và nguồn dữ liệu.
+- [x] Tạo báo cáo sự cố IT kết hợp sự cố hệ thống logistics theo yêu cầu, chọn kỳ ngày/tuần/tháng hoặc khoảng thời gian tùy chọn và xuất PDF.
+- [x] Report Service tách riêng để bổ sung scheduler và gửi báo cáo định kỳ sau này.
+- [x] Báo cáo gồm tổng số ticket/sự cố, nhóm lỗi, ưu tiên, hệ thống liên quan, nguyên nhân nếu xác định được, trạng thái, thời gian phát sinh/xử lý, lỗi lặp lại, đề xuất và nguồn dữ liệu.
 - [ ] Database, vector database và dữ liệu RAG ưu tiên chạy local.
 - [ ] Tách LLM Provider và Embedding Provider; MVP dùng OpenAI API, hỗ trợ thay Gemini/local generation và local embedding sau này.
 - [ ] Chỉ gửi context liên quan được RAG truy xuất tới LLM, không gửi nguyên tài liệu không cần thiết.
@@ -160,4 +161,4 @@ Sau mỗi phase: chuyển yêu cầu đã kiểm chứng sang Validated; chuyể
 Sau mỗi milestone: rà soát toàn bộ tài liệu, giá trị cốt lõi, phạm vi loại trừ và bối cảnh sử dụng thực tế.
 
 ---
-*Last updated: 2026-10-14 after Phase 4 UAT and logistics incident analysis acceptance.*
+*Last updated: 2026-10-14 after Phase 5 on-demand incident reports and PDF verification.*

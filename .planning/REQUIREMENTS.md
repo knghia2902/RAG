@@ -41,12 +41,12 @@
 
 ### On-Demand Reporting
 
-- [ ] **REP-01**: Người dùng có thể tạo báo cáo theo ngày, tuần, tháng hoặc khoảng thời gian tùy chọn trong phạm vi dataset được phép, với timezone và biên kỳ hiển thị rõ.
-- [ ] **REP-02**: Người dùng nhận tổng số ticket và số incident riêng, nhóm lỗi, mức ưu tiên, hệ thống liên quan và trạng thái xử lý; số liệu tính trên toàn bộ bản ghi trong scope bằng quy tắc xác định, không từ context top-k.
-- [ ] **REP-03**: Người dùng xem thời gian phát sinh, xử lý và nguyên nhân đã xác định nếu có; bản ghi chưa xử lý/thiếu timestamp/thiếu nguyên nhân được hiển thị là chưa biết thay vì suy đoán.
-- [ ] **REP-04**: Người dùng xem lỗi lặp lại theo quy tắc grouping công bố và nhận đề xuất/hướng xử lý kèm bằng chứng.
-- [ ] **REP-05**: Người dùng xem nguồn dữ liệu, bộ lọc, kỳ và snapshot/version được dùng để tạo báo cáo và có thể mở bằng chứng trong phạm vi quyền hiện tại.
-- [ ] **REP-06**: Người dùng có thể xem trước, tải PDF có tiếng Việt và mở lại báo cáo đã tạo; truy cập lại bị từ chối nếu quyền đối với dữ liệu liên quan đã bị thu hồi.
+- [x] **REP-01**: Người dùng có thể tạo báo cáo theo ngày, tuần, tháng hoặc khoảng thời gian tùy chọn trong phạm vi dataset được phép, với timezone và biên kỳ hiển thị rõ.
+- [x] **REP-02**: Người dùng nhận tổng số ticket và số incident riêng, nhóm lỗi, mức ưu tiên, hệ thống liên quan và trạng thái xử lý; số liệu tính trên toàn bộ bản ghi trong scope bằng quy tắc xác định, không từ context top-k.
+- [x] **REP-03**: Người dùng xem thời gian phát sinh, xử lý và nguyên nhân đã xác định nếu có; bản ghi chưa xử lý/thiếu timestamp/thiếu nguyên nhân được hiển thị là chưa biết thay vì suy đoán.
+- [x] **REP-04**: Người dùng xem lỗi lặp lại theo quy tắc grouping công bố và nhận đề xuất/hướng xử lý kèm bằng chứng.
+- [x] **REP-05**: Người dùng xem nguồn dữ liệu, bộ lọc, kỳ và snapshot/version được dùng để tạo báo cáo và có thể mở bằng chứng trong phạm vi quyền hiện tại.
+- [x] **REP-06**: Người dùng có thể xem trước, tải PDF có tiếng Việt và mở lại báo cáo đã tạo; truy cập lại bị từ chối nếu quyền đối với dữ liệu liên quan đã bị thu hồi.
 
 ### Administration and Architecture
 
@@ -113,12 +113,12 @@ Mỗi yêu cầu v1 phải có evidence nghiệm thu phù hợp. Bộ eval phả
 | INC-03 | Phase 4 | Complete |
 | INC-04 | Phase 4 | Complete |
 | INC-05 | Phase 4 | Complete |
-| REP-01 | Phase 5 | Pending |
-| REP-02 | Phase 5 | Pending |
-| REP-03 | Phase 5 | Pending |
-| REP-04 | Phase 5 | Pending |
-| REP-05 | Phase 5 | Pending |
-| REP-06 | Phase 5 | Pending |
+| REP-01 | Phase 5 | Complete |
+| REP-02 | Phase 5 | Complete |
+| REP-03 | Phase 5 | Complete |
+| REP-04 | Phase 5 | Complete |
+| REP-05 | Phase 5 | Complete |
+| REP-06 | Phase 5 | Complete |
 | SYS-01 | Phase 1 | Validated |
 | SYS-02 | Phase 3 | Complete |
 | SYS-03 | Phase 3 | Complete |
