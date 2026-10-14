@@ -220,4 +220,87 @@ export type IncidentHistoryItem = {
   created_at: string;
 };
 
+export type PeriodType = "daily" | "weekly" | "monthly" | "custom";
+
+export type ReportFilter = {
+  period_type: PeriodType;
+  start_date?: string;
+  end_date?: string;
+  dataset_ids: string[];
+};
+
+export type RecurringErrorItem = {
+  system: string;
+  error_group: string;
+  occurrence_count: number;
+  percentage: number;
+  affected_orders: string[];
+  sample_message?: string;
+};
+
+export type SystemDistribution = {
+  system: string;
+  incident_count: number;
+  ticket_count: number;
+  percentage: number;
+};
+
+export type PriorityDistribution = {
+  priority: string;
+  count: number;
+  percentage: number;
+};
+
+export type ReportMetrics = {
+  total_incidents: number;
+  total_tickets: number;
+  resolved_incidents: number;
+  open_incidents: number;
+  mttr_minutes: number | null;
+  system_breakdown: SystemDistribution[];
+  priority_breakdown: PriorityDistribution[];
+  error_group_breakdown: Record<string, number>;
+  recurring_errors: RecurringErrorItem[];
+};
+
+export type ReportNarrative = {
+  executive_summary: string;
+  root_cause_analysis: string;
+  recommendations: string[];
+  missing_data_warnings: string[];
+};
+
+export type ReportProvenanceSource = {
+  source_id: string;
+  version_number: number;
+  filename: string;
+  dataset_id: string;
+};
+
+export type ReportDetail = {
+  id: string;
+  title: string;
+  period_type: PeriodType;
+  start_time: string;
+  end_time: string;
+  timezone: string;
+  dataset_ids: string[];
+  metrics: ReportMetrics;
+  narrative: ReportNarrative;
+  provenance_sources: ReportProvenanceSource[];
+  created_at: string;
+};
+
+export type ReportHistoryItem = {
+  id: string;
+  title: string;
+  period_type: PeriodType;
+  start_time: string;
+  end_time: string;
+  total_incidents: number;
+  total_tickets: number;
+  created_at: string;
+};
+
+
 
