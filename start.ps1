@@ -122,7 +122,7 @@ Write-Host ""
 Write-Host "==========================================================" -ForegroundColor Cyan
 Write-Host "   HE THONG DA KHOI DONG THANH CONG!                     " -ForegroundColor Green
 Write-Host "==========================================================" -ForegroundColor Cyan
-Write-Host " • Giao dien Web:        http://localhost:3000" -ForegroundColor White
+Write-Host " • Giao dien Web:        http://localhost:3000/login" -ForegroundColor White
 Write-Host ""
 Write-Host "Neu lan dau tien su dung, ban co the tao tai khoan Admin bang cach chay:" -ForegroundColor Yellow
 Write-Host "   docker compose run --rm backend python -m scripts.bootstrap_admin" -ForegroundColor White
@@ -130,7 +130,7 @@ Write-Host ""
 Write-Host "Dang mo trinh duyet web..." -ForegroundColor Cyan
 
 try {
-    Start-Process "http://localhost:3000"
+    Start-Process "http://localhost:3000/login"
 } catch {}
 
 Write-Host ""
