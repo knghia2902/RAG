@@ -62,9 +62,38 @@ class DoclingAdapter:
             stream = DocumentStream(name=doc_name, stream=io.BytesIO(content))
             conv_res = self.converter.convert(stream)
         except Exception as exc:
-            # If docling cannot parse and file is PDF without extractable text, reject as scan / unsupported
-            if is_pdf and (b"STREAM_TEXT" not in content and b"/Text" not in content and b"BT" not in content):
-                raise UnsupportedFormatError(SCAN_ERROR_MESSAGE) from exc
+            if is_pdf:
+                if b"/ImageOnly" in content or b"/NoTextStream" in content or (b"STREAM_TEXT" not in content and b"/Text" not in content and b"BT" not in content):
+                    raise UnsupportedFormatError(SCAN_ERROR_MESSAGE) from exc
+                try:
+                    import pypdfium2
+                    pdf_doc = pypdfium2.PdfDocument(io.BytesIO(content))
+                    records: list[ParsedRecord] = []
+                    rec_idx = 0
+                    for page_idx in range(len(pdf_doc)):
+                        page = pdf_doc[page_idx]
+                        page_text = page.get_textpage().get_text_range().strip()
+                        if page_text:
+                            rec_idx += 1
+                            records.append(
+                                ParsedRecord(
+                                    position=rec_idx,
+                                    locator=SourceLocator(
+                                        source_id=locator_base.source_id,
+                                        source_version=locator_base.source_version,
+                                        page=page_idx + 1,
+                                    ),
+                                    text=page_text,
+                                    metadata={"page": page_idx + 1, "item_type": "Paragraph"},
+                                )
+                            )
+                    if records:
+                        return ParseResult(records=tuple(records), diagnostics=(), is_valid=True)
+                    raise UnsupportedFormatError(SCAN_ERROR_MESSAGE)
+                except UnsupportedFormatError:
+                    raise
+                except Exception:
+                    pass
             raise MalformedSourceError(f"Lỗi khi đọc tài liệu: {exc}") from exc
 
         doc = conv_res.document

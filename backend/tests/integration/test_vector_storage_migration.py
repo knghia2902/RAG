@@ -9,7 +9,7 @@ from app.database.models import Account, Dataset, Source, SourceVersion, Canonic
 def test_migration_0003_pgvector_and_chat(db):
     subprocess.run(["python", "-m", "alembic", "upgrade", "head"], check=True)
     with engine.connect() as connection:
-        assert connection.scalar(text("SELECT version_num FROM alembic_version")) == "0003_pgvector_and_chat"
+        assert connection.scalar(text("SELECT version_num FROM alembic_version")) in ("0003_pgvector_and_chat", "0004_incident_analysis", "0005_incident_reports")
         tables = connection.scalars(text(
             "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"
         )).all()

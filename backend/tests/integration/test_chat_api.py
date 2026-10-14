@@ -14,36 +14,42 @@ def test_chat_session_lifecycle_and_isolation(client, db):
     db.add_all([user1, user2])
     db.commit()
 
+    from fastapi.testclient import TestClient
+    from app.main import app
+
+    c1 = TestClient(app, base_url="http://next-test:3000")
+    c2 = TestClient(app, base_url="http://next-test:3000")
+
     # Login User 1
-    login1 = client.post("/api/v1/auth/login", json={"username": "user1_chat", "password": PASSWORD}, headers=HEADERS)
+    login1 = c1.post("/api/v1/auth/login", json={"username": "user1_chat", "password": PASSWORD}, headers=HEADERS)
     csrf1 = login1.json()["csrf_token"]
     h1 = {**HEADERS, "X-CSRF-Token": csrf1}
 
     # Login User 2
-    login2 = client.post("/api/v1/auth/login", json={"username": "user2_chat", "password": PASSWORD}, headers=HEADERS)
+    login2 = c2.post("/api/v1/auth/login", json={"username": "user2_chat", "password": PASSWORD}, headers=HEADERS)
     csrf2 = login2.json()["csrf_token"]
     h2 = {**HEADERS, "X-CSRF-Token": csrf2}
 
     # 2. User 1 tạo phiên chat mới
-    res_create = client.post("/api/v1/chat/sessions", headers=h1)
+    res_create = c1.post("/api/v1/chat/sessions", headers=h1)
     assert res_create.status_code == 201
     session_id = res_create.json()["id"]
 
     # 3. User 1 lấy danh sách phiên chat
-    res_list = client.get("/api/v1/chat/sessions", headers=h1)
+    res_list = c1.get("/api/v1/chat/sessions", headers=h1)
     assert res_list.status_code == 200
     assert any(s["id"] == session_id for s in res_list.json())
 
     # 4. T-03-11: User 2 cố tình truy cập phiên chat của User 1 -> 404
-    res_cross = client.get(f"/api/v1/chat/sessions/{session_id}/messages", headers=h2)
+    res_cross = c2.get(f"/api/v1/chat/sessions/{session_id}/messages", headers=h2)
     assert res_cross.status_code == 404
 
     # 5. User 1 xóa phiên chat
-    res_del = client.delete(f"/api/v1/chat/sessions/{session_id}", headers=h1)
+    res_del = c1.delete(f"/api/v1/chat/sessions/{session_id}", headers=h1)
     assert res_del.status_code == 200
 
     # Sau khi xóa, User 1 không thể truy cập
-    res_after = client.get(f"/api/v1/chat/sessions/{session_id}/messages", headers=h1)
+    res_after = c1.get(f"/api/v1/chat/sessions/{session_id}/messages", headers=h1)
     assert res_after.status_code == 404
 
 

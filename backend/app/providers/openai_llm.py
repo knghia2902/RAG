@@ -1,5 +1,6 @@
 import re
 from typing import Sequence
+import httpx
 import openai
 from app.llm.contracts import GenerationRequest, GenerationResult, LLMProvider
 from app.rag.contracts import SourceLocator
@@ -17,7 +18,11 @@ class OpenAILLMAdapter(LLMProvider):
         self.model = model
         self.timeout = timeout
         self.max_tokens = max_tokens
-        self._client = openai.OpenAI(api_key=api_key, timeout=timeout) if api_key else None
+        self._client = (
+            openai.OpenAI(api_key=api_key, timeout=timeout, http_client=httpx.Client(timeout=timeout))
+            if api_key
+            else None
+        )
 
     def generate(self, request: GenerationRequest) -> GenerationResult:
         if not self._client:

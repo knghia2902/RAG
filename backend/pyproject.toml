@@ -12,4 +12,4 @@ dependencies = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
-addopts = "-p no:cacheprovider"
+addopts = "-p no:cacheprovider --import-mode=importlib"

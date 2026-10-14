@@ -1,5 +1,6 @@
 from typing import Sequence
 from uuid import UUID, uuid4
+import httpx
 import openai
 from app.rag.contracts import EmbeddingIndex, EmbeddingProvider
 
@@ -18,7 +19,11 @@ class OpenAIEmbeddingAdapter(EmbeddingProvider):
         self.dimension = dimension
         self._index_version = index_version or uuid4()
         self.timeout = timeout
-        self._client = openai.OpenAI(api_key=api_key, timeout=timeout) if api_key else None
+        self._client = (
+            openai.OpenAI(api_key=api_key, timeout=timeout, http_client=httpx.Client(timeout=timeout))
+            if api_key
+            else None
+        )
 
     @property
     def index(self) -> EmbeddingIndex:

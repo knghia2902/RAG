@@ -11,7 +11,7 @@ def test_model_config_api_permissions_and_response(client, db):
 
     # Login admin
     login_res = client.post(
-        "/auth/login",
+        "/api/v1/auth/login",
         json={"username": "admin_cfg", "password": PASSWORD},
         headers=HEADERS,
     )
