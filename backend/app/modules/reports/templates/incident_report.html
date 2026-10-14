@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>{{ report.title }}</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 20mm 15mm 20mm 15mm;
+      @top-right {
+        content: "Logistics RAG";
+        font-family: 'Liberation Sans', 'DejaVu Sans', sans-serif;
+        font-size: 9pt;
+        color: #888888;
+      }
+      @bottom-left {
+        content: "Logistics RAG · Báo cáo vận hành IT & Logistics";
+        font-family: 'Liberation Sans', 'DejaVu Sans', sans-serif;
+        font-size: 9pt;
+        color: #666666;
+      }
+      @bottom-right {
+        content: "Trang " counter(page) " / " counter(pages);
+        font-family: 'Liberation Sans', 'DejaVu Sans', sans-serif;
+        font-size: 9pt;
+        color: #666666;
+      }
+    }
+
+    body {
+      font-family: 'Liberation Sans', 'DejaVu Sans', sans-serif;
+      font-size: 10pt;
+      line-height: 1.5;
+      color: #1a1a1a;
+      margin: 0;
+      padding: 0;
+    }
+
+    .header-container {
+      border-bottom: 2px solid #1e3a8a;
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+    }
+
+    .org-title {
+      font-size: 11pt;
+      font-weight: bold;
+      color: #1e3a8a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .report-title {
+      font-size: 18pt;
+      font-weight: bold;
+      color: #0f172a;
+      margin: 6px 0 10px 0;
+    }
+
+    .meta-grid {
+      display: table;
+      width: 100%;
+      margin-bottom: 16px;
+      font-size: 9.5pt;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 8px 12px;
+    }
+
+    .meta-row {
+      display: table-row;
+    }
+
+    .meta-cell {
+      display: table-cell;
+      padding: 4px 10px;
+    }
+
+    .meta-label {
+      font-weight: bold;
+      color: #475569;
+    }
+
+    h2 {
+      font-size: 12pt;
+      color: #1e3a8a;
+      border-bottom: 1px solid #cbd5e1;
+      padding-bottom: 4px;
+      margin-top: 18px;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    /* KPI Highlights */
+    .kpi-container {
+      display: table;
+      width: 100%;
+      margin-bottom: 18px;
+    }
+
+    .kpi-card {
+      display: table-cell;
+      width: 20%;
+      text-align: center;
+      padding: 10px 6px;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-right: none;
+    }
+
+    .kpi-card:last-child {
+      border-right: 1px solid #cbd5e1;
+    }
+
+    .kpi-val {
+      font-size: 16pt;
+      font-weight: bold;
+      color: #0f172a;
+      margin-bottom: 2px;
+    }
+
+    .kpi-lbl {
+      font-size: 8.5pt;
+      color: #64748b;
+      text-transform: uppercase;
+    }
+
+    /* Table styling with repeating headers and page-break rules */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 16px;
+      page-break-inside: auto;
+    }
+
+    thead {
+      display: table-header-group;
+    }
+
+    tr {
+      page-break-inside: avoid;
+      page-break-after: auto;
+    }
+
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 7px 10px;
+      font-size: 9.5pt;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f1f5f9;
+      font-weight: bold;
+      color: #334155;
+    }
+
+    .text-center { text-align: center; }
+    .text-right { text-align: right; }
+
+    .narrative-block {
+      background: #fafafa;
+      border-left: 3px solid #2563eb;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+      font-size: 9.5pt;
+    }
+
+    .narrative-block h3 {
+      font-size: 10.5pt;
+      margin-top: 0;
+      margin-bottom: 6px;
+      color: #1e40af;
+    }
+
+    ul, ol {
+      margin-top: 4px;
+      margin-bottom: 6px;
+      padding-left: 20px;
+    }
+
+    li {
+      margin-bottom: 4px;
+    }
+
+    .badge-p1 { color: #dc2626; font-weight: bold; }
+    .badge-p2 { color: #ea580c; font-weight: bold; }
+    .badge-p3 { color: #d97706; font-weight: bold; }
+    .badge-p4 { color: #64748b; }
+
+    .warning-box {
+      background-color: #fffbeb;
+      border: 1px solid #fde68a;
+      color: #92400e;
+      padding: 8px 12px;
+      border-radius: 4px;
+      margin-top: 8px;
+      font-size: 9pt;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header-container">
+    <div class="org-title">Hệ thống Phân tích & Quản lý Sự cố IT Logistics</div>
+    <div class="report-title">{{ report.title }}</div>
+    <div class="meta-grid">
+      <div class="meta-row">
+        <div class="meta-cell"><span class="meta-label">Mã báo cáo:</span> {{ report.id }}</div>
+        <div class="meta-cell"><span class="meta-label">Kỳ báo cáo:</span> {{ report.period_type|upper }}</div>
+      </div>
+      <div class="meta-row">
+        <div class="meta-cell"><span class="meta-label">Khoảng thời gian (UTC+7):</span> {{ formatted_start_time }} — {{ formatted_end_time }}</div>
+        <div class="meta-cell"><span class="meta-label">Thời điểm xuất:</span> {{ formatted_created_at }}</div>
+      </div>
+    </div>
+  </div>
+
+  <h2>1. Chỉ số Vận hành Cốt lõi (KPI Overview)</h2>
+  <div class="kpi-container">
+    <div class="kpi-card">
+      <div class="kpi-val">{{ report.metrics.total_incidents }}</div>
+      <div class="kpi-lbl">Tổng Sự cố</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-val">{{ report.metrics.total_tickets }}</div>
+      <div class="kpi-lbl">Tổng Ticket IT</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-val" style="color: #dc2626;">{{ report.metrics.open_incidents }}</div>
+      <div class="kpi-lbl">Đang mở</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-val" style="color: #16a34a;">{{ report.metrics.resolved_incidents }}</div>
+      <div class="kpi-lbl">Đã hoàn tất</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-val">
+        {% if report.metrics.mttr_minutes is not none %}
+          {{ report.metrics.mttr_minutes }} <span style="font-size: 9pt; font-weight: normal;">phút</span>
+        {% else %}
+          <span style="font-size: 10pt; color: #64748b;">Chưa hoàn tất</span>
+        {% endif %}
+      </div>
+      <div class="kpi-lbl">MTTR Trung bình</div>
+    </div>
+  </div>
+
+  <h2>2. Phân bổ Theo Hệ thống & Mức độ Ưu tiên</h2>
+  <div style="display: table; width: 100%;">
+    <div style="display: table-cell; width: 55%; vertical-align: top; padding-right: 12px;">
+      <table>
+        <thead>
+          <tr>
+            <th>Hệ thống</th>
+            <th class="text-center">Sự cố</th>
+            <th class="text-center">Ticket</th>
+            <th class="text-right">Tỷ lệ</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in report.metrics.system_breakdown %}
+          <tr>
+            <td><strong>{{ item.system }}</strong></td>
+            <td class="text-center">{{ item.incident_count }}</td>
+            <td class="text-center">{{ item.ticket_count }}</td>
+            <td class="text-right">{{ item.percentage }}%</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" class="text-center">Không có dữ liệu hệ thống</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div style="display: table-cell; width: 45%; vertical-align: top;">
+      <table>
+        <thead>
+          <tr>
+            <th>Mức ưu tiên</th>
+            <th class="text-center">Số lượng</th>
+            <th class="text-right">Tỷ lệ</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in report.metrics.priority_breakdown %}
+          <tr>
+            <td>
+              <span class="{% if item.priority == 'P1' %}badge-p1{% elif item.priority == 'P2' %}badge-p2{% elif item.priority == 'P3' %}badge-p3{% else %}badge-p4{% endif %}">
+                {{ item.priority }}
+              </span>
+            </td>
+            <td class="text-center">{{ item.count }}</td>
+            <td class="text-right">{{ item.percentage }}%</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="3" class="text-center">Không có dữ liệu ưu tiên</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h2>3. Danh mục Lỗi Lặp lại (Xuất hiện &ge; 2 lần)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Hệ thống & Nhóm lỗi</th>
+        <th class="text-center" style="width: 15%;">Số lần lặp</th>
+        <th class="text-center" style="width: 15%;">Tỷ lệ (%)</th>
+        <th style="width: 45%;">Đơn hàng bị ảnh hưởng</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for err in report.metrics.recurring_errors %}
+      <tr>
+        <td><strong>{{ err.system }}</strong>: {{ err.error_group }}</td>
+        <td class="text-center"><strong>{{ err.occurrence_count }}</strong></td>
+        <td class="text-center">{{ err.percentage }}%</td>
+        <td>{{ err.affected_orders|join(', ') if err.affected_orders else 'N/A' }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="4" class="text-center" style="color: #64748b; font-style: italic;">
+          Không phát hiện lỗi lặp lại từ 2 lần trở lên trong kỳ khảo sát.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>4. Nhận định Xu hướng & Khuyến nghị SOP (AI Analysis)</h2>
+  <div class="narrative-block">
+    <h3>Tóm tắt Điều hành & Xu hướng Sự cố</h3>
+    <div>{{ report.narrative.executive_summary }}</div>
+  </div>
+
+  <div class="narrative-block">
+    <h3>Phân tích Nguyên nhân Gốc rễ</h3>
+    <div>{{ report.narrative.root_cause_analysis }}</div>
+  </div>
+
+  <div class="narrative-block">
+    <h3>Khuyến nghị Hành động Theo Quy trình Chuẩn (SOP)</h3>
+    <ol>
+      {% for rec in report.narrative.recommendations %}
+      <li>{{ rec }}</li>
+      {% else %}
+      <li>Không có khuyến nghị cụ thể.</li>
+      {% endfor %}
+    </ol>
+  </div>
+
+  {% if report.narrative.missing_data_warnings %}
+  <div class="warning-box">
+    <strong>Lưu ý về Dữ liệu Khuyết thiếu:</strong>
+    <ul>
+      {% for warn in report.narrative.missing_data_warnings %}
+      <li>{{ warn }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <h2>5. Nguồn Dữ liệu Tham chiếu (Provenance Snapshot)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Tên tệp nguồn</th>
+        <th class="text-center">Phiên bản</th>
+        <th>Source ID</th>
+        <th>Dataset ID</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for src in report.provenance_sources %}
+      <tr>
+        <td><strong>{{ src.filename or 'N/A' }}</strong></td>
+        <td class="text-center">v{{ src.version_number or 1 }}</td>
+        <td style="font-family: monospace; font-size: 8.5pt;">{{ src.source_id }}</td>
+        <td style="font-family: monospace; font-size: 8.5pt;">{{ src.dataset_id }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="text-center">Không có nguồn tham chiếu trực tiếp.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+</body>
+</html>
