@@ -142,7 +142,26 @@ Workflow tự động, granularity standard, kế hoạch độc lập có thể
 4. Bộ dữ liệu mẫu bao phủ các format MVP, ticket/incident/log/SOP/bảng vận hành với ground truth và expected report metrics; chạy được luồng phân tích Web end-to-end.
 5. Phân tích/lịch sử/citations chỉ trong phạm vi quyền; không gọi tools, gửi thông báo, cập nhật ticket hoặc thao tác WMS/TMS thật.
 
-**Plans:** TBD
+**Plans:** 5 plans
+**Wave 1**
+
+- [ ] 04-01-PLAN.md
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 04-02-PLAN.md
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 04-03-PLAN.md
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 04-04-PLAN.md
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 04-05-PLAN.md
 
 ### Phase 5: On-Demand Incident Reports and PDF
 
@@ -191,7 +210,7 @@ Chi tiết models, parser packages, queue implementation, timezone/report rules 
 | 1. Local Workspace and Access Control | 5/5 | Complete    | 2026-10-07 |
 | 2. Dataset Ingestion and Source Lifecycle | 5/5 | Complete    | 2026-10-07 |
 | 3. Grounded Knowledge Retrieval | 5/5 | Complete    | 2026-10-14 |
-| 4. Logistics Incident and Ticket Analysis | 0/TBD | Not started | - |
+| 4. Logistics Incident and Ticket Analysis | 0/5 | Ready to execute | - |
 | 5. On-Demand Incident Reports and PDF | 0/TBD | Not started | - |
 | 6. MVP Reliability and Acceptance | 0/TBD | Not started | - |
 
