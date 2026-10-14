@@ -9,7 +9,9 @@ app.add_exception_handler(RequestValidationError, validation_error)
 async def security_headers(request: Request, call_next):
     try:
         response = await call_next(request)
-    except Exception:
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
         response = JSONResponse(status_code=503, content={"detail": "Dịch vụ tạm thời không khả dụng"})
     response.headers["Cache-Control"] = "no-store"
     response.headers["X-Content-Type-Options"] = "nosniff"

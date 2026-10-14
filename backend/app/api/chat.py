@@ -220,7 +220,7 @@ def execute_query(
                 "dataset_id": str(cit.dataset_id),
                 "source_id": str(cit.source_id),
                 "source_version": cit.source_version,
-                "locator": cit.locator.model_dump(),
+                "locator": cit.locator.model_dump(mode="json"),
                 "excerpt_text": cit.excerpt_text,
             })
 
