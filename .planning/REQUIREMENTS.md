@@ -25,11 +25,11 @@
 
 ### RAG and Evidence
 
-- [ ] **RAG-01**: Người dùng có thể hỏi đáp bằng tiếng Việt về dữ liệu được phép truy cập và nhận câu trả lời dựa trên bằng chứng truy xuất.
-- [ ] **RAG-02**: Người dùng có thể tra cứu theo order ID, error code hoặc correlation ID chính xác và kết hợp truy xuất lexical/ngữ nghĩa cho tài liệu liên quan; fixture DH001 không bị lẫn DH010.
-- [ ] **RAG-03**: Người dùng có thể giới hạn truy xuất theo dataset, loại nguồn, hệ thống và khoảng thời gian khi nguồn có metadata tương ứng.
-- [ ] **RAG-04**: Người dùng có thể mở nguồn/đoạn dữ liệu được trích dẫn cho nhận định trong kết quả; server không chấp nhận citation ID ngoài tập evidence của lần truy xuất.
-- [ ] **RAG-05**: Khi bằng chứng thiếu hoặc mâu thuẫn, người dùng nhận thông báo rõ phần chưa biết/mâu thuẫn; hệ thống không trình bày giả thuyết như nguyên nhân đã xác nhận.
+- [x] **RAG-01**: Người dùng có thể hỏi đáp bằng tiếng Việt về dữ liệu được phép truy cập và nhận câu trả lời dựa trên bằng chứng truy xuất.
+- [x] **RAG-02**: Người dùng có thể tra cứu theo order ID, error code hoặc correlation ID chính xác và kết hợp truy xuất lexical/ngữ nghĩa cho tài liệu liên quan; fixture DH001 không bị lẫn DH010.
+- [x] **RAG-03**: Người dùng có thể giới hạn truy xuất theo dataset, loại nguồn, hệ thống và khoảng thời gian khi nguồn có metadata tương ứng.
+- [x] **RAG-04**: Người dùng có thể mở nguồn/đoạn dữ liệu được trích dẫn cho nhận định trong kết quả; server không chấp nhận citation ID ngoài tập evidence của lần truy xuất.
+- [x] **RAG-05**: Khi bằng chứng thiếu hoặc mâu thuẫn, người dùng nhận thông báo rõ phần chưa biết/mâu thuẫn; hệ thống không trình bày giả thuyết như nguyên nhân đã xác nhận.
 
 ### Incident and Ticket Analysis
 
@@ -51,10 +51,10 @@
 ### Administration and Architecture
 
 - [ ] **SYS-01**: Người vận hành có thể chạy FastAPI, Next.js/TypeScript, PostgreSQL + pgvector và file storage local bằng Docker Compose; MVP sử dụng OpenAI Embeddings và OpenAI API generation bên ngoài.
-- [ ] **SYS-02**: Admin có thể cấu hình LLM và embedding provider/model trên backend; hai provider tách riêng để thay Gemini/local generation hoặc local embedding về sau, secrets không lộ trong Web/kết quả và index lưu model/dimension/version.
-- [ ] **SYS-03**: Generation chỉ gửi context truy xuất liên quan trong phạm vi quyền và token budget; embedding gửi các chunk cần index và query qua OpenAI API; rules che secret được kiểm chứng bằng token/key mẫu trước egress ở cả hai đường.
+- [x] **SYS-02**: Admin có thể cấu hình LLM và embedding provider/model trên backend; hai provider tách riêng để thay Gemini/local generation hoặc local embedding về sau, secrets không lộ trong Web/kết quả và index lưu model/dimension/version.
+- [x] **SYS-03**: Generation chỉ gửi context truy xuất liên quan trong phạm vi quyền và token budget; embedding gửi các chunk cần index và query qua OpenAI API; rules che secret được kiểm chứng bằng token/key mẫu trước egress ở cả hai đường.
 - [ ] **SYS-04**: Next.js Web dùng FastAPI contracts; pipeline LangChain, parser, Embedding Provider, LLM Provider và các module log_analysis/tickets/reports có boundary rõ theo cấu trúc backend/app đã chốt, cho phép thêm OCR/MCP/scheduler/Agent sau này.
-- [ ] **SYS-05**: Khi ingestion hoặc LLM lỗi/timeout, người dùng nhận trạng thái và lý do rõ; hệ thống không hiển thị nội dung giả như kết quả thành công.
+- [x] **SYS-05**: Khi ingestion hoặc LLM lỗi/timeout, người dùng nhận trạng thái và lý do rõ; hệ thống không hiển thị nội dung giả như kết quả thành công.
 
 ### Evaluation and Acceptance
 
@@ -103,11 +103,11 @@ Mỗi yêu cầu v1 phải có evidence nghiệm thu phù hợp. Bộ eval phả
 | DATA-04 | Phase 2 | Validated |
 | DATA-05 | Phase 2 | Validated |
 | DATA-06 | Phase 2 | Validated |
-| RAG-01 | Phase 3 | Pending |
-| RAG-02 | Phase 3 | Pending |
-| RAG-03 | Phase 3 | Pending |
-| RAG-04 | Phase 3 | Pending |
-| RAG-05 | Phase 3 | Pending |
+| RAG-01 | Phase 3 | Complete |
+| RAG-02 | Phase 3 | Complete |
+| RAG-03 | Phase 3 | Complete |
+| RAG-04 | Phase 3 | Complete |
+| RAG-05 | Phase 3 | Complete |
 | INC-01 | Phase 4 | Pending |
 | INC-02 | Phase 4 | Pending |
 | INC-03 | Phase 4 | Pending |
@@ -120,10 +120,10 @@ Mỗi yêu cầu v1 phải có evidence nghiệm thu phù hợp. Bộ eval phả
 | REP-05 | Phase 5 | Pending |
 | REP-06 | Phase 5 | Pending |
 | SYS-01 | Phase 1 | Validated |
-| SYS-02 | Phase 3 | Pending |
-| SYS-03 | Phase 3 | Pending |
+| SYS-02 | Phase 3 | Complete |
+| SYS-03 | Phase 3 | Complete |
 | SYS-04 | Phase 1 | Validated |
-| SYS-05 | Phase 3 | Pending |
+| SYS-05 | Phase 3 | Complete |
 | EVAL-01 | Phase 4 | Pending |
 | EVAL-02 | Phase 6 | Pending |
 | EVAL-03 | Phase 6 | Pending |
