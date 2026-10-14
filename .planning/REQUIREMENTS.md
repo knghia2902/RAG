@@ -33,11 +33,11 @@
 
 ### Incident and Ticket Analysis
 
-- [ ] **INC-01**: Kỹ thuật viên có thể phân tích sự cố bằng mô tả, mã đơn hàng và bộ lọc; kết quả tổng hợp log liên quan, hệ thống và trình tự sự kiện có nguồn.
-- [ ] **INC-02**: Kỹ thuật viên có thể nhập ticket hoặc upload ticket theo schema import được công bố để yêu cầu phân tích.
-- [ ] **INC-03**: Kỹ thuật viên nhận phân loại nhóm lỗi, hệ thống liên quan và ưu tiên đề xuất từ ticket/bằng chứng; thông tin nguồn và đề xuất được phân biệt.
-- [ ] **INC-04**: Kỹ thuật viên xem SOP, ticket và incident tương tự liên quan đến vấn đề; precedent cũ được phân biệt với bằng chứng sự cố hiện tại.
-- [ ] **INC-05**: Kỹ thuật viên nhận các giả thuyết nguyên nhân, bằng chứng, thông tin còn thiếu và bước kiểm tra/xử lý đề xuất; MVP không gọi tools hay thao tác hệ thống thật.
+- [x] **INC-01**: Kỹ thuật viên có thể phân tích sự cố bằng mô tả, mã đơn hàng và bộ lọc; kết quả tổng hợp log liên quan, hệ thống và trình tự sự kiện có nguồn.
+- [x] **INC-02**: Kỹ thuật viên có thể nhập ticket hoặc upload ticket theo schema import được công bố để yêu cầu phân tích.
+- [x] **INC-03**: Kỹ thuật viên nhận phân loại nhóm lỗi, hệ thống liên quan và ưu tiên đề xuất từ ticket/bằng chứng; thông tin nguồn và đề xuất được phân biệt.
+- [x] **INC-04**: Kỹ thuật viên xem SOP, ticket và incident tương tự liên quan đến vấn đề; precedent cũ được phân biệt với bằng chứng sự cố hiện tại.
+- [x] **INC-05**: Kỹ thuật viên nhận các giả thuyết nguyên nhân, bằng chứng, thông tin còn thiếu và bước kiểm tra/xử lý đề xuất; MVP không gọi tools hay thao tác hệ thống thật.
 
 ### On-Demand Reporting
 
@@ -58,7 +58,7 @@
 
 ### Evaluation and Acceptance
 
-- [ ] **EVAL-01**: Nhóm dự án có thể chạy bộ dữ liệu mẫu WMS/TMS/API, SOP, ticket, incident và bảng logistics, gồm DH001 và đáp án/metrics chuẩn để kiểm chứng luồng Web end-to-end.
+- [x] **EVAL-01**: Nhóm dự án có thể chạy bộ dữ liệu mẫu WMS/TMS/API, SOP, ticket, incident và bảng logistics, gồm DH001 và đáp án/metrics chuẩn để kiểm chứng luồng Web end-to-end.
 - [ ] **EVAL-02**: Nhóm dự án có thể chạy đánh giá tái lập cho ID gần giống, thiếu/mâu thuẫn evidence, citation support, prompt injection, dữ liệu ngoài quyền, duplicate import, thu hồi quyền và nguồn đã xóa.
 - [ ] **EVAL-03**: Nhóm dự án có thể đối chiếu metrics/PDF với ground truth, gồm biên kỳ/timezone, incident đang mở và ticket–incident liên quan; đo thời gian ingestion/truy xuất/generation trên máy đích và ghi giới hạn quan sát được.
 
@@ -108,11 +108,11 @@ Mỗi yêu cầu v1 phải có evidence nghiệm thu phù hợp. Bộ eval phả
 | RAG-03 | Phase 3 | Complete |
 | RAG-04 | Phase 3 | Complete |
 | RAG-05 | Phase 3 | Complete |
-| INC-01 | Phase 4 | Pending |
-| INC-02 | Phase 4 | Pending |
-| INC-03 | Phase 4 | Pending |
-| INC-04 | Phase 4 | Pending |
-| INC-05 | Phase 4 | Pending |
+| INC-01 | Phase 4 | Complete |
+| INC-02 | Phase 4 | Complete |
+| INC-03 | Phase 4 | Complete |
+| INC-04 | Phase 4 | Complete |
+| INC-05 | Phase 4 | Complete |
 | REP-01 | Phase 5 | Pending |
 | REP-02 | Phase 5 | Pending |
 | REP-03 | Phase 5 | Pending |
@@ -124,7 +124,7 @@ Mỗi yêu cầu v1 phải có evidence nghiệm thu phù hợp. Bộ eval phả
 | SYS-03 | Phase 3 | Complete |
 | SYS-04 | Phase 1 | Validated |
 | SYS-05 | Phase 3 | Complete |
-| EVAL-01 | Phase 4 | Pending |
+| EVAL-01 | Phase 4 | Complete |
 | EVAL-02 | Phase 6 | Pending |
 | EVAL-03 | Phase 6 | Pending |
 

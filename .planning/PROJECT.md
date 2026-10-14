@@ -21,6 +21,9 @@ Kỹ thuật viên có thể tìm bằng chứng liên quan và nhận phân tí
 - Local Docker Compose runtime với PostgreSQL + pgvector, dữ liệu bền vững qua restart và giao diện chỉ publish trên loopback — Phase 1 (SYS-01).
 - Web gọi FastAPI theo contract; module/provider boundary và policy seam có thể mở rộng — Phase 1 (SYS-04).
 - Policy contract cho nguồn, lịch sử kết quả và báo cáo được xác định cho các module sau; endpoint thực tế và kiểm tra quyền tại các endpoint đó vẫn là phần việc của các phase tương ứng — Phase 1 slice (AUTH-04, AUTH-05).
+- Ingestion tài liệu đa định dạng, quản lý vòng đời nguồn/phiên bản, xem trước trích đoạn có tọa độ nguồn — Phase 2 (DATA-01 đến DATA-06).
+- Truy xuất tri thức có bằng chứng trích dẫn inline, phân biệt mã định danh chính xác (DH001 vs DH010), lọc phạm vi và Live Scope Recheck — Phase 3 (RAG-01 đến RAG-05, SYS-02).
+- Phân tích sự cố logistics đa hệ thống WMS/API/TMS theo mã đơn hàng, cô lập điểm đứt gãy đồng bộ đầu tiên, upload ticket kiểm định schema nghiêm ngặt theo dòng, phân loại P1-P4, phân định nguyên nhân vs giả thuyết, cảnh báo thiếu log (RAG-05), dẫn chứng quy trình SOP-LOG-01 và Live Scope Recheck thời gian thực — Phase 4 (INC-01, INC-02, INC-03, INC-04, INC-05, EVAL-01, AUTH-04).
 
 ### Active
 
@@ -157,4 +160,4 @@ Sau mỗi phase: chuyển yêu cầu đã kiểm chứng sang Validated; chuyể
 Sau mỗi milestone: rà soát toàn bộ tài liệu, giá trị cốt lõi, phạm vi loại trừ và bối cảnh sử dụng thực tế.
 
 ---
-*Last updated: 2026-10-07 after Phase 1 UAT and access-control acceptance.*
+*Last updated: 2026-10-14 after Phase 4 UAT and logistics incident analysis acceptance.*

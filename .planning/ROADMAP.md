@@ -11,7 +11,7 @@ Workflow tự động, granularity standard, kế hoạch độc lập có thể
 - [x] **Phase 1: Local Workspace and Access Control** - Chạy Web/API/database local và sử dụng tài khoản Admin/Kỹ thuật viên với quyền dataset. (completed 2026-10-07)
 - [x] **Phase 2: Dataset Ingestion and Source Lifecycle** - Upload đa định dạng, chuẩn hóa dữ liệu và quản lý nguồn có provenance. (completed 2026-10-07)
 - [x] **Phase 3: Grounded Knowledge Retrieval** - Hỏi đáp LangChain/pgvector qua OpenAI providers, truy xuất chính xác và xem bằng chứng. (completed 2026-10-14)
-- [ ] **Phase 4: Logistics Incident and Ticket Analysis** - Phân tích log/ticket WMS–TMS, giả thuyết nguyên nhân và đề xuất xử lý có nguồn.
+- [x] **Phase 4: Logistics Incident and Ticket Analysis** - Phân tích log/ticket WMS–TMS, giả thuyết nguyên nhân và đề xuất xử lý có nguồn. (completed 2026-10-14)
 - [ ] **Phase 5: On-Demand Incident Reports and PDF** - Báo cáo số liệu xác định theo kỳ/custom, nhận xét có nguồn và PDF.
 - [ ] **Phase 6: MVP Reliability and Acceptance** - Kiểm chứng chất lượng, quyền, vòng đời dữ liệu, báo cáo và giới hạn hiệu năng.
 
@@ -210,7 +210,7 @@ Chi tiết models, parser packages, queue implementation, timezone/report rules 
 | 1. Local Workspace and Access Control | 5/5 | Complete    | 2026-10-07 |
 | 2. Dataset Ingestion and Source Lifecycle | 5/5 | Complete    | 2026-10-07 |
 | 3. Grounded Knowledge Retrieval | 5/5 | Complete    | 2026-10-14 |
-| 4. Logistics Incident and Ticket Analysis | 0/5 | Ready to execute | - |
+| 4. Logistics Incident and Ticket Analysis | 5/5 | Complete    | 2026-10-14 |
 | 5. On-Demand Incident Reports and PDF | 0/TBD | Not started | - |
 | 6. MVP Reliability and Acceptance | 0/TBD | Not started | - |
 
