@@ -38,16 +38,18 @@ created: 2026-10-14
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 06-01-01 | 01 | 1 | EVAL-02 | T-06-01 | Chống Prompt Injection và Secret Masking | acceptance | `pytest tests/acceptance/test_eval_security_and_scope.py -k test_prompt_injection` | ❌ W0 | ⬜ pending |
-| 06-01-02 | 01 | 1 | EVAL-02 | T-06-02 | Live Scope Recheck toàn diện & Tombstone fencing | acceptance | `pytest tests/acceptance/test_eval_security_and_scope.py -k test_live_scope_and_tombstone` | ❌ W0 | ⬜ pending |
-| 06-01-03 | 01 | 1 | EVAL-02 | — | Chống nhân đôi dữ liệu khi restart / retry import | acceptance | `pytest tests/acceptance/test_eval_security_and_scope.py -k test_idempotent_recovery` | ❌ W0 | ⬜ pending |
+| 06-01-01 | 01 | 1 | EVAL-02 | — | Fixtures kiểm thử môi trường acceptance và provider fake | unit | `pytest tests/acceptance/conftest.py` | ❌ W0 | ⬜ pending |
+| 06-01-02 | 01 | 1 | EVAL-02 | T-06-01 | Chống Prompt Injection và Secret Masking | acceptance | `pytest tests/acceptance/test_eval_security_and_scope.py -k test_prompt_injection` | ❌ W0 | ⬜ pending |
+| 06-01-03 | 01 | 1 | EVAL-02 | T-06-02 | Live Scope Recheck toàn diện & Tombstone fencing | acceptance | `pytest tests/acceptance/test_eval_security_and_scope.py -k "recheck or tombstone"` | ❌ W0 | ⬜ pending |
+| 06-01-04 | 01 | 1 | EVAL-02 | T-06-03 | Chống nhân đôi dữ liệu khi restart / retry import | acceptance | `pytest tests/acceptance/test_eval_security_and_scope.py -k test_worker_restart` | ❌ W0 | ⬜ pending |
 | 06-02-01 | 02 | 2 | EVAL-02, EVAL-03 | — | Phân biệt mã đơn hàng gần giống DH001 vs DH010 | acceptance | `pytest tests/acceptance/test_eval_rag_ground_truth.py -k test_identifier_disambiguation` | ❌ W0 | ⬜ pending |
-| 06-02-02 | 02 | 2 | EVAL-02, EVAL-03 | — | Cảnh báo thiếu log RAG-05 và phát hiện mâu thuẫn | acceptance | `pytest tests/acceptance/test_eval_rag_ground_truth.py -k test_missing_or_conflicting_evidence` | ❌ W0 | ⬜ pending |
-| 06-02-03 | 02 | 2 | EVAL-02, EVAL-03 | — | Đánh giá tỷ lệ hỗ trợ trích dẫn Citation Support Rate | acceptance | `pytest tests/acceptance/test_eval_rag_ground_truth.py -k test_citation_support_rate` | ❌ W0 | ⬜ pending |
-| 06-03-01 | 03 | 3 | EVAL-03 | — | Script benchmark latency đo p50/p95 từng khâu | script | `python scripts/benchmark_latency.py --mock` | ❌ W0 | ⬜ pending |
-| 06-03-02 | 03 | 3 | EVAL-03 | — | Kiểm chứng giới hạn vận hành (timeout, file size) | acceptance | `pytest tests/acceptance/test_operational_limits.py` | ❌ W0 | ⬜ pending |
-| 06-04-01 | 04 | 4 | EVAL-02, EVAL-03 | — | Script demo 1 lệnh walkthrough hoàn chỉnh | script | `python scripts/demo_walkthrough.py --dry-run` | ❌ W0 | ⬜ pending |
-| 06-04-02 | 04 | 4 | EVAL-02, EVAL-03 | — | Cẩm nang vận hành Runbook & Báo cáo nghiệm thu | docs | `test -f docs/runbook.md && test -f docs/evaluation.md` | ❌ W0 | ⬜ pending |
+| 06-02-02 | 02 | 2 | EVAL-02, EVAL-03 | T-06-04 | Cảnh báo thiếu log RAG-05 và phát hiện mâu thuẫn | acceptance | `pytest tests/acceptance/test_eval_rag_ground_truth.py -k "missing or conflicting"` | ❌ W0 | ⬜ pending |
+| 06-02-03 | 02 | 2 | EVAL-02, EVAL-03 | T-06-05 | Đánh giá tỷ lệ hỗ trợ trích dẫn Citation Support Rate | acceptance | `pytest tests/acceptance/test_eval_rag_ground_truth.py -k test_citation_support_rate` | ❌ W0 | ⬜ pending |
+| 06-03-01 | 03 | 3 | EVAL-03 | — | Script benchmark latency đo p50/p95 từng khâu | script | `python scripts/benchmark_latency.py --iterations 2` | ❌ W0 | ⬜ pending |
+| 06-03-02 | 03 | 3 | EVAL-03 | T-06-06, T-06-07 | Kiểm chứng giới hạn vận hành (timeout, file size) | acceptance | `pytest tests/acceptance/test_operational_limits.py` | ❌ W0 | ⬜ pending |
+| 06-04-01 | 04 | 4 | EVAL-02, EVAL-03 | T-06-08 | Script demo 1 lệnh walkthrough hoàn chỉnh | script | `python scripts/demo_walkthrough.py --dry-run` | ❌ W0 | ⬜ pending |
+| 06-04-02 | 04 | 4 | EVAL-02, EVAL-03 | T-06-09 | Cẩm nang vận hành Runbook và quy trình reindex | docs | `test -f docs/runbook.md` | ❌ W0 | ⬜ pending |
+| 06-04-03 | 04 | 4 | EVAL-02, EVAL-03 | — | Báo cáo kỹ thuật nghiệm thu định lượng | docs | `test -f docs/evaluation.md` | ❌ W0 | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
