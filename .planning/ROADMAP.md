@@ -142,26 +142,26 @@ Workflow tự động, granularity standard, kế hoạch độc lập có thể
 4. Bộ dữ liệu mẫu bao phủ các format MVP, ticket/incident/log/SOP/bảng vận hành với ground truth và expected report metrics; chạy được luồng phân tích Web end-to-end.
 5. Phân tích/lịch sử/citations chỉ trong phạm vi quyền; không gọi tools, gửi thông báo, cập nhật ticket hoặc thao tác WMS/TMS thật.
 
-**Plans:** 5 plans
+**Plans:** 5/5 plans complete
 **Wave 1**
 
-- [ ] 04-01-PLAN.md
+- [x] 04-01-PLAN.md
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 04-02-PLAN.md
+- [x] 04-02-PLAN.md
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 04-03-PLAN.md
+- [x] 04-03-PLAN.md
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 04-04-PLAN.md
+- [x] 04-04-PLAN.md
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 04-05-PLAN.md
+- [x] 04-05-PLAN.md
 
 ### Phase 5: On-Demand Incident Reports and PDF
 
