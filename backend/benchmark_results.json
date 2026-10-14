@@ -1,0 +1,30 @@
+{
+  "Ingestion (Parse & Chunk)": {
+    "samples": 3,
+    "min_ms": 0.51,
+    "p50_ms": 0.71,
+    "p95_ms": 3.35,
+    "max_ms": 3.35
+  },
+  "Retrieval & Correlation": {
+    "samples": 3,
+    "min_ms": 3.69,
+    "p50_ms": 4.36,
+    "p95_ms": 6.77,
+    "max_ms": 6.77
+  },
+  "Generation & Reasoning": {
+    "samples": 3,
+    "min_ms": 0.11,
+    "p50_ms": 0.14,
+    "p95_ms": 0.38,
+    "max_ms": 0.38
+  },
+  "WeasyPrint PDF Render": {
+    "samples": 3,
+    "min_ms": 326.66,
+    "p50_ms": 430.56,
+    "p95_ms": 854.53,
+    "max_ms": 854.53
+  }
+}

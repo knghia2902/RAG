@@ -1,0 +1,3 @@
+ticket_id,order_id,timestamp,system,severity,description,customer_id,reported_by
+TCK-LOG-1001,DH001,2026-10-14T08:25:00Z,WMS,P1,Đơn hàng DH001 đã đóng gói tại kho Sóng Thần lúc 08:15 nhưng sau 10 phút hệ thống TMS vẫn chưa ghi nhận để điều phối xe,CUST-881,DieuPhoi_SongThan
+TCK-LOG-1002,DH010,2026-10-14T09:05:00Z,TMS,P3,Đơn hàng DH010 đã nhận lệnh điều xe thành công cần xác nhận thời gian xuất bến,CUST-102,DieuPhoi_BinhDuong

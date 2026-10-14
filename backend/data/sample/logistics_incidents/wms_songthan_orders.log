@@ -1,0 +1,4 @@
+2026-10-14 08:10:00 [INFO] Order DH001 created at Kho Sóng Thần, items: 25kg, customer: CUST-881
+2026-10-14 08:15:00 [INFO] Order DH001 packing completed, status: PACKED, ready for dispatch at Gate 4
+2026-10-14 09:00:00 [INFO] Order DH010 packing completed, status: PACKED at Gate 1
+2026-10-14 09:10:00 [INFO] Order DH0011 created at Kho Sóng Thần, items: 10kg

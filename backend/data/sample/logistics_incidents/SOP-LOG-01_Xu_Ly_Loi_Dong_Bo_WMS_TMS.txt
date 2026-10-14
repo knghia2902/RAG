@@ -1,0 +1,20 @@
+QUY TRÌNH CHUẨN VẬN HÀNH LOGISTICS IT
+MÃ QUY TRÌNH: SOP-LOG-01
+TIÊU ĐỀ: Xử lý sự cố mất đồng bộ dữ liệu đơn hàng giữa hệ thống Kho (WMS) và Điều phối vận tải (TMS)
+
+1. MỤC ĐÍCH & PHẠM VI ÁP DỤNG
+Áp dụng cho kỹ thuật viên IT và nhân viên điều vận khi phát hiện đơn hàng đã đóng gói (PACKED) tại kho WMS nhưng không xuất hiện trên hệ thống TMS hoặc bị treo ở trạng thái chờ điều phối (PENDING).
+
+2. CÁC BƯỚC XỬ LÝ SỰ CỐ
+2.1 Kiểm tra trạng thái dịch vụ TMS
+Khi phát hiện lỗi HTTP 504 Gateway Timeout trên API Gateway, kỹ thuật viên truy cập endpoint /healthz của dịch vụ TMS Dispatch Service để kiểm tra độ trễ mạng và mức tải CPU/RAM.
+
+2.2 Kiểm tra hàng đợi tin nhắn (Message Queue)
+Kiểm tra hàng đợi rabbitmq queue 'tms.dispatch.orders' xem có hiện tượng dồn ứ tin nhắn (unacknowledged messages) hay không.
+
+2.3 Kích hoạt cơ chế gửi lại webhook (Re-sync Webhook)
+Thực hiện gọi API tái kích hoạt đồng bộ: POST /api/v1/orders/{order_id}/sync-retry từ WMS sang TMS.
+Kết quả kỳ vọng: Đơn hàng chuyển sang trạng thái 'ĐÃ TIẾP NHẬN' trên TMS và hệ thống tự động gán xe tải/tài xế trong vòng 5 phút.
+
+2.4 Xử lý ngoại lệ thủ công (Fallback)
+Nếu sau 3 lần retry vẫn xảy ra timeout hoặc lỗi kết nối, kỹ thuật viên liên hệ quản trị hệ thống hạ tầng mạng và lập phiếu bàn giao điều phối thủ công qua cổng điều vận khẩn cấp.
