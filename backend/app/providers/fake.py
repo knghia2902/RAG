@@ -63,3 +63,7 @@ class FakeLLMAdapter(LLMProvider):
             text=answer,
             citations=citations,
         )
+
+
+FakeLLMProvider = FakeLLMAdapter
+
