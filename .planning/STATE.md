@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Phase 4 complete, ready to plan Phase 5
-last_updated: "2026-10-14T08:58:16.094Z"
-last_activity: 2026-10-14
+status: complete
+stopped_at: Phase 6 complete, Milestone 1 MVP fully accepted and verified
+last_updated: "2026-10-14T17:00:00.000Z"
+last_activity: 2026-10-14 -- Phase 06 complete (all 4 plans verified)
 progress:
   total_phases: 6
-  completed_phases: 5
-  total_plans: 24
-  completed_plans: 24
+  completed_phases: 6
+  total_plans: 28
+  completed_plans: 28
   percent: 100
 ---
 
@@ -21,37 +21,38 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-14)
 
 **Core value:** Kỹ thuật viên tìm bằng chứng và nhận phân tích, đề xuất xử lý sự cố logistics kèm nguồn để kiểm tra.
-**Current focus:** Phase 06 — mvp-reliability-and-acceptance
+**Current focus:** Milestone 1 complete — all 6 phases delivered and verified
 
 ## Current Position
 
-Phase: 6 (mvp-reliability-and-acceptance)
-Plan: Not started
-Status: Phase 5 verified, ready for Phase 6
-Last activity: 2026-10-14
+Phase: 06 (mvp-reliability-and-acceptance) — COMPLETE
+Plan: 4 of 4 complete
+Status: Complete (All 6 Phases and 28 Plans verified)
+Last activity: 2026-10-14 -- Phase 06 verified (14/14 acceptance tests, 223/223 regression tests passed)
 
-Progress: [████████████████████] 24/24 plans (100% of Phases 1-5)
+Progress: [████████████████████] 28/28 plans (100% of all MVP phases)
 
 ## Performance Metrics
 
-- Total plans completed: 5 in Phase 1, 5 in Phase 2, 5 in Phase 3, 5 in Phase 4, 4 in Phase 5 (24 plans total)
+- Total plans completed: 5 in Phase 1, 5 in Phase 2, 5 in Phase 3, 5 in Phase 4, 4 in Phase 5, 4 in Phase 6 (28 plans total)
 - Execution time: Per-plan timings recorded in committed SUMMARY files.
-- Phase 5 completion: On-demand incident report generator with deterministic metrics, independent ticket and incident counts, strict MTTR for closed incidents only, recurring error grouping rule (>=2), WeasyPrint 70.0 PDF generator, Vietnamese A4 paged media CSS template, AI narrative synthesis with secret masking and fallback, Live Scope Recheck (403 on revoked dataset), and EVAL-03 acceptance suite verified.
+- Phase 6 completion: Security fencing & prompt injection resistance, secret masking, Live Scope Recheck (AUTH-04, REP-06), tombstone isolation, Celery worker idempotent restart, exact identifier disambiguation (DH001 vs DH010), RAG-05 missing evidence warnings, citation support rate (100% confirmed, >=75% overall), latency benchmarking harness (p50/p95), 5MB ticket payload limit, 30s timeout handling (SYS-05), one-click demo walkthrough (`demo_walkthrough.py`), operations runbook (`docs/runbook.md`), and technical evaluation report (`docs/evaluation.md`).
+- Test suite: 223/223 tests passed (100%) in 75.62s. Frontend build Turbopack passed (10 static routes).
 
 ## Accumulated Context
 
 ### Decisions
 
-Detailed decisions: PROJECT.md.
+Detailed decisions: PROJECT.md and 06-CONTEXT.md.
 
 - FastAPI + LangChain + PostgreSQL/pgvector + Next.js/TypeScript; Docker Compose.
 - OpenAI Embeddings and generation APIs, two provider interfaces; local/Gemini later.
 - Admin/Kỹ thuật viên; dataset ACL baseline; evidence and PDF enforce current permissions.
-- Phase 5 complete: On-demand incident and operational reports with deterministic aggregator, WeasyPrint 70.0 engine with SSRF blocking, two-tab Next.js reports workspace, and live permission enforcement.
+- Phase 6 complete: Full operational reliability, security fencing, ground truth verification, latency benchmarking, and one-click demo walkthrough.
 
 ### Blockers/Concerns
 
-None. All 209 backend tests passed across all unit, integration, and E2E suites; Next.js Turbopack build passed.
+None. All 223 backend tests passed across all unit, integration, and acceptance suites; Next.js Turbopack build passed.
 
 ### Quick Tasks Completed
 
@@ -65,6 +66,7 @@ OCR, scheduler/report delivery, MCP, Agent/tools, real connectors, Excel/Word, l
 
 ## Session Continuity
 
-Last session: 2026-10-14T14:05:00.000Z
-Stopped at: Phase 4 complete, ready to plan Phase 5
-Next action: Run `/gsd-plan-phase 5`
+Last session: 2026-10-14T17:00:00.000Z
+Stopped at: Phase 6 complete, Milestone 1 fully accepted
+Next action: Present milestone completion and demo walkthrough to the user
+

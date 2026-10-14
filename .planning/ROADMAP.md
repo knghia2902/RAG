@@ -195,12 +195,12 @@ Workflow tự động, granularity standard, kế hoạch độc lập có thể
 4. Đo ingestion/retrieval/generation/report latency trên cấu hình máy/dataset công bố, ghi giới hạn thực tế và compatibility pins; không tuyên bố SLA/accuracy chưa đo.
 5. Hướng dẫn Docker Compose, cấu hình secrets/providers, seed mẫu, recovery/reindex và nghiệm thu đủ để người vận hành chạy lại luồng Web → RAG → analysis → PDF.
 
-**Plans:** 4 plans
+**Plans:** 4/4 plans complete
 
-- [ ] 06-01-PLAN.md — Security Fencing, Live Scope Recheck & Idempotent Recovery
-- [ ] 06-02-PLAN.md — RAG Quality, Ground Truth Disambiguation & Citation Support
-- [ ] 06-03-PLAN.md — Latency Benchmarking Harness & Operational Limits Validation
-- [ ] 06-04-PLAN.md — One-Click Demo Walkthrough Script, Operations Runbook & Evaluation Report
+- [x] 06-01-PLAN.md — Security Fencing, Live Scope Recheck & Idempotent Recovery
+- [x] 06-02-PLAN.md — RAG Quality, Ground Truth Disambiguation & Citation Support
+- [x] 06-03-PLAN.md — Latency Benchmarking Harness & Operational Limits Validation
+- [x] 06-04-PLAN.md — One-Click Demo Walkthrough Script, Operations Runbook & Evaluation Report
 
 ## Coverage and Quality Gates
 
@@ -217,7 +217,7 @@ Chi tiết models, parser packages, queue implementation, timezone/report rules 
 | 3. Grounded Knowledge Retrieval | 5/5 | Complete    | 2026-10-14 |
 | 4. Logistics Incident and Ticket Analysis | 5/5 | Complete    | 2026-10-14 |
 | 5. On-Demand Incident Reports and PDF | 4/4 | Complete    | 2026-10-14 |
-| 6. MVP Reliability and Acceptance | 0/4 | Planned     | - |
+| 6. MVP Reliability and Acceptance | 4/4 | Complete    | 2026-10-14 |
 
 ---
-*Created: 2026-10-03. Updated: 2026-10-07 after Phase 1 UAT completion and transition to Phase 2.*
+*Created: 2026-10-03. Updated: 2026-10-14 after Phase 6 completion and full MVP acceptance.*
