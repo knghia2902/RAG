@@ -40,7 +40,9 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: rag
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-rabbitmq-local-pass}
-    volumes: [rabbitmq-data:/var/lib/rabbitmq]
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+      - ./docker/rabbitmq/20-deprecated.conf:/etc/rabbitmq/conf.d/20-deprecated.conf:ro
     networks: [local]
     healthcheck:
       test: [CMD, rabbitmq-diagnostics, check_port_connectivity]
@@ -73,6 +75,8 @@ services:
       RABBITMQ_URL: amqp://rag:${RABBITMQ_PASSWORD:-rabbitmq-local-pass}@rabbitmq:5672//
     volumes: [./data/uploads:/app/data/uploads, ./storage:/app/storage]
     command: [python, -m, celery, -A, app.workers.celery_app.celery_app, worker, --loglevel=info, --concurrency=2]
+
+
     networks: [local]
     depends_on:
       migrate: {condition: service_completed_successfully}
