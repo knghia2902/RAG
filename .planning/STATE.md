@@ -21,22 +21,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-14)
 
 **Core value:** Kỹ thuật viên tìm bằng chứng và nhận phân tích, đề xuất xử lý sự cố logistics kèm nguồn để kiểm tra.
-**Current focus:** Phase 05 — on-demand-incident-reports-and-pdf
+**Current focus:** Phase 06 — mvp-reliability-and-acceptance
 
 ## Current Position
 
-Phase: 6
+Phase: 6 (mvp-reliability-and-acceptance)
 Plan: Not started
-Status: Executing Phase 05
+Status: Phase 5 verified, ready for Phase 6
 Last activity: 2026-10-14
 
-Progress: [████████████████████] 20/20 plans (100% of Phases 1-4)
+Progress: [████████████████████] 24/24 plans (100% of Phases 1-5)
 
 ## Performance Metrics
 
-- Total plans completed: 14 of 5 in Phase 1, 5 of 5 in Phase 2, 5 of 5 in Phase 3, 5 of 5 in Phase 4 (20 plans total)
+- Total plans completed: 5 in Phase 1, 5 in Phase 2, 5 in Phase 3, 5 in Phase 4, 4 in Phase 5 (24 plans total)
 - Execution time: Per-plan timings recorded in committed SUMMARY files.
-- Phase 4 completion: Ticket intake & strict schema validator, cross-system log correlation engine, structured incident reasoner & SOP vector matcher, database persistence & Live Scope Recheck API, multi-system timeline component, 4-block incident dashboard UI, concrete sample logistics fixtures, and EVAL-01 end-to-end acceptance suite are complete and verified.
+- Phase 5 completion: On-demand incident report generator with deterministic metrics, independent ticket and incident counts, strict MTTR for closed incidents only, recurring error grouping rule (>=2), WeasyPrint 70.0 PDF generator, Vietnamese A4 paged media CSS template, AI narrative synthesis with secret masking and fallback, Live Scope Recheck (403 on revoked dataset), and EVAL-03 acceptance suite verified.
 
 ## Accumulated Context
 
@@ -47,15 +47,11 @@ Detailed decisions: PROJECT.md.
 - FastAPI + LangChain + PostgreSQL/pgvector + Next.js/TypeScript; Docker Compose.
 - OpenAI Embeddings and generation APIs, two provider interfaces; local/Gemini later.
 - Admin/Kỹ thuật viên; dataset ACL baseline; evidence and PDF enforce current permissions.
-- Phase 4 complete: Dual input mode (Quick Form + Ticket Upload), strict line-level schema errors, 4-block incident dashboard, vertical multi-system timeline with red failure point isolation, root cause hypothesis separation, RAG-05 missing data warning, and real-time Live Scope Recheck (403 on revoked dataset).
-
-### Pending Todos
-
-No separate pending todos. Ready for Phase 4 verification (`/gsd-verify-work 4`).
+- Phase 5 complete: On-demand incident and operational reports with deterministic aggregator, WeasyPrint 70.0 engine with SSRF blocking, two-tab Next.js reports workspace, and live permission enforcement.
 
 ### Blockers/Concerns
 
-None. All 33 unit tests, 7 integration tests, and Next.js Turbopack build passed.
+None. All 209 backend tests passed across all unit, integration, and E2E suites; Next.js Turbopack build passed.
 
 ### Quick Tasks Completed
 
