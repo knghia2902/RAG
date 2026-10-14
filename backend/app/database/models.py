@@ -211,3 +211,20 @@ class IncidentAnalysis(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
 
 
+class Report(Base):
+    __tablename__ = "reports"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    account_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("accounts.id"), index=True, nullable=False)
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    period_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    start_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    end_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    dataset_ids: Mapped[list[str]] = mapped_column(JSONB, default=list, nullable=False)
+    metrics_json: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    narrative_json: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    provenance_json: Mapped[list[dict]] = mapped_column(JSONB, default=list, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True, nullable=False)
+
+
+

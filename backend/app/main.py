@@ -30,11 +30,13 @@ from app.api.status import router as status_router
 from app.api import config
 from app.api import chat
 from app.api import incidents
+from app.api import reports
 app.include_router(health_router)
 app.include_router(status_router)
 app.include_router(config.router)
 app.include_router(chat.router)
 app.include_router(incidents.router)
+app.include_router(reports.router)
 
 from app.config import get_settings
 if get_settings().test_mode:
