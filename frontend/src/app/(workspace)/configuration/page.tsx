@@ -121,23 +121,39 @@ export default function Configuration() {
                 </h3>
                 <dl style={{ margin: 0 }}>
                   <dt>Nhà cung cấp:</dt>
-                  <dd>{modelConfig.llm_provider === "openai" ? "OpenAI API" : "Mô phỏng nội bộ (Fake Adapter)"}</dd>
+                  <dd>
+                    {modelConfig.llm_provider === "gemini"
+                      ? "Google Gemini API"
+                      : modelConfig.llm_provider === "openai"
+                      ? "OpenAI API"
+                      : "Mô phỏng nội bộ (Fake Adapter)"}
+                  </dd>
                   <dt>Tên mô hình:</dt>
                   <dd>{modelConfig.llm_model}</dd>
                   <dt>Trạng thái API Key:</dt>
                   <dd>
-                    <span
-                      style={{
-                        background: modelConfig.openai_configured ? "#dcfce7" : "#fee2e2",
-                        color: modelConfig.openai_configured ? "#15803d" : "#b91c1c",
-                        padding: "2px 8px",
-                        borderRadius: "4px",
-                        fontWeight: "bold",
-                        fontSize: "12px",
-                      }}
-                    >
-                      {modelConfig.openai_configured ? "Đã cấu hình" : "Chưa cấu hình (dùng Mock)"}
-                    </span>
+                    {(() => {
+                      const isConfigured = Boolean(
+                        (modelConfig.llm_provider === "gemini" && modelConfig.gemini_configured) ||
+                        (modelConfig.llm_provider === "openai" && modelConfig.openai_configured) ||
+                        modelConfig.gemini_configured ||
+                        modelConfig.openai_configured
+                      );
+                      return (
+                        <span
+                          style={{
+                            background: isConfigured ? "#dcfce7" : "#fee2e2",
+                            color: isConfigured ? "#15803d" : "#b91c1c",
+                            padding: "2px 8px",
+                            borderRadius: "4px",
+                            fontWeight: "bold",
+                            fontSize: "12px",
+                          }}
+                        >
+                          {isConfigured ? "Đã cấu hình" : "Chưa cấu hình (dùng Mock)"}
+                        </span>
+                      );
+                    })()}
                   </dd>
                 </dl>
               </div>
