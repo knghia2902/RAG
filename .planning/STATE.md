@@ -60,6 +60,7 @@ None. All 223 backend tests passed across all unit, integration, and acceptance 
 |---|-------------|------|--------|-----------|
 | 1 | Lower application account password minimum to 8 characters (max 128) | 2026-10-06 | 738e10e | [261006-lq9](./quick/261006-lq9-set-account-passwords-to-minimum-8-chara/) |
 | 2 | Switch LLM Provider to Google Gemini (gemini-flash-lite-latest) | 2026-10-15 | 5bb26f6 | [261015-c2y](./quick/261015-c2y-switch-llm-to-google-gemini/) |
+| 3 | Fix frontend model configuration display for Google Gemini | 2026-10-15 | 33798e5 | [261015-cmx](./quick/261015-cmx-fix-frontend-model-config-display-for-ge/) |
 
 ## Deferred Items
 
