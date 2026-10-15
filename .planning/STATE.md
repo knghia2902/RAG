@@ -34,10 +34,11 @@ Progress: [████████████████████] 32/32 p
 
 ## Performance Metrics
 
-- Total plans completed: 5 in Phase 1, 5 in Phase 2, 5 in Phase 3, 5 in Phase 4, 4 in Phase 5, 4 in Phase 6 (28 plans total)
+- Total plans completed: 5 in Phase 1, 5 in Phase 2, 5 in Phase 3, 5 in Phase 4, 4 in Phase 5, 4 in Phase 6, 4 in Phase 7 (32 plans total)
 - Execution time: Per-plan timings recorded in committed SUMMARY files.
 - Phase 6 completion: Security fencing & prompt injection resistance, secret masking, Live Scope Recheck (AUTH-04, REP-06), tombstone isolation, Celery worker idempotent restart, exact identifier disambiguation (DH001 vs DH010), RAG-05 missing evidence warnings, citation support rate (100% confirmed, >=75% overall), latency benchmarking harness (p50/p95), 5MB ticket payload limit, 30s timeout handling (SYS-05), one-click demo walkthrough (`demo_walkthrough.py`), operations runbook (`docs/runbook.md`), and technical evaluation report (`docs/evaluation.md`).
-- Test suite: 223/223 tests passed (100%) in 75.62s. Frontend build Turbopack passed (10 static routes).
+- Phase 7 completion: Multimodal Document Image Extraction (PDF embedded + page scan fallback via pypdfium2, DOCX media via zipfile), secure local storage under `storage/extracted_images/{dataset_id}/...`, ACL-fenced image delivery API with Live Scope Recheck (403 on revocation), Gemini Multimodal Vision prompt construction with inline base64 images (bounded 3-image safety limit), Chat inline image rendering with XSS sanitization, EvidencePreview cited image display, and ImageLightboxModal (zoom/pan).
+- Test suite: 244/244 tests passed (100%) in 93.52s. Frontend build Turbopack passed (11 static routes).
 
 ## Accumulated Context
 
