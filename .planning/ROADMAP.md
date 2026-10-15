@@ -250,10 +250,16 @@ Workflow tự động, granularity standard, kế hoạch độc lập có thể
 5. Thiết kế lại trang Đăng nhập (/login), Quản trị Dataset (/datasets), Phân tích sự cố (/incidents), Báo cáo (/reports), và Cấu hình mô hình (/configuration) đồng bộ phong cách.
 6. Đảm bảo toàn bộ 100% tính năng hiện hữu hoạt động nguyên vẹn, kiểm tra phân quyền ACL không đổi và hoàn thành biên dịch Next.js Turbopack 11 static routes.
 
-**Plans:** 0 plans
+**Plans:** 0/4 plans complete
+**Wave 1**
+- [ ] 08-01-PLAN.md — Design Tokens, Global CSS & Workspace Shell Redesign
 
-Plans:
-- [ ] TBD (run /gsd-plan-phase 8 to break down)
+**Wave 2** *(blocked on Wave 1)*
+- [ ] 08-02-PLAN.md — Knowledge Chat, Multimodal Citations & Lightbox Redesign
+- [ ] 08-03-PLAN.md — Datasets Management & Access Control Redesign
+
+**Wave 3** *(blocked on Wave 2)*
+- [ ] 08-04-PLAN.md — Logistics Incident Analysis, Reports & Configuration Redesign
 
 ## Coverage and Quality Gates
 
@@ -272,7 +278,7 @@ Chi tiết models, parser packages, queue implementation, timezone/report rules 
 | 5. On-Demand Incident Reports and PDF | 4/4 | Complete    | 2026-10-14 |
 | 6. MVP Reliability and Acceptance | 4/4 | Complete    | 2026-10-14 |
 | 7. Multimodal Document Image Extraction and Citations | 4/4 | Complete    | 2026-10-15 |
-| 8. UI Redesign with Pastel Green and White Theme | 0/0 | Not started | - |
+| 8. UI Redesign with Pastel Green and White Theme | 0/4 | Ready to execute | - |
 
 ---
 *Created: 2026-10-03. Updated: 2026-10-15 with Phase 8 addition.*
