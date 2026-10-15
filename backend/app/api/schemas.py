@@ -243,6 +243,8 @@ class CitationPreviewResponseDTO(DTO):
     version_number: int
     locator: SourceLocatorDTO
     excerpt_text: str
+    image_id: UUID | None = None
+    image_url: str | None = None
 
 
 class AnalyzeIncidentRequestDTO(DTO):

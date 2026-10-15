@@ -21,6 +21,7 @@ from app.database.models import (
     ChatMessage,
     ChatSession,
     Dataset,
+    ExtractedImage,
     Source,
     SourceVersion,
     utcnow,
@@ -30,6 +31,7 @@ from app.database.session import get_db
 from app.llm.generation import GroundedGenerator
 from app.providers import get_embedding_provider, get_llm_provider
 from app.rag.filters import ScopeCriteria
+from app.rag.retrieval import extract_representative_images
 
 router = APIRouter(prefix="/api/v1/chat", tags=["chat"])
 
@@ -203,11 +205,15 @@ def execute_query(
             top_k=5,
         )
 
+        # Lấy danh sách ảnh liên quan nhất (tối đa 3 ảnh) cho multimodal generation
+        relevant_images = extract_representative_images(evidence_chunks, max_images=3)
+
         llm_provider = get_llm_provider()
         generator = GroundedGenerator(llm_provider=llm_provider)
         grounded_result = generator.generate_answer(
             question=payload.question,
             evidence=evidence_chunks,
+            images=relevant_images,
         )
 
         answer_text = grounded_result.answer_text
@@ -215,14 +221,31 @@ def execute_query(
         has_conflict = grounded_result.has_conflict
 
         for cit in grounded_result.citations:
-            citations_data.append({
+            cit_item = {
                 "citation_index": cit.citation_index,
                 "dataset_id": str(cit.dataset_id),
                 "source_id": str(cit.source_id),
                 "source_version": cit.source_version,
                 "locator": cit.locator.model_dump(mode="json"),
                 "excerpt_text": cit.excerpt_text,
-            })
+            }
+            # Liên kết ảnh trích xuất vào metadata citation nếu có
+            matched_img = None
+            if 1 <= cit.citation_index <= len(evidence_chunks):
+                chunk = evidence_chunks[cit.citation_index - 1]
+                if getattr(chunk, "images", ()):
+                    matched_img = chunk.images[0]
+            if not matched_img and relevant_images:
+                for img in relevant_images:
+                    if img.get("source_id") == str(cit.source_id):
+                        matched_img = img
+                        break
+            if matched_img:
+                cit_item["image_id"] = matched_img.get("image_id")
+                cit_item["image_url"] = matched_img.get("api_url")
+                cit_item["caption"] = matched_img.get("caption")
+
+            citations_data.append(cit_item)
 
     # 4. Lưu tin nhắn người dùng và tin nhắn phản hồi
     user_msg = ChatMessage(
@@ -319,6 +342,36 @@ def preview_citation(
             source_id=source.id,
             source_version=version_num,
         )
+        loc_data = {}
+
+    # 4. Tìm ExtractedImage liên kết (nếu có)
+    image_id_val = None
+    image_url_val = None
+    img_record = None
+    if loc_data.get("image_id"):
+        try:
+            img_record = db.get(ExtractedImage, UUID(str(loc_data["image_id"])))
+        except (ValueError, TypeError):
+            pass
+    if not img_record and loc_data.get("page") and source.active_version_id:
+        img_record = db.scalars(
+            select(ExtractedImage)
+            .where(
+                ExtractedImage.source_version_id == source.active_version_id,
+                ExtractedImage.page_number == loc_data["page"],
+            )
+            .limit(1)
+        ).first()
+    if not img_record and source.active_version_id:
+        img_record = db.scalars(
+            select(ExtractedImage)
+            .where(ExtractedImage.source_version_id == source.active_version_id)
+            .limit(1)
+        ).first()
+
+    if img_record:
+        image_id_val = img_record.id
+        image_url_val = f"/api/v1/datasets/{dataset_id}/sources/{source_id}/images/{img_record.id}"
 
     return CitationPreviewResponseDTO(
         citation_index=citation_index,
@@ -329,4 +382,6 @@ def preview_citation(
         version_number=version_num,
         locator=locator,
         excerpt_text=excerpt,
+        image_id=image_id_val,
+        image_url=image_url_val,
     )
