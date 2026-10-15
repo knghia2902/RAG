@@ -46,19 +46,19 @@ export default function ChangePassword() {
         }}
       >
         {/* Brand / Security Header */}
-        <div style={{ textAlign: "center", marginBottom: 28 }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 28, textAlign: "center" }}>
           <div
             style={{
               width: 48,
               height: 48,
               borderRadius: "var(--radius-md)",
               background: "linear-gradient(135deg, #10b981 0%, #047857 100%)",
-              display: "inline-flex",
+              display: "flex",
               alignItems: "center",
               justifyContent: "center",
               color: "#ffffff",
               boxShadow: "0 4px 10px rgba(16, 185, 129, 0.25)",
-              marginBottom: 12,
+              marginBottom: 14,
             }}
           >
             <svg

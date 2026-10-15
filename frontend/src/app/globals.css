@@ -155,7 +155,7 @@ button, input, select, textarea {
 }
 
 /* Inputs & Form Controls */
-input[type="text"], input[type="password"], input[type="email"], select, textarea {
+input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="file"]):not([type="range"]), select, textarea {
   width: 100%;
   padding: 10px 14px;
   border: 1px solid var(--border-subtle);

@@ -172,6 +172,7 @@ export default function AccountPanel({
             ref={usernameInputRef}
             id="panel-username"
             name="username"
+            type="text"
             defaultValue={account?.username ?? ""}
             disabled={!!account}
             required
@@ -192,6 +193,7 @@ export default function AccountPanel({
           <input
             id="panel-name"
             name="display_name"
+            type="text"
             defaultValue={account?.display_name ?? ""}
             required
             maxLength={128}

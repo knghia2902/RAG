@@ -33,24 +33,24 @@ export default function Login() {
         }}
       >
         {/* Brand Header */}
-        <div style={{ textAlign: "center", marginBottom: 28 }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 28, textAlign: "center" }}>
           <div
             style={{
-              width: 48,
-              height: 48,
+              width: 52,
+              height: 52,
               borderRadius: "var(--radius-md)",
               background: "linear-gradient(135deg, #10b981 0%, #047857 100%)",
-              display: "inline-flex",
+              display: "flex",
               alignItems: "center",
               justifyContent: "center",
               color: "#ffffff",
-              boxShadow: "0 4px 10px rgba(16, 185, 129, 0.25)",
-              marginBottom: 12,
+              boxShadow: "0 4px 12px rgba(16, 185, 129, 0.25)",
+              marginBottom: 14,
             }}
           >
             <svg
-              width="26"
-              height="26"
+              width="28"
+              height="28"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -64,7 +64,7 @@ export default function Login() {
               <path d="M12 22V12" />
             </svg>
           </div>
-          <div className="eyebrow" style={{ justifyContent: "center", marginBottom: 4 }}>
+          <div className="eyebrow" style={{ marginBottom: 4 }}>
             IT &amp; Logistics · Local Security
           </div>
           <h1 style={{ fontSize: 24, fontWeight: 700, margin: "6px 0 8px", color: "var(--color-text-main)" }}>
@@ -104,6 +104,7 @@ export default function Login() {
             <input
               id="username"
               name="username"
+              type="text"
               autoComplete="username"
               placeholder="Nhập tên đăng nhập..."
               required
