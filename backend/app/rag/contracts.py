@@ -40,6 +40,7 @@ class EvidenceChunk(BoundaryDTO):
     dataset_id: UUID
     locator: SourceLocator
     text: str = Field(min_length=1, max_length=32000)
+    images: tuple[dict, ...] = Field(default=())
 
 
 class RetrievalRequest(BoundaryDTO):

@@ -7,7 +7,7 @@ from app.database.models import CanonicalRecord, EmbeddingRecord, Source, Source
 from app.rag.contracts import EvidenceChunk, SourceLocator
 from app.rag.filters import ScopeCriteria
 from app.rag.lexical import extract_identifiers, is_exact_match
-from app.rag.retrieval import fuse_hybrid_chunks
+from app.rag.retrieval import enrich_chunks_with_images, extract_representative_images, fuse_hybrid_chunks
 
 
 def _record_to_evidence(record: CanonicalRecord, source: Source, version: SourceVersion) -> EvidenceChunk:
@@ -149,8 +149,11 @@ def execute_hybrid_retrieval(
     )
 
     # 3. Kết hợp và xếp hạng
-    return fuse_hybrid_chunks(
+    fused = fuse_hybrid_chunks(
         lexical_chunks=lexical_chunks,
         dense_chunks=dense_chunks,
         top_k=top_k,
     )
+
+    # 4. Làm giàu bằng chứng với hình ảnh trích xuất (multimodal grounding)
+    return enrich_chunks_with_images(fused, db=db)
