@@ -218,10 +218,19 @@ Workflow tự động, granularity standard, kế hoạch độc lập có thể
 4. Giao diện Citation modal và khung chat hiển thị ảnh trích dẫn trực quan kèm số dòng/trang và link nguồn để kỹ thuật viên kiểm tra đối chiếu.
 5. Đảm bảo kiểm tra quyền truy cập dataset trước khi trả về URL/file ảnh, không để rò rỉ hình ảnh ngoài dataset được phân quyền.
 
-**Plans:** 0 plans
+**Plans:** 4 plans
 
-Plans:
-- [ ] TBD (run /gsd-plan-phase 7 to break down)
+**Wave 1**
+- [ ] 07-01-PLAN.md — ExtractedImage Model, Parser Extractor & Ingestion Pipeline
+
+**Wave 2** *(blocked on Wave 1)*
+- [ ] 07-02-PLAN.md — ACL-Fenced Image Serving API & Live Scope Recheck
+
+**Wave 3** *(blocked on Wave 1)*
+- [ ] 07-03-PLAN.md — Multimodal RAG Retrieval & Gemini Vision Generation
+
+**Wave 4** *(blocked on Wave 2 & 3)*
+- [ ] 07-04-PLAN.md — Frontend Image Citations, Evidence Preview & Lightbox Modal
 
 ## Coverage and Quality Gates
 
@@ -239,8 +248,9 @@ Chi tiết models, parser packages, queue implementation, timezone/report rules 
 | 4. Logistics Incident and Ticket Analysis | 5/5 | Complete    | 2026-10-14 |
 | 5. On-Demand Incident Reports and PDF | 4/4 | Complete    | 2026-10-14 |
 | 6. MVP Reliability and Acceptance | 4/4 | Complete    | 2026-10-14 |
-| 7. Multimodal Document Image Extraction and Citations | 0/0 | Not started | - |
+| 7. Multimodal Document Image Extraction and Citations | 0/4 | Ready to execute | - |
 
 ---
-*Created: 2026-10-03. Updated: 2026-10-15 with Phase 7 addition.*
+*Created: 2026-10-03. Updated: 2026-10-15 with Phase 7 planned (4 plans).*
+
 
