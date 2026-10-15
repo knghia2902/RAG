@@ -13,6 +13,7 @@ def contracts():
 
 def test_packages_import_without_provider_keys(monkeypatch):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     for module in ("app.rag.contracts", "app.llm.contracts", "app.modules.log_analysis",
                    "app.modules.tickets", "app.modules.reports"):
         assert importlib.util.find_spec(module.split(".contracts")[0]), f"{module} package missing"

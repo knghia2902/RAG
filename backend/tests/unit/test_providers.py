@@ -5,6 +5,7 @@ from app.llm.contracts import GenerationRequest, GenerationResult, LLMProvider
 from app.providers.fake import FakeEmbeddingAdapter, FakeLLMAdapter
 from app.providers.openai_embedding import OpenAIEmbeddingAdapter
 from app.providers.openai_llm import OpenAILLMAdapter
+from app.providers.gemini_llm import GeminiLLMAdapter
 
 
 def test_fake_embedding_provider_protocol():
@@ -43,3 +44,13 @@ def test_openai_adapters_protocol():
     llm = OpenAILLMAdapter(api_key="sk-test-fake")
     assert isinstance(llm, LLMProvider)
     assert llm.model == "gpt-4o-mini"
+
+
+def test_gemini_adapter_protocol():
+    adapter = GeminiLLMAdapter(api_key="AQ.test-fake-key-with-forty-characters-or-more-12345")
+    assert isinstance(adapter, LLMProvider)
+    assert adapter.model == "gemini-flash-lite-latest"
+    assert adapter.base_url == "https://generativelanguage.googleapis.com/v1beta/openai/"
+    assert adapter.timeout == 30.0
+    assert adapter.max_tokens == 2048
+    assert adapter._client is not None

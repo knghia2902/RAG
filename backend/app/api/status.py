@@ -18,7 +18,12 @@ class ConfigurationStatus(BaseModel):
 @router.get("", response_model=ConfigurationStatus)
 def status(account=Depends(get_account), db=Depends(get_db)):
     require_admin(current_account(db, account))
+    settings = get_settings()
+    provider_configured = bool(
+        settings.openai_api_key.get_secret_value().strip()
+        or settings.gemini_api_key.get_secret_value().strip()
+    )
     value = ConfigurationStatus(database_ready=database_ready(),
-                                provider_configured=bool(get_settings().openai_api_key.get_secret_value().strip()))
+                                provider_configured=provider_configured)
     require_admin(current_account(db, account))
     return value

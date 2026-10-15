@@ -143,6 +143,7 @@ export type ModelConfig = {
   llm_provider: string;
   llm_model: string;
   openai_configured: boolean;
+  gemini_configured?: boolean;
 };
 
 export type SystemType = "WMS" | "TMS" | "API_GATEWAY" | "ERP" | "INVENTORY" | "OTHER";

@@ -31,7 +31,8 @@ def get_model_config(
     require_admin(account)
 
     settings = get_settings()
-    has_key = bool(settings.openai_api_key.get_secret_value()) if settings.openai_api_key else False
+    has_openai = bool(settings.openai_api_key.get_secret_value()) if settings.openai_api_key else False
+    has_gemini = bool(settings.gemini_api_key.get_secret_value()) if settings.gemini_api_key else False
 
     # Tìm index version gần nhất từ database nếu có, ngược lại dùng version mặc định
     latest_index_version = db.scalar(
@@ -41,15 +42,30 @@ def get_model_config(
     )
     index_ver_str = str(latest_index_version) if latest_index_version else "00000000-0000-0000-0000-000000000001"
 
-    is_fake = settings.test_mode or not has_key
+    if settings.test_mode:
+        llm_prov = "fake"
+        llm_mod = _RUNTIME_MODEL_CONFIG["llm_model"]
+    elif settings.llm_provider == "gemini" or (has_gemini and settings.llm_provider != "openai"):
+        llm_prov = "gemini" if has_gemini else "fake"
+        llm_mod = _RUNTIME_MODEL_CONFIG["llm_model"] if _RUNTIME_MODEL_CONFIG["llm_model"] != "gpt-4o-mini" else "gemini-flash-lite-latest"
+    elif has_openai:
+        llm_prov = "openai"
+        llm_mod = _RUNTIME_MODEL_CONFIG["llm_model"]
+    else:
+        llm_prov = "fake"
+        llm_mod = _RUNTIME_MODEL_CONFIG["llm_model"]
+
+    embedding_provider = "fake" if (settings.test_mode or not has_openai) else "openai"
+
     return ModelConfigDTO(
-        embedding_provider="fake" if is_fake else "openai",
+        embedding_provider=embedding_provider,
         embedding_model=_RUNTIME_MODEL_CONFIG["embedding_model"],
         embedding_dimension=1536,
         index_version=index_ver_str,
-        llm_provider="fake" if is_fake else "openai",
-        llm_model=_RUNTIME_MODEL_CONFIG["llm_model"],
-        openai_configured=has_key,
+        llm_provider=llm_prov,
+        llm_model=llm_mod,
+        openai_configured=has_openai,
+        gemini_configured=has_gemini,
     )
 
 

@@ -53,3 +53,15 @@ def test_preserve_non_secret_identifiers():
     assert "DH010" in sanitized
     assert "ERR-502" in sanitized
     assert "c9bf9e57-1685-4c89-bafb-ff5af830be8a" in sanitized
+
+
+def test_mask_gemini_api_key():
+    raw1 = "Configured Gemini key: AQ.Ab8RN6JPfDummyFakeKeyForTestingSecretMaskingOnly1234 in settings."
+    sanitized1 = mask_secrets(raw1)
+    assert "[REDACTED_GEMINI_KEY]" in sanitized1
+    assert "Ab8RN6JPf" not in sanitized1
+
+    raw2 = "Legacy Google key AIzaSyD-abc123DEF456ghi789JKL012mno3456 detected in logs."
+    sanitized2 = mask_secrets(raw2)
+    assert "[REDACTED_GEMINI_KEY]" in sanitized2
+    assert "AIzaSyD" not in sanitized2

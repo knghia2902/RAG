@@ -11,22 +11,32 @@ class OpenAILLMAdapter(LLMProvider):
         self,
         api_key: str,
         model: str = "gpt-4o-mini",
+        base_url: str | None = None,
         timeout: float = 30.0,
         max_tokens: int = 2048,
     ):
         self.api_key = api_key
         self.model = model
+        self.base_url = base_url
         self.timeout = timeout
         self.max_tokens = max_tokens
+        client_kwargs = {
+            "api_key": api_key,
+            "timeout": timeout,
+            "http_client": httpx.Client(timeout=timeout),
+        }
+        if base_url:
+            client_kwargs["base_url"] = base_url
         self._client = (
-            openai.OpenAI(api_key=api_key, timeout=timeout, http_client=httpx.Client(timeout=timeout))
+            openai.OpenAI(**client_kwargs)
             if api_key
             else None
         )
 
     def generate(self, request: GenerationRequest) -> GenerationResult:
         if not self._client:
-            raise RuntimeError("OpenAI API key chưa được cấu hình cho LLM Provider.")
+            provider_name = "Gemini" if "gemini" in self.model.lower() or "google" in (self.base_url or "").lower() else "OpenAI"
+            raise RuntimeError(f"{provider_name} API key chưa được cấu hình cho LLM Provider.")
 
         # Build evidence context block
         evidence_lines = []
@@ -77,6 +87,8 @@ class OpenAILLMAdapter(LLMProvider):
                 citations=tuple(citations),
             )
         except openai.APITimeoutError as e:
-            raise TimeoutError(f"OpenAI LLM API timeout sau {self.timeout}s: {e}") from e
+            provider_name = "Gemini" if "gemini" in self.model.lower() or "google" in (self.base_url or "").lower() else "OpenAI"
+            raise TimeoutError(f"{provider_name} LLM API timeout sau {self.timeout}s: {e}") from e
         except openai.APIError as e:
-            raise RuntimeError(f"Lỗi OpenAI LLM API: {e.message}") from e
+            provider_name = "Gemini" if "gemini" in self.model.lower() or "google" in (self.base_url or "").lower() else "OpenAI"
+            raise RuntimeError(f"Lỗi {provider_name} LLM API: {e.message}") from e

@@ -194,6 +194,7 @@ class ModelConfigDTO(DTO):
     llm_provider: str
     llm_model: str
     openai_configured: bool
+    gemini_configured: bool = False
 
 
 class UpdateModelConfigDTO(DTO):

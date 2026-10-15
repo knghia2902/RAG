@@ -2,6 +2,9 @@ import re
 
 # Compiled regular expressions for egress secret redaction per SYS-03
 PATTERNS = [
+    # Google Gemini API keys
+    (re.compile(r"\bAQ\.[a-zA-Z0-9_\-]{40,}\b"), "[REDACTED_GEMINI_KEY]"),
+    (re.compile(r"\bAIza[0-9A-Za-z\-_]{35}\b"), "[REDACTED_GEMINI_KEY]"),
     # OpenAI API keys (standard and project-scoped)
     (re.compile(r"sk-[a-zA-Z0-9_\-]{20,}"), "sk-[REDACTED]"),
     # Bearer tokens

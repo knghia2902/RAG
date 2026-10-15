@@ -4,6 +4,7 @@ from app.llm.contracts import LLMProvider
 from app.rag.contracts import EmbeddingProvider
 
 __all__ = [
+    "GeminiLLMAdapter",
     "OpenAIEmbeddingAdapter",
     "OpenAILLMAdapter",
     "FakeEmbeddingAdapter",
@@ -14,6 +15,9 @@ __all__ = [
 
 
 def __getattr__(name: str) -> Any:
+    if name == "GeminiLLMAdapter":
+        from app.providers.gemini_llm import GeminiLLMAdapter
+        return GeminiLLMAdapter
     if name == "OpenAIEmbeddingAdapter":
         from app.providers.openai_embedding import OpenAIEmbeddingAdapter
         return OpenAIEmbeddingAdapter
@@ -41,9 +45,23 @@ def get_embedding_provider(model: str | None = None) -> EmbeddingProvider:
 
 def get_llm_provider(model: str | None = None) -> LLMProvider:
     settings = get_settings()
-    key = settings.openai_api_key.get_secret_value() if settings.openai_api_key else ""
-    if settings.test_mode or not key:
+    if settings.test_mode:
         from app.providers.fake import FakeLLMAdapter
         return FakeLLMAdapter(model=model or "fake-llm-mini")
-    from app.providers.openai_llm import OpenAILLMAdapter
-    return OpenAILLMAdapter(api_key=key, model=model or "gpt-4o-mini")
+
+    gemini_key = settings.gemini_api_key.get_secret_value() if settings.gemini_api_key else ""
+    openai_key = settings.openai_api_key.get_secret_value() if settings.openai_api_key else ""
+
+    if settings.llm_provider == "gemini" or (gemini_key and settings.llm_provider != "openai"):
+        if gemini_key:
+            from app.providers.gemini_llm import GeminiLLMAdapter
+            return GeminiLLMAdapter(api_key=gemini_key, model=model or "gemini-flash-lite-latest")
+        from app.providers.fake import FakeLLMAdapter
+        return FakeLLMAdapter(model=model or "fake-llm-mini")
+
+    if openai_key:
+        from app.providers.openai_llm import OpenAILLMAdapter
+        return OpenAILLMAdapter(api_key=openai_key, model=model or "gpt-4o-mini")
+
+    from app.providers.fake import FakeLLMAdapter
+    return FakeLLMAdapter(model=model or "fake-llm-mini")

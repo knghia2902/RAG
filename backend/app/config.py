@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     app_origin: str = "http://localhost:3000"
     test_mode: bool = False
     openai_api_key: SecretStr = SecretStr("")
+    gemini_api_key: SecretStr = SecretStr("")
+    llm_provider: str = "gemini"
 
     @model_validator(mode="after")
     def loopback_only(self):

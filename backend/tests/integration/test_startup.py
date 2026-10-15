@@ -16,6 +16,7 @@ def test_no_ai_key_startup_and_safe_status(client,admin,monkeypatch,caplog):
     sentinel="status-secret-sentinel-do-not-display"
     settings=get_settings()
     monkeypatch.setattr(settings,"openai_api_key",SecretStr(""))
+    monkeypatch.setattr(settings,"gemini_api_key",SecretStr(""))
     assert client.get("/health/live").json()=={"status":"live"}
     assert client.get("/health/ready").status_code==200
     assert client.get("/health").json()=={"database_ready":True}
@@ -28,10 +29,16 @@ def test_no_ai_key_startup_and_safe_status(client,admin,monkeypatch,caplog):
     assert sentinel not in response.text+caplog.text
     assert response.headers["Cache-Control"]=="no-store"
     assert client.put("/api/v1/status",json={"openai_api_key":sentinel},headers=admin).status_code==405
+    # Also verify with gemini_api_key
+    monkeypatch.setattr(settings,"openai_api_key",SecretStr(""))
+    monkeypatch.setattr(settings,"gemini_api_key",SecretStr(sentinel))
+    response=client.get("/api/v1/status")
+    assert response.json()=={"database_ready":True,"provider_configured":True}
+    assert sentinel not in response.text+caplog.text
 
 
 def test_provider_free_fresh_process_import_and_health():
-    env={**os.environ,"OPENAI_API_KEY":""}
+    env={**os.environ,"OPENAI_API_KEY":"","GEMINI_API_KEY":""}
     result=subprocess.run(["python","-c", "import sys; from app.main import app; assert not any(n == 'openai' or n.startswith('langchain') for n in sys.modules); from fastapi.testclient import TestClient; c=TestClient(app); assert c.get('/health').status_code==200"],env=env,capture_output=True,text=True)
     assert result.returncode==0,result.stderr
 
