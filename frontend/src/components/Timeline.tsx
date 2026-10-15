@@ -13,12 +13,13 @@ export default function Timeline({ events, onSelectEvent }: TimelineProps) {
     return (
       <div
         style={{
-          padding: "24px",
+          padding: "32px 24px",
           textAlign: "center",
-          color: "#587080",
-          background: "#f8fafc",
-          borderRadius: "8px",
-          border: "1px dashed #cbd5e1",
+          color: "var(--color-text-muted)",
+          backgroundColor: "var(--color-pastel-50)",
+          borderRadius: "12px",
+          border: "1px dashed var(--color-mint-border)",
+          fontSize: "14px",
         }}
       >
         Chưa có sự kiện nào được ghi nhận cho đơn hàng này.
@@ -26,61 +27,139 @@ export default function Timeline({ events, onSelectEvent }: TimelineProps) {
     );
   }
 
-  const getSystemBadgeStyle = (system: SystemType) => {
+  const renderSystemIcon = (system: SystemType, isFailure: boolean) => {
+    if (isFailure) {
+      return (
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+          <line x1="12" y1="9" x2="12" y2="13" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
+        </svg>
+      );
+    }
+
     switch (system) {
       case "WMS":
-        return {
-          background: "#dbeafe",
-          color: "#1e40af",
-          borderColor: "#93c5fd",
-        };
+        // Warehouse box icon
+        return (
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+            <line x1="12" y1="22.08" x2="12" y2="12" />
+          </svg>
+        );
       case "API_GATEWAY":
-        return {
-          background: "#f3e8ff",
-          color: "#6b21a8",
-          borderColor: "#d8b4fe",
-        };
+        // Server / gateway icon
+        return (
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <rect x="2" y="2" width="20" height="8" rx="2" ry="2" />
+            <rect x="2" y="14" width="20" height="8" rx="2" ry="2" />
+            <line x1="6" y1="6" x2="6.01" y2="6" />
+            <line x1="6" y1="18" x2="6.01" y2="18" />
+          </svg>
+        );
       case "TMS":
-        return {
-          background: "#fef3c7",
-          color: "#92400e",
-          borderColor: "#fde68a",
-        };
-      case "ERP":
-      case "INVENTORY":
-        return {
-          background: "#e0f2fe",
-          color: "#0369a1",
-          borderColor: "#bae6fd",
-        };
+        // Delivery truck icon
+        return (
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <rect x="1" y="3" width="15" height="13" />
+            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+            <circle cx="5.5" cy="18.5" r="2.5" />
+            <circle cx="18.5" cy="18.5" r="2.5" />
+          </svg>
+        );
       default:
-        return {
-          background: "#f1f5f9",
-          color: "#475569",
-          borderColor: "#cbd5e1",
-        };
+        // Activity pulse icon
+        return (
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+          </svg>
+        );
     }
   };
 
-  const getStatusBadgeStyle = (status: string) => {
+  const getSystemBadgeClass = (system: SystemType) => {
+    switch (system) {
+      case "WMS":
+        return "badge-pastel-green";
+      case "API_GATEWAY":
+        return "badge-pastel-slate";
+      case "TMS":
+        return "badge-pastel-amber";
+      default:
+        return "badge-pastel-slate";
+    }
+  };
+
+  const getStatusBadgeClass = (status: string) => {
     const s = status.toUpperCase();
     if (s === "SUCCESS" || s === "OK" || s === "200") {
-      return { background: "#dcfce7", color: "#166534" };
+      return "badge-pastel-green";
     }
     if (s === "TIMEOUT" || s === "504" || s === "500" || s === "ERROR" || s === "FATAL") {
-      return { background: "#fee2e2", color: "#991b1b" };
+      return "badge-pastel-rose";
     }
     if (s === "PENDING" || s === "WARN") {
-      return { background: "#fef9c3", color: "#854d0e" };
+      return "badge-pastel-amber";
     }
-    return { background: "#f1f5f9", color: "#334155" };
+    return "badge-pastel-slate";
   };
 
   const formatTimestamp = (raw: string) => {
     try {
       const d = new Date(raw);
       if (!isNaN(d.getTime())) {
-        return d.toLocaleTimeString("vi-VN", { hour12: false }) + " " + d.toLocaleDateString("vi-VN");
+        return `${d.toLocaleTimeString("vi-VN", { hour12: false })} · ${d.toLocaleDateString("vi-VN")}`;
       }
     } catch {
       // fallback
@@ -89,24 +168,22 @@ export default function Timeline({ events, onSelectEvent }: TimelineProps) {
   };
 
   return (
-    <div style={{ position: "relative", paddingLeft: "28px" }}>
-      {/* Vertical timeline line */}
+    <div style={{ position: "relative", paddingLeft: "44px" }}>
+      {/* Vertical timeline track: 2px solid #d1fae5 */}
       <div
         style={{
           position: "absolute",
-          top: "16px",
-          bottom: "16px",
-          left: "11px",
+          top: "20px",
+          bottom: "20px",
+          left: "15px",
           width: "2px",
-          background: "#cbd5e1",
+          backgroundColor: "#d1fae5",
         }}
       />
 
       <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
         {events.map((ev, index) => {
-          const sysStyle = getSystemBadgeStyle(ev.system);
-          const statusStyle = getStatusBadgeStyle(ev.status);
-          const isFailure = ev.is_failure_point;
+          const isFailure = Boolean(ev.is_failure_point);
 
           return (
             <div
@@ -115,35 +192,42 @@ export default function Timeline({ events, onSelectEvent }: TimelineProps) {
                 position: "relative",
               }}
             >
-              {/* Timeline dot */}
+              {/* Event node: 32px diameter circle */}
               <div
                 style={{
                   position: "absolute",
-                  left: "-28px",
+                  left: "-44px",
                   top: "16px",
-                  width: isFailure ? "18px" : "14px",
-                  height: isFailure ? "18px" : "14px",
+                  width: "32px",
+                  height: "32px",
                   borderRadius: "50%",
-                  background: isFailure ? "#ef4444" : sysStyle.color,
-                  border: isFailure ? "3px solid #fee2e2" : "2px solid #ffffff",
-                  boxShadow: isFailure ? "0 0 0 3px rgba(239,68,68,0.3)" : "0 1px 3px rgba(0,0,0,0.2)",
-                  transform: isFailure ? "translateX(-2px)" : "none",
+                  backgroundColor: isFailure ? "var(--color-danger-bg)" : "var(--color-pastel-mint)",
+                  border: isFailure ? "2px solid #ef4444" : "2px solid var(--color-primary-green)",
+                  color: isFailure ? "var(--color-danger-text)" : "var(--color-emerald-dark)",
+                  boxShadow: isFailure
+                    ? "0 0 0 4px rgba(239, 68, 68, 0.2)"
+                    : "0 1px 3px rgba(16, 185, 129, 0.2)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                   zIndex: 2,
+                  transition: "all 150ms ease",
                 }}
-              />
+              >
+                {renderSystemIcon(ev.system, isFailure)}
+              </div>
 
               {/* Event Card */}
               <div
-                className={`event-card ${isFailure ? "border-red-500" : ""}`}
                 style={{
-                  background: isFailure ? "rgba(254, 242, 242, 0.7)" : "#ffffff",
-                  border: isFailure ? "2px solid #ef4444" : "1px solid #e2e8f0",
-                  borderRadius: "8px",
-                  padding: "16px",
+                  backgroundColor: isFailure ? "#fffafa" : "#ffffff",
+                  border: isFailure ? "1.5px solid #fca5a5" : "1px solid var(--border-subtle)",
+                  borderRadius: "12px",
+                  padding: "18px 20px",
                   boxShadow: isFailure
-                    ? "0 4px 6px -1px rgba(239, 68, 68, 0.15), 0 2px 4px -2px rgba(239, 68, 68, 0.1)"
-                    : "0 1px 3px rgba(0,0,0,0.05)",
-                  transition: "all 0.15s ease-in-out",
+                    ? "0 4px 12px -2px rgba(239, 68, 68, 0.15), 0 2px 4px -2px rgba(239, 68, 68, 0.08)"
+                    : "var(--shadow-soft)",
+                  transition: "all 150ms ease",
                 }}
               >
                 {/* Failure Banner */}
@@ -154,84 +238,103 @@ export default function Timeline({ events, onSelectEvent }: TimelineProps) {
                       alignItems: "center",
                       gap: "8px",
                       marginBottom: "12px",
-                      padding: "6px 12px",
-                      borderRadius: "6px",
-                      background: "#fee2e2",
-                      color: "#b91c1c",
+                      padding: "8px 12px",
+                      borderRadius: "8px",
+                      backgroundColor: "var(--color-danger-bg)",
+                      border: "1px solid var(--color-danger-border)",
+                      color: "var(--color-danger-text)",
                       fontSize: "13px",
-                      fontWeight: 700,
-                      letterSpacing: "0.5px",
+                      fontWeight: 600,
+                      letterSpacing: "0.02em",
                     }}
                   >
-                    <span>⚠️</span>
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="8" x2="12" y2="12" />
+                      <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
                     <span>*** ĐIỂM ĐỨT GÃY ĐỒNG BỘ PHÁT HIỆN TẠI ĐÂY ***</span>
                   </div>
                 )}
 
-                {/* Card Top: Badges & Timestamp */}
+                {/* Card Top: System Badges, Event Name & Timestamp */}
                 <div
                   style={{
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
                     flexWrap: "wrap",
-                    gap: "8px",
-                    marginBottom: "8px",
+                    gap: "10px",
+                    marginBottom: "10px",
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <span
-                      style={{
-                        padding: "2px 8px",
-                        borderRadius: "12px",
-                        fontSize: "12px",
-                        fontWeight: 600,
-                        border: `1px solid ${sysStyle.borderColor}`,
-                        background: sysStyle.background,
-                        color: sysStyle.color,
-                      }}
-                    >
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                    <span className={`badge ${getSystemBadgeClass(ev.system)}`}>
                       {ev.system}
                     </span>
                     <span
                       style={{
-                        fontSize: "14px",
+                        fontSize: "15px",
                         fontWeight: 600,
-                        color: "#0f172a",
+                        color: "var(--color-text-main)",
                       }}
                     >
                       {ev.event_name}
                     </span>
-                    <span
-                      style={{
-                        padding: "2px 6px",
-                        borderRadius: "4px",
-                        fontSize: "11px",
-                        fontWeight: 600,
-                        background: statusStyle.background,
-                        color: statusStyle.color,
-                      }}
-                    >
+                    <span className={`badge ${getStatusBadgeClass(ev.status)}`}>
                       {ev.status}
                     </span>
                   </div>
 
-                  <span style={{ fontSize: "12px", color: "#64748b" }}>
+                  <span
+                    style={{
+                      fontSize: "13px",
+                      color: "var(--color-text-muted)",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <polyline points="12 6 12 12 16 14" />
+                    </svg>
                     {formatTimestamp(ev.timestamp)}
                   </span>
                 </div>
 
                 {/* Raw snippet & source info */}
-                <div style={{ marginTop: "8px" }}>
+                <div style={{ marginTop: "10px" }}>
                   <pre
                     style={{
                       margin: 0,
-                      padding: "10px 12px",
-                      background: isFailure ? "#ffffff" : "#f8fafc",
-                      border: "1px solid #e2e8f0",
-                      borderRadius: "6px",
-                      fontSize: "12px",
-                      color: "#1e293b",
+                      padding: "10px 14px",
+                      backgroundColor: isFailure ? "#ffffff" : "var(--bg-app)",
+                      border: "1px solid var(--border-subtle)",
+                      borderRadius: "8px",
+                      fontSize: "12.5px",
+                      lineHeight: 1.5,
+                      color: "var(--color-text-main)",
                       whiteSpace: "pre-wrap",
                       wordBreak: "break-all",
                       fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
@@ -247,13 +350,31 @@ export default function Timeline({ events, onSelectEvent }: TimelineProps) {
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
-                    marginTop: "10px",
-                    fontSize: "12px",
-                    color: "#64748b",
+                    marginTop: "12px",
+                    paddingTop: "8px",
+                    borderTop: "1px solid var(--border-divider)",
+                    fontSize: "12.5px",
+                    color: "var(--color-text-muted)",
+                    flexWrap: "wrap",
+                    gap: "8px",
                   }}
                 >
-                  <span>
-                    Nguồn: {ev.source_filename}
+                  <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <polyline points="14 2 14 8 20 8" />
+                    </svg>
+                    Nguồn: <strong style={{ color: "var(--color-text-main)" }}>{ev.source_filename}</strong>
                     {ev.line_number ? ` (Dòng ${ev.line_number})` : ""}
                   </span>
 
@@ -261,30 +382,47 @@ export default function Timeline({ events, onSelectEvent }: TimelineProps) {
                     <button
                       type="button"
                       onClick={() => onSelectEvent(ev)}
+                      aria-label={`Xem trích dẫn cho sự kiện ${ev.event_name}`}
                       style={{
-                        background: "transparent",
-                        border: "1px solid #cbd5e1",
-                        borderRadius: "4px",
-                        padding: "4px 8px",
-                        fontSize: "12px",
+                        background: "#ffffff",
+                        border: "1px solid var(--border-subtle)",
+                        borderRadius: "8px",
+                        padding: "5px 10px",
+                        fontSize: "12.5px",
+                        fontWeight: 500,
                         cursor: "pointer",
-                        color: "#0284c7",
+                        color: "var(--color-emerald-dark)",
                         display: "flex",
                         alignItems: "center",
-                        gap: "4px",
+                        gap: "6px",
+                        transition: "all 150ms ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "var(--color-pastel-50)";
+                        e.currentTarget.style.borderColor = "var(--color-mint-border)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "#ffffff";
+                        e.currentTarget.style.borderColor = "var(--border-subtle)";
                       }}
                     >
-                      <span>🔍 Xem trích dẫn</span>
+                      <svg
+                        width="13"
+                        height="13"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <circle cx="11" cy="11" r="8" />
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                      </svg>
+                      <span>Xem trích dẫn</span>
                       {ev.citation_id && (
-                        <span
-                          style={{
-                            background: "#e0f2fe",
-                            color: "#0369a1",
-                            padding: "1px 5px",
-                            borderRadius: "10px",
-                            fontWeight: 600,
-                          }}
-                        >
+                        <span className="badge badge-pastel-green" style={{ padding: "1px 6px", fontSize: "11px" }}>
                           #{ev.citation_id}
                         </span>
                       )}
