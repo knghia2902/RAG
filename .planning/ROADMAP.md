@@ -15,6 +15,7 @@ Workflow tự động, granularity standard, kế hoạch độc lập có thể
 - [x] **Phase 5: On-Demand Incident Reports and PDF** - Báo cáo số liệu xác định theo kỳ/custom, nhận xét có nguồn và PDF. (completed 2026-10-14)
 - [ ] **Phase 6: MVP Reliability and Acceptance** - Kiểm chứng chất lượng, quyền, vòng đời dữ liệu, báo cáo và giới hạn hiệu năng.
 - [x] **Phase 7: Multimodal Document Image Extraction and Citations** - Trích xuất hình ảnh tài liệu, lưu trữ bảo mật cục bộ, hỗ trợ RAG đa phương thức và hiển thị hình ảnh kèm trích dẫn dòng/trang trong câu trả lời AI và giao diện xem bằng chứng. (completed 2026-10-15)
+- [x] **Phase 8: UI Redesign with Pastel Green and White Theme** - Tái thiết kế toàn bộ giao diện Web (Frontend) theo phong cách hiện đại (Clean, High-taste Design), sử dụng bảng màu chủ đạo là nền trắng tinh tế kết hợp điểm nhấn xanh lá pastel nhẹ nhàng (Soft Pastel Green / Sage), typography sắc nét, viền mờ tinh tế và hiệu ứng chuyển động mượt mà cho toàn bộ các trang. (completed 2026-10-15)
 
 ## Phase Details
 
@@ -250,7 +251,7 @@ Workflow tự động, granularity standard, kế hoạch độc lập có thể
 5. Thiết kế lại trang Đăng nhập (/login), Quản trị Dataset (/datasets), Phân tích sự cố (/incidents), Báo cáo (/reports), và Cấu hình mô hình (/configuration) đồng bộ phong cách.
 6. Đảm bảo toàn bộ 100% tính năng hiện hữu hoạt động nguyên vẹn, kiểm tra phân quyền ACL không đổi và hoàn thành biên dịch Next.js Turbopack 11 static routes.
 
-**Plans:** 0/4 plans complete
+**Plans:** 4/4 plans complete
 **Wave 1**
 - [x] 08-01-PLAN.md — Design Tokens, Global CSS & Workspace Shell Redesign
 
@@ -278,7 +279,7 @@ Chi tiết models, parser packages, queue implementation, timezone/report rules 
 | 5. On-Demand Incident Reports and PDF | 4/4 | Complete    | 2026-10-14 |
 | 6. MVP Reliability and Acceptance | 4/4 | Complete    | 2026-10-14 |
 | 7. Multimodal Document Image Extraction and Citations | 4/4 | Complete    | 2026-10-15 |
-| 8. UI Redesign with Pastel Green and White Theme | 0/4 | Ready to execute | - |
+| 8. UI Redesign with Pastel Green and White Theme | 4/4 | Complete    | 2026-10-15 |
 
 ---
 *Created: 2026-10-03. Updated: 2026-10-15 with Phase 8 addition.*
