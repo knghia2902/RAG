@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { CitationPreviewDetail } from "@/lib/contracts";
 
 interface EvidencePreviewProps {
@@ -8,6 +8,7 @@ interface EvidencePreviewProps {
   loading: boolean;
   error: string;
   onClose: () => void;
+  onImageClick?: (url: string, alt?: string, caption?: string) => void;
 }
 
 export function EvidencePreview({
@@ -15,7 +16,15 @@ export function EvidencePreview({
   loading,
   error,
   onClose,
+  onImageClick,
 }: EvidencePreviewProps) {
+  const [imageError, setImageError] = useState<boolean>(false);
+
+  useEffect(() => {
+    setImageError(false);
+  }, [citation?.image_url, citation?.locator?.image_url]);
+
+  const imageUrl = citation?.image_url || citation?.locator?.image_url;
   if (!citation && !loading && !error) {
     return (
       <aside
@@ -169,6 +178,100 @@ export function EvidencePreview({
               !citation.locator.json_path &&
               "Bản ghi văn bản đã chuẩn hóa"}
           </div>
+
+          {/* Cited Image Container (Phase 07 D-05) */}
+          {imageUrl && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              <div style={{ fontSize: "12px", fontWeight: "bold", color: "#527080" }}>
+                {citation.locator?.page
+                  ? `Hình ảnh trích dẫn tại trang ${citation.locator.page}:`
+                  : "Hình ảnh trích dẫn:"}
+              </div>
+              {imageError ? (
+                <div
+                  role="alert"
+                  style={{
+                    background: "#fdf2f2",
+                    border: "1px solid #f8b4b4",
+                    color: "#a22a28",
+                    padding: "10px 12px",
+                    borderRadius: "6px",
+                    fontSize: "12px",
+                    lineHeight: "1.5",
+                  }}
+                >
+                  ⚠️ Không thể tải hình ảnh trích dẫn (có thể do tệp không tồn tại hoặc quyền truy cập đã bị thu hồi).
+                </div>
+              ) : (
+                <div
+                  style={{
+                    background: "#f1f5f9",
+                    border: "1px solid #d7e1e8",
+                    borderRadius: "6px",
+                    padding: "8px",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                >
+                  <img
+                    src={imageUrl}
+                    alt={citation.logical_filename || "Hình ảnh trích dẫn"}
+                    loading="lazy"
+                    onError={() => setImageError(true)}
+                    onClick={() => {
+                      if (onImageClick) {
+                        onImageClick(
+                          imageUrl,
+                          citation.logical_filename,
+                          citation.locator?.page
+                            ? `Trang ${citation.locator.page} - ${citation.logical_filename}`
+                            : citation.logical_filename
+                        );
+                      }
+                    }}
+                    style={{
+                      maxHeight: "260px",
+                      maxWidth: "100%",
+                      objectFit: "contain",
+                      cursor: "zoom-in",
+                      borderRadius: "4px",
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (onImageClick) {
+                        onImageClick(
+                          imageUrl,
+                          citation.logical_filename,
+                          citation.locator?.page
+                            ? `Trang ${citation.locator.page} - ${citation.logical_filename}`
+                            : citation.logical_filename
+                        );
+                      }
+                    }}
+                    style={{
+                      background: "#ffffff",
+                      border: "1px solid #d7e1e8",
+                      color: "#075b79",
+                      borderRadius: "4px",
+                      padding: "4px 10px",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    🔍 Phóng to chi tiết (Xem kích thước gốc)
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Excerpt Container */}
           <div>

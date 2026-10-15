@@ -50,7 +50,11 @@ export type SourceLocator = {
   line_start?: number;
   line_end?: number;
   json_path?: string;
+  image_id?: string;
+  image_url?: string;
 };
+
+export type CitationLocator = SourceLocator;
 
 export type EvidenceExcerpt = {
   id: string;
@@ -97,6 +101,9 @@ export type CitationItem = {
   source_version: number;
   locator: SourceLocator;
   excerpt_text: string;
+  image_id?: string;
+  image_url?: string;
+  caption?: string;
 };
 
 export type ChatMessage = {
@@ -133,6 +140,9 @@ export type CitationPreviewDetail = {
   version_number: number;
   locator: SourceLocator;
   excerpt_text: string;
+  image_id?: string;
+  image_url?: string;
+  caption?: string;
 };
 
 export type ModelConfig = {
