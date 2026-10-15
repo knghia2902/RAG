@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useWorkspaceSession } from "../layout";
 import { EvidencePreview } from "@/components/EvidencePreview";
+import { ImageLightboxModal } from "@/components/ImageLightboxModal";
 import { api, ApiError } from "@/lib/api";
 import type {
   ChatMessage,
@@ -15,6 +16,113 @@ import type {
   Page,
 } from "@/lib/contracts";
 
+function isSafeImageUrl(url: string): boolean {
+  const trimmed = url.trim();
+  if (trimmed.startsWith("/api/v1/datasets/")) return true;
+  const lower = trimmed.toLowerCase();
+  if (
+    lower.startsWith("javascript:") ||
+    lower.startsWith("data:") ||
+    lower.startsWith("vbscript:")
+  ) {
+    return false;
+  }
+  return (
+    trimmed.startsWith("/") ||
+    trimmed.startsWith("http://") ||
+    trimmed.startsWith("https://")
+  );
+}
+
+function renderMessageContent(
+  content: string,
+  onImageClick: (url: string, alt?: string, caption?: string) => void
+) {
+  const MARKDOWN_IMAGE_REGEX = /!\[([^\]]*)\]\(([^)]+)\)/g;
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = MARKDOWN_IMAGE_REGEX.exec(content)) !== null) {
+    const textBefore = content.substring(lastIndex, match.index);
+    if (textBefore) {
+      parts.push(
+        <span key={`text-${lastIndex}`} style={{ whiteSpace: "pre-wrap" }}>
+          {textBefore}
+        </span>
+      );
+    }
+
+    const alt = match[1];
+    const url = match[2];
+
+    if (isSafeImageUrl(url)) {
+      parts.push(
+        <div
+          key={`img-${match.index}`}
+          style={{
+            margin: "10px 0",
+            display: "block",
+            maxWidth: "100%",
+          }}
+        >
+          <img
+            src={url}
+            alt={alt || "Hình ảnh trích dẫn"}
+            loading="lazy"
+            onClick={() => onImageClick(url, alt, alt)}
+            style={{
+              maxHeight: "240px",
+              maxWidth: "100%",
+              objectFit: "contain",
+              borderRadius: "8px",
+              border: "1px solid #d7e1e8",
+              background: "#f8fafc",
+              cursor: "zoom-in",
+              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
+              display: "block",
+            }}
+          />
+          {alt && (
+            <div
+              style={{
+                fontSize: "12px",
+                color: "#64748b",
+                marginTop: "4px",
+                fontStyle: "italic",
+              }}
+            >
+              {alt}
+            </div>
+          )}
+        </div>
+      );
+    } else {
+      parts.push(
+        <span
+          key={`unsafe-${match.index}`}
+          style={{ color: "#a22a28", fontStyle: "italic", fontSize: "12px" }}
+        >
+          [Hình ảnh bị chặn vì lý do an toàn]
+        </span>
+      );
+    }
+
+    lastIndex = match.index + match[0].length;
+  }
+
+  const remaining = content.substring(lastIndex);
+  if (remaining) {
+    parts.push(
+      <span key={`text-${lastIndex}`} style={{ whiteSpace: "pre-wrap" }}>
+        {remaining}
+      </span>
+    );
+  }
+
+  return parts.length > 0 ? parts : <span style={{ whiteSpace: "pre-wrap" }}>{content}</span>;
+}
+
 export default function ChatPage() {
   const session = useWorkspaceSession();
 
@@ -22,6 +130,13 @@ export default function ChatPage() {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [loadingSessions, setLoadingSessions] = useState<boolean>(true);
+
+  // State: Lightbox modal (Phase 07 D-06)
+  const [lightboxImage, setLightboxImage] = useState<{
+    url: string;
+    alt?: string;
+    caption?: string;
+  } | null>(null);
 
   // State: Messages
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -501,7 +616,99 @@ export default function ChatPage() {
                     )}
 
                     {/* Content */}
-                    <div>{m.content}</div>
+                    <div>
+                      {isUser
+                        ? m.content
+                        : renderMessageContent(m.content, (url, alt, caption) =>
+                            setLightboxImage({ url, alt, caption })
+                          )}
+                    </div>
+
+                    {/* Cited Images Gallery (Phase 07 D-05) */}
+                    {!isUser &&
+                      m.citations &&
+                      m.citations.some((c) => c.image_url && !m.content.includes(c.image_url)) && (
+                        <div
+                          style={{
+                            marginTop: "12px",
+                            paddingTop: "10px",
+                            borderTop: "1px solid #edf2f7",
+                          }}
+                        >
+                          <div
+                            style={{
+                              fontSize: "12px",
+                              fontWeight: "bold",
+                              color: "#527080",
+                              marginBottom: "8px",
+                            }}
+                          >
+                            Hình ảnh minh họa từ tài liệu:
+                          </div>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+                            {m.citations
+                              .filter((c) => c.image_url && !m.content.includes(c.image_url))
+                              .map((imgCit, idx) => (
+                                <div
+                                  key={`cited-img-${imgCit.citation_index}-${idx}`}
+                                  style={{
+                                    background: "#f8fafc",
+                                    border: "1px solid #d7e1e8",
+                                    borderRadius: "8px",
+                                    padding: "6px",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    maxWidth: "240px",
+                                  }}
+                                >
+                                  <img
+                                    src={imgCit.image_url}
+                                    alt={
+                                      imgCit.caption ||
+                                      `Hình ảnh trích dẫn [${imgCit.citation_index}]`
+                                    }
+                                    loading="lazy"
+                                    onClick={() =>
+                                      imgCit.image_url &&
+                                      setLightboxImage({
+                                        url: imgCit.image_url,
+                                        alt:
+                                          imgCit.caption ||
+                                          `Trích dẫn [${imgCit.citation_index}]`,
+                                        caption:
+                                          imgCit.caption ||
+                                          (imgCit.locator.page
+                                            ? `Trang ${imgCit.locator.page}`
+                                            : undefined),
+                                      })
+                                    }
+                                    style={{
+                                      maxHeight: "160px",
+                                      maxWidth: "100%",
+                                      objectFit: "contain",
+                                      borderRadius: "6px",
+                                      cursor: "zoom-in",
+                                    }}
+                                  />
+                                  <span
+                                    style={{
+                                      fontSize: "11px",
+                                      color: "#527080",
+                                      marginTop: "4px",
+                                      textAlign: "center",
+                                    }}
+                                  >
+                                    Trích dẫn [{imgCit.citation_index}]
+                                    {imgCit.locator.page
+                                      ? ` · Trang ${imgCit.locator.page}`
+                                      : ""}
+                                  </span>
+                                </div>
+                              ))}
+                          </div>
+                        </div>
+                      )}
 
                     {/* Citations list pills */}
                     {!isUser && m.citations && m.citations.length > 0 && (
@@ -623,8 +830,22 @@ export default function ChatPage() {
             setPreviewCitation(null);
             setPreviewError("");
           }}
+          onImageClick={(url, alt, caption) =>
+            setLightboxImage({ url, alt, caption })
+          }
         />
       </div>
+
+      {/* Lightbox Modal (Phase 07 D-06) */}
+      {lightboxImage && (
+        <ImageLightboxModal
+          isOpen={!!lightboxImage}
+          imageUrl={lightboxImage.url}
+          altText={lightboxImage.alt}
+          caption={lightboxImage.caption}
+          onClose={() => setLightboxImage(null)}
+        />
+      )}
     </div>
   );
 }
