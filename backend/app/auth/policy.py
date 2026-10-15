@@ -76,3 +76,12 @@ def dataset_query(account):
     if account.role != "technician":
         raise HTTPException(403, "Không đủ quyền")
     return query.where(Dataset.id.in_(select(DatasetGrant.dataset_id).where(DatasetGrant.account_id == account.id)))
+
+
+def verify_dataset_access(account, dataset_id, db):
+    account = current_account(db, account)
+    scope = allowed_dataset_ids(db, account)
+    if dataset_id not in scope:
+        raise HTTPException(403, "Tài khoản không có quyền truy cập dataset này.")
+    return account
+

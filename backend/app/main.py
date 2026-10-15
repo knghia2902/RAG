@@ -13,7 +13,8 @@ async def security_headers(request: Request, call_next):
         import traceback
         traceback.print_exc()
         response = JSONResponse(status_code=503, content={"detail": "Dịch vụ tạm thời không khả dụng"})
-    response.headers["Cache-Control"] = "no-store"
+    if "Cache-Control" not in response.headers:
+        response.headers["Cache-Control"] = "no-store"
     response.headers["X-Content-Type-Options"] = "nosniff"
     return response
 
@@ -31,14 +32,17 @@ from app.api import config
 from app.api import chat
 from app.api import incidents
 from app.api import reports
+from app.api import images
 app.include_router(health_router)
 app.include_router(status_router)
 app.include_router(config.router)
 app.include_router(chat.router)
 app.include_router(incidents.router)
 app.include_router(reports.router)
+app.include_router(images.router)
 
 from app.config import get_settings
 if get_settings().test_mode:
     from tests.support import router as test_router
     app.include_router(test_router)
+
