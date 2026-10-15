@@ -259,7 +259,7 @@ Workflow tự động, granularity standard, kế hoạch độc lập có thể
 - [x] 08-03-PLAN.md — Datasets Management & Access Control Redesign
 
 **Wave 3** *(blocked on Wave 2)*
-- [ ] 08-04-PLAN.md — Logistics Incident Analysis, Reports & Configuration Redesign
+- [x] 08-04-PLAN.md — Logistics Incident Analysis, Reports & Configuration Redesign
 
 ## Coverage and Quality Gates
 
