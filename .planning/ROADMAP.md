@@ -14,6 +14,7 @@ Workflow tự động, granularity standard, kế hoạch độc lập có thể
 - [x] **Phase 4: Logistics Incident and Ticket Analysis** - Phân tích log/ticket WMS–TMS, giả thuyết nguyên nhân và đề xuất xử lý có nguồn. (completed 2026-10-14)
 - [x] **Phase 5: On-Demand Incident Reports and PDF** - Báo cáo số liệu xác định theo kỳ/custom, nhận xét có nguồn và PDF. (completed 2026-10-14)
 - [ ] **Phase 6: MVP Reliability and Acceptance** - Kiểm chứng chất lượng, quyền, vòng đời dữ liệu, báo cáo và giới hạn hiệu năng.
+- [x] **Phase 7: Multimodal Document Image Extraction and Citations** - Trích xuất hình ảnh tài liệu, lưu trữ bảo mật cục bộ, hỗ trợ RAG đa phương thức và hiển thị hình ảnh kèm trích dẫn dòng/trang trong câu trả lời AI và giao diện xem bằng chứng. (completed 2026-10-15)
 
 ## Phase Details
 
@@ -218,19 +219,19 @@ Workflow tự động, granularity standard, kế hoạch độc lập có thể
 4. Giao diện Citation modal và khung chat hiển thị ảnh trích dẫn trực quan kèm số dòng/trang và link nguồn để kỹ thuật viên kiểm tra đối chiếu.
 5. Đảm bảo kiểm tra quyền truy cập dataset trước khi trả về URL/file ảnh, không để rò rỉ hình ảnh ngoài dataset được phân quyền.
 
-**Plans:** 4 plans
+**Plans:** 4/4 plans complete
 
 **Wave 1**
-- [ ] 07-01-PLAN.md — ExtractedImage Model, Parser Extractor & Ingestion Pipeline
+- [x] 07-01-PLAN.md — ExtractedImage Model, Parser Extractor & Ingestion Pipeline
 
 **Wave 2** *(blocked on Wave 1)*
-- [ ] 07-02-PLAN.md — ACL-Fenced Image Serving API & Live Scope Recheck
+- [x] 07-02-PLAN.md — ACL-Fenced Image Serving API & Live Scope Recheck
 
 **Wave 3** *(blocked on Wave 1)*
-- [ ] 07-03-PLAN.md — Multimodal RAG Retrieval & Gemini Vision Generation
+- [x] 07-03-PLAN.md — Multimodal RAG Retrieval & Gemini Vision Generation
 
 **Wave 4** *(blocked on Wave 2 & 3)*
-- [ ] 07-04-PLAN.md — Frontend Image Citations, Evidence Preview & Lightbox Modal
+- [x] 07-04-PLAN.md — Frontend Image Citations, Evidence Preview & Lightbox Modal
 
 ## Coverage and Quality Gates
 
@@ -248,9 +249,9 @@ Chi tiết models, parser packages, queue implementation, timezone/report rules 
 | 4. Logistics Incident and Ticket Analysis | 5/5 | Complete    | 2026-10-14 |
 | 5. On-Demand Incident Reports and PDF | 4/4 | Complete    | 2026-10-14 |
 | 6. MVP Reliability and Acceptance | 4/4 | Complete    | 2026-10-14 |
-| 7. Multimodal Document Image Extraction and Citations | 0/4 | Ready to execute | - |
+| 7. Multimodal Document Image Extraction and Citations | 4/4 | Complete    | 2026-10-15 |
 
 ---
-*Created: 2026-10-03. Updated: 2026-10-15 with Phase 7 planned (4 plans).*
+*Created: 2026-10-03. Updated: 2026-10-15 with Phase 7 completed (4/4 plans).*
 
 
