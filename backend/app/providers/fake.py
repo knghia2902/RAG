@@ -62,6 +62,15 @@ class FakeLLMAdapter(LLMProvider):
         # Generate grounded summary mentioning evidence
         first_chunk = request.evidence[0]
         answer = f"Dựa trên tài liệu kiểm tra [1], thông tin liên quan đến '{request.question}': {first_chunk.text[:200]}."
+        
+        # Thêm trích dẫn hình ảnh nếu có ảnh liên quan
+        images = getattr(request, "images", ()) or ()
+        if images:
+            first_img = images[0]
+            img_url = first_img.get("api_url") or f"/images/{first_img.get('image_id')}"
+            cap = first_img.get("caption") or "Sơ đồ kỹ thuật"
+            answer += f"\n\n![{cap}]({img_url})"
+
         citations = tuple(e.locator for e in request.evidence[:1])
         return GenerationResult(
             text=answer,

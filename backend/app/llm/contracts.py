@@ -8,6 +8,7 @@ from app.rag.contracts import BoundaryDTO, EvidenceChunk, SourceLocator
 class GenerationRequest(BoundaryDTO):
     question: str = Field(min_length=1, max_length=8000)
     evidence: tuple[EvidenceChunk, ...] = Field(min_length=1, max_length=100)
+    images: tuple[dict, ...] = Field(default=())
 
 
 

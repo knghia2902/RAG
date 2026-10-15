@@ -63,6 +63,7 @@ class GroundedGenerator:
         question: str,
         evidence: Sequence[EvidenceChunk],
         history: list[dict] | None = None,
+        images: list[dict] | None = None,
     ) -> GroundedAnswer:
         # 1. Che giấu secrets trong câu hỏi trước khi xử lý (SYS-03)
         masked_question = mask_secrets(question)
@@ -90,14 +91,31 @@ class GroundedGenerator:
                 dataset_id=chunk.dataset_id,
                 locator=chunk.locator,
                 text=masked_chunk_text,
+                images=getattr(chunk, "images", ()),
             )
             selected_evidence.append(selected_chunk)
             current_chars += chunk_len
+
+        # Thu thập danh sách ảnh (ưu tiên tham số images, hoặc lấy từ chunks đã chọn)
+        image_list = list(images or [])
+        if not image_list:
+            seen_img_ids = set()
+            for chk in selected_evidence:
+                for img in getattr(chk, "images", ()):
+                    iid = img.get("image_id")
+                    if iid and iid not in seen_img_ids:
+                        seen_img_ids.add(iid)
+                        image_list.append(img)
+                        if len(image_list) >= 3:
+                            break
+                if len(image_list) >= 3:
+                    break
 
         # 4. Gọi LLM Provider với xử lý ngoại lệ bền bỉ (SYS-05)
         request = GenerationRequest(
             question=masked_question,
             evidence=tuple(selected_evidence),
+            images=tuple(image_list[:3]),
         )
 
         try:
