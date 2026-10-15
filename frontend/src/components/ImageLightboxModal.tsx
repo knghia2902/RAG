@@ -117,122 +117,93 @@ export function ImageLightboxModal({
         position: "fixed",
         inset: 0,
         zIndex: 9999,
-        background: "rgba(15, 23, 42, 0.88)",
+        background: "rgba(15, 23, 42, 0.85)",
+        backdropFilter: "blur(6px)",
+        WebkitBackdropFilter: "blur(6px)",
         display: "flex",
         flexDirection: "column",
         userSelect: "none",
+        animation: "fadeIn 200ms ease",
       }}
     >
-      {/* Top Header / Toolbar */}
+      {/* Top Header / Info Bar */}
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          padding: "12px 24px",
-          background: "rgba(15, 23, 42, 0.75)",
+          padding: "16px 24px",
+          background: "rgba(15, 23, 42, 0.65)",
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
           borderBottom: "1px solid rgba(255, 255, 255, 0.12)",
           color: "#ffffff",
-          zIndex: 10,
+          zIndex: 20,
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "12px", minWidth: 0 }}>
-          <span style={{ fontSize: "14px", fontWeight: "bold", color: "#f8fafc", whiteSpace: "nowrap" }}>
-            🔍 Xem chi tiết sơ đồ / hình ảnh
-          </span>
-          <span
+          <div
             style={{
-              fontSize: "12px",
-              background: "rgba(255, 255, 255, 0.15)",
-              padding: "2px 8px",
-              borderRadius: "4px",
-              color: "#cbd5e1",
+              width: "32px",
+              height: "32px",
+              borderRadius: "8px",
+              background: "rgba(16, 185, 129, 0.2)",
+              border: "1px solid rgba(16, 185, 129, 0.4)",
+              color: "#34d399",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
             }}
           >
-            {Math.round(scale * 100)}%
-          </span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+              <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <span style={{ fontSize: "14px", fontWeight: 600, color: "#f8fafc", display: "block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              {caption || altText || "Xem chi tiết sơ đồ kỹ thuật"}
+            </span>
+            <span style={{ fontSize: "12px", color: "#94a3b8" }}>
+              Cuộn chuột để phóng to/thu nhỏ • Kéo chuột để di chuyển
+            </span>
+          </div>
         </div>
 
-        {/* Controls */}
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <button
-            type="button"
-            onClick={handleZoomIn}
-            title="Phóng to (+)"
-            aria-label="Phóng to"
-            disabled={scale >= 3.0}
-            style={{
-              background: "rgba(255, 255, 255, 0.12)",
-              color: "#ffffff",
-              border: "1px solid rgba(255, 255, 255, 0.25)",
-              borderRadius: "6px",
-              padding: "6px 12px",
-              fontSize: "14px",
-              fontWeight: "bold",
-              cursor: scale >= 3.0 ? "not-allowed" : "pointer",
-              opacity: scale >= 3.0 ? 0.5 : 1,
-            }}
-          >
-            + Phóng to
-          </button>
-          <button
-            type="button"
-            onClick={handleZoomOut}
-            title="Thu nhỏ (-)"
-            aria-label="Thu nhỏ"
-            disabled={scale <= 0.5}
-            style={{
-              background: "rgba(255, 255, 255, 0.12)",
-              color: "#ffffff",
-              border: "1px solid rgba(255, 255, 255, 0.25)",
-              borderRadius: "6px",
-              padding: "6px 12px",
-              fontSize: "14px",
-              fontWeight: "bold",
-              cursor: scale <= 0.5 ? "not-allowed" : "pointer",
-              opacity: scale <= 0.5 ? 0.5 : 1,
-            }}
-          >
-            - Thu nhỏ
-          </button>
-          <button
-            type="button"
-            onClick={handleResetZoom}
-            title="Đặt lại tỉ lệ (1:1)"
-            aria-label="Đặt lại kích thước gốc"
-            style={{
-              background: "rgba(255, 255, 255, 0.12)",
-              color: "#ffffff",
-              border: "1px solid rgba(255, 255, 255, 0.25)",
-              borderRadius: "6px",
-              padding: "6px 12px",
-              fontSize: "13px",
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
-          >
-            1:1 Gốc
-          </button>
-          <button
-            type="button"
-            onClick={onClose}
-            title="Đóng (Esc)"
-            aria-label="Đóng cửa sổ xem ảnh"
-            style={{
-              background: "#dc2626",
-              color: "#ffffff",
-              border: "1px solid #b91c1c",
-              borderRadius: "6px",
-              padding: "6px 14px",
-              fontSize: "14px",
-              fontWeight: "bold",
-              cursor: "pointer",
-              marginLeft: "8px",
-            }}
-          >
-            ✕ Đóng
-          </button>
-        </div>
+        {/* Top Right Close Button */}
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Đóng trình xem ảnh"
+          title="Đóng trình xem ảnh (Esc)"
+          style={{
+            background: "rgba(255, 255, 255, 0.1)",
+            border: "1px solid rgba(255, 255, 255, 0.18)",
+            color: "#f8fafc",
+            borderRadius: "8px",
+            padding: "8px",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            transition: "all 150ms ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "rgba(239, 68, 68, 0.8)";
+            e.currentTarget.style.borderColor = "#ef4444";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
+            e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.18)";
+          }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
       </div>
 
       {/* Main Viewport Container */}
@@ -260,42 +231,198 @@ export function ImageLightboxModal({
             transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
             transformOrigin: "center center",
             transition: isDragging ? "none" : "transform 0.12s ease-out",
-            maxWidth: "90%",
-            maxHeight: "85%",
+            maxWidth: "88%",
+            maxHeight: "80%",
             objectFit: "contain",
-            boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5)",
-            borderRadius: "6px",
+            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.7)",
+            borderRadius: "12px",
+            border: "1px solid rgba(255, 255, 255, 0.15)",
             backgroundColor: "#0f172a",
           }}
         />
       </div>
 
-      {/* Bottom Information & Guide Bar */}
+      {/* Floating Control Dock at Bottom (Glassmorphism) */}
       <div
         style={{
-          padding: "10px 24px",
-          background: "rgba(15, 23, 42, 0.85)",
-          borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+          position: "fixed",
+          bottom: "28px",
+          left: "50%",
+          transform: "translateX(-50%)",
           display: "flex",
-          justifyContent: "space-between",
           alignItems: "center",
-          color: "#cbd5e1",
-          fontSize: "12px",
-          zIndex: 10,
+          gap: "8px",
+          padding: "8px 16px",
+          borderRadius: "9999px",
+          background: "rgba(30, 41, 59, 0.75)",
+          backdropFilter: "blur(14px)",
+          WebkitBackdropFilter: "blur(14px)",
+          border: "1px solid rgba(255, 255, 255, 0.18)",
+          boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.45), 0 8px 10px -6px rgba(0, 0, 0, 0.3)",
+          zIndex: 30,
         }}
       >
-        <div style={{ maxWidth: "60%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-          {caption || altText ? (
-            <span>
-              <strong style={{ color: "#f8fafc" }}>Thông tin:</strong> {caption || altText}
-            </span>
-          ) : (
-            <span>Tài liệu trích dẫn</span>
-          )}
+        {/* Zoom Out Button */}
+        <button
+          type="button"
+          onClick={handleZoomOut}
+          title="Thu nhỏ (-)"
+          aria-label="Thu nhỏ ảnh sơ đồ kỹ thuật"
+          disabled={scale <= 0.5}
+          style={{
+            background: "rgba(255, 255, 255, 0.12)",
+            color: "#ffffff",
+            border: "1px solid rgba(255, 255, 255, 0.2)",
+            borderRadius: "9999px",
+            width: "36px",
+            height: "36px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "16px",
+            fontWeight: "bold",
+            cursor: scale <= 0.5 ? "not-allowed" : "pointer",
+            opacity: scale <= 0.5 ? 0.4 : 1,
+            transition: "all 150ms ease",
+          }}
+          onMouseEnter={(e) => {
+            if (scale > 0.5) e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.25)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.12)";
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+
+        {/* Zoom percentage badge */}
+        <div
+          style={{
+            fontSize: "13px",
+            fontWeight: 700,
+            color: "#ffffff",
+            padding: "4px 10px",
+            borderRadius: "9999px",
+            background: "rgba(255, 255, 255, 0.12)",
+            minWidth: "52px",
+            textAlign: "center",
+            letterSpacing: "0.02em",
+          }}
+        >
+          {Math.round(scale * 100)}%
         </div>
-        <div style={{ color: "#94a3b8" }}>
-          💡 Mẹo: Cuộn chuột để phóng to/thu nhỏ • Nhấn giữ và kéo chuột để di chuyển
-        </div>
+
+        {/* Zoom In Button */}
+        <button
+          type="button"
+          onClick={handleZoomIn}
+          title="Phóng to (+)"
+          aria-label="Phóng to ảnh sơ đồ kỹ thuật"
+          disabled={scale >= 3.0}
+          style={{
+            background: "rgba(255, 255, 255, 0.12)",
+            color: "#ffffff",
+            border: "1px solid rgba(255, 255, 255, 0.2)",
+            borderRadius: "9999px",
+            width: "36px",
+            height: "36px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "16px",
+            fontWeight: "bold",
+            cursor: scale >= 3.0 ? "not-allowed" : "pointer",
+            opacity: scale >= 3.0 ? 0.4 : 1,
+            transition: "all 150ms ease",
+          }}
+          onMouseEnter={(e) => {
+            if (scale < 3.0) e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.25)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.12)";
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+
+        {/* Divider */}
+        <div style={{ width: "1px", height: "20px", background: "rgba(255, 255, 255, 0.2)", margin: "0 2px" }} />
+
+        {/* Reset Zoom Button */}
+        <button
+          type="button"
+          onClick={handleResetZoom}
+          title="Đặt lại kích thước ban đầu (1:1)"
+          aria-label="Đặt lại kích thước ban đầu"
+          style={{
+            background: "rgba(255, 255, 255, 0.12)",
+            color: "#ffffff",
+            border: "1px solid rgba(255, 255, 255, 0.2)",
+            borderRadius: "9999px",
+            padding: "6px 12px",
+            fontSize: "13px",
+            fontWeight: 600,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            transition: "all 150ms ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.25)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.12)";
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+            <path d="M3 3v5h5"></path>
+          </svg>
+          1:1
+        </button>
+
+        {/* Divider */}
+        <div style={{ width: "1px", height: "20px", background: "rgba(255, 255, 255, 0.2)", margin: "0 2px" }} />
+
+        {/* Close Button */}
+        <button
+          type="button"
+          onClick={onClose}
+          title="Đóng (Esc)"
+          aria-label="Đóng trình xem ảnh"
+          style={{
+            background: "rgba(220, 38, 38, 0.8)",
+            color: "#ffffff",
+            border: "1px solid rgba(239, 68, 68, 0.8)",
+            borderRadius: "9999px",
+            padding: "6px 14px",
+            fontSize: "13px",
+            fontWeight: 600,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            transition: "all 150ms ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "#dc2626";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "rgba(220, 38, 38, 0.8)";
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+          Đóng
+        </button>
       </div>
     </div>
   );
