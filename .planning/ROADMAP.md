@@ -233,6 +233,28 @@ Workflow tự động, granularity standard, kế hoạch độc lập có thể
 **Wave 4** *(blocked on Wave 2 & 3)*
 - [x] 07-04-PLAN.md — Frontend Image Citations, Evidence Preview & Lightbox Modal
 
+
+### Phase 8: UI Redesign with Pastel Green and White Theme
+
+**Goal:** Tái thiết kế toàn bộ giao diện Web (Frontend) theo phong cách hiện đại (Clean, High-taste Design), sử dụng bảng màu chủ đạo là nền trắng tinh tế kết hợp điểm nhấn xanh lá pastel nhẹ nhàng (Soft Pastel Green / Sage), typography sắc nét, viền mờ tinh tế và hiệu ứng chuyển động mượt mà cho toàn bộ các trang (Login, Datasets, Chat, Incidents, Reports, Configuration, Evidence Preview, Lightbox).
+**Mode:** enhancement
+**Depends on:** Phase 7
+**Requirements:** DATA-05, RETR-03, INC-01, REP-01 (nâng cấp thẩm mỹ UI)
+**UI hint:** yes
+**Success Criteria:**
+
+1. Xây dựng hệ thống Design Tokens và bảng màu chuẩn hóa (White/Off-white `#ffffff` / `#f8fafc`, Pastel Green Accent `#10b981` / `#34d399` / `#ecfdf5`, Viền mềm `#e2e8f0` / `#d1fae5`, Typography hiện đại Inter/Geist).
+2. Thiết kế lại thanh điều hướng (Navbar) và App Shell: phong cách tối giản, logo/icon đồng bộ, trạng thái active trang nhã và chỉ báo vai trò tài khoản rõ ràng.
+3. Làm mới giao diện Hỏi đáp Tri thức (Chat): bong bóng tin nhắn mềm mại, thẻ trích dẫn [1], [2] phong cách pastel green, thumbnail hình ảnh kỹ thuật bo tròn và hiệu ứng hover nhẹ nhàng.
+4. Tối ưu hóa panel Bằng chứng nguồn (EvidencePreview) và Lightbox Modal xem ảnh chi tiết với thanh công cụ tinh gọn, trực quan.
+5. Thiết kế lại trang Đăng nhập (/login), Quản trị Dataset (/datasets), Phân tích sự cố (/incidents), Báo cáo (/reports), và Cấu hình mô hình (/configuration) đồng bộ phong cách.
+6. Đảm bảo toàn bộ 100% tính năng hiện hữu hoạt động nguyên vẹn, kiểm tra phân quyền ACL không đổi và hoàn thành biên dịch Next.js Turbopack 11 static routes.
+
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 8 to break down)
+
 ## Coverage and Quality Gates
 
 35/35 v1 requirements map exactly once. AUTH-04 được sở hữu phase 1, nhưng mọi chức năng thêm từ phase 2–5 phải có kiểm chứng quyền tại thời điểm triển khai; phase 6 là kiểm tra tổng hợp, không trì hoãn bảo mật đến cuối. Tương tự citations, retry và số liệu phải được test trong phase tạo chức năng.
@@ -250,8 +272,10 @@ Chi tiết models, parser packages, queue implementation, timezone/report rules 
 | 5. On-Demand Incident Reports and PDF | 4/4 | Complete    | 2026-10-14 |
 | 6. MVP Reliability and Acceptance | 4/4 | Complete    | 2026-10-14 |
 | 7. Multimodal Document Image Extraction and Citations | 4/4 | Complete    | 2026-10-15 |
+| 8. UI Redesign with Pastel Green and White Theme | 0/0 | Not started | - |
 
 ---
-*Created: 2026-10-03. Updated: 2026-10-15 with Phase 7 completed (4/4 plans).*
+*Created: 2026-10-03. Updated: 2026-10-15 with Phase 8 addition.*
+
 
 
