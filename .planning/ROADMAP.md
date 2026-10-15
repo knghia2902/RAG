@@ -255,7 +255,7 @@ Workflow tự động, granularity standard, kế hoạch độc lập có thể
 - [x] 08-01-PLAN.md — Design Tokens, Global CSS & Workspace Shell Redesign
 
 **Wave 2** *(blocked on Wave 1)*
-- [ ] 08-02-PLAN.md — Knowledge Chat, Multimodal Citations & Lightbox Redesign
+- [x] 08-02-PLAN.md — Knowledge Chat, Multimodal Citations & Lightbox Redesign
 - [ ] 08-03-PLAN.md — Datasets Management & Access Control Redesign
 
 **Wave 3** *(blocked on Wave 2)*
