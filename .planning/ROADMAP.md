@@ -202,6 +202,27 @@ Workflow tự động, granularity standard, kế hoạch độc lập có thể
 - [x] 06-03-PLAN.md — Latency Benchmarking Harness & Operational Limits Validation
 - [x] 06-04-PLAN.md — One-Click Demo Walkthrough Script, Operations Runbook & Evaluation Report
 
+
+### Phase 7: Multimodal Document Image Extraction and Citations
+
+**Goal:** Trích xuất hình ảnh tài liệu (PDF/DOCX/datasheets, sơ đồ mạng, bảng biểu hình ảnh), lưu trữ bảo mật cục bộ, hỗ trợ RAG đa phương thức và hiển thị hình ảnh kèm trích dẫn dòng/trang trong câu trả lời AI và giao diện xem bằng chứng.
+**Mode:** enhancement
+**Depends on:** Phase 6
+**Requirements:** DATA-02, DATA-03, RETR-03 (mở rộng multimodal)
+**UI hint:** yes
+**Success Criteria:**
+
+1. Trích xuất tự động các hình ảnh đính kèm trong PDF/DOCX (sơ đồ kết nối, ảnh giao diện, bảng ảnh trong datasheet) và lưu trữ cục bộ bảo mật theo dataset ACL.
+2. Lưu vị trí trích xuất (trang, bounding box hoặc số thứ tự hình/dòng liên kết trong tài liệu nguồn) và liên kết metadata với chunk ngữ cảnh.
+3. Mở rộng RAG retriever / LLM generation để gửi và trích dẫn hình ảnh phù hợp khi câu hỏi liên quan đến sơ đồ, giao diện hoặc cấu hình trực quan.
+4. Giao diện Citation modal và khung chat hiển thị ảnh trích dẫn trực quan kèm số dòng/trang và link nguồn để kỹ thuật viên kiểm tra đối chiếu.
+5. Đảm bảo kiểm tra quyền truy cập dataset trước khi trả về URL/file ảnh, không để rò rỉ hình ảnh ngoài dataset được phân quyền.
+
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 7 to break down)
+
 ## Coverage and Quality Gates
 
 35/35 v1 requirements map exactly once. AUTH-04 được sở hữu phase 1, nhưng mọi chức năng thêm từ phase 2–5 phải có kiểm chứng quyền tại thời điểm triển khai; phase 6 là kiểm tra tổng hợp, không trì hoãn bảo mật đến cuối. Tương tự citations, retry và số liệu phải được test trong phase tạo chức năng.
@@ -218,6 +239,8 @@ Chi tiết models, parser packages, queue implementation, timezone/report rules 
 | 4. Logistics Incident and Ticket Analysis | 5/5 | Complete    | 2026-10-14 |
 | 5. On-Demand Incident Reports and PDF | 4/4 | Complete    | 2026-10-14 |
 | 6. MVP Reliability and Acceptance | 4/4 | Complete    | 2026-10-14 |
+| 7. Multimodal Document Image Extraction and Citations | 0/0 | Not started | - |
 
 ---
-*Created: 2026-10-03. Updated: 2026-10-14 after Phase 6 completion and full MVP acceptance.*
+*Created: 2026-10-03. Updated: 2026-10-15 with Phase 7 addition.*
+
