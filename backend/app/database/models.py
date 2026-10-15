@@ -227,4 +227,28 @@ class Report(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True, nullable=False)
 
 
+class ExtractedImage(Base):
+    __tablename__ = "extracted_images"
+    __table_args__ = (
+        Index("ix_extracted_images_dataset_source", "dataset_id", "source_version_id"),
+        Index("ix_extracted_images_source_page", "source_version_id", "page_number"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    source_version_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("source_versions.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    dataset_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("datasets.id"), index=True, nullable=False)
+    page_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    image_type: Mapped[str] = mapped_column(String(32), default="embedded", nullable=False)  # 'embedded' or 'rendered_page'
+    storage_path: Mapped[str] = mapped_column(String(512), nullable=False)
+    mime_type: Mapped[str] = mapped_column(String(64), default="image/png", nullable=False)
+    width: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    height: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    size_bytes: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    caption: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+
+
+
 

@@ -14,6 +14,7 @@ from app.database.models import (
     Dataset,
     DatasetGrant,
     EmbeddingRecord,
+    ExtractedImage,
     ImportJob,
     IncidentAnalysis,
     LoginRateBucket,
@@ -34,6 +35,7 @@ def reset_database():
         db.execute(Source.__table__.update().values(active_version_id=None))
         for model in (
             Report,
+            ExtractedImage,
             IncidentAnalysis,
             EmbeddingRecord,
             ChatMessage,

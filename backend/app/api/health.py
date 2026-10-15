@@ -21,6 +21,7 @@ def database_ready() -> bool:
                 "0003_pgvector_and_chat",
                 "0004_incident_analysis",
                 "0005_incident_reports",
+                "0006_extracted_images",
             )
     except Exception:
         # Never expose driver messages, connection strings or credentials.
